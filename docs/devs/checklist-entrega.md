@@ -1,6 +1,6 @@
 # Checklist d'entrega — agent_femturisme
 
-**Progrés:** 14 / 90 completats · **Última actualització:** 2026-07-03
+**Progrés:** 15 / 90 completats · **Última actualització:** 2026-07-03
 
 > Els agents marquen `- [x]` quan el criteri **Detect** es compleix. Veure [index.md](index.md).
 
@@ -61,7 +61,7 @@
 - [x] **DEV-100** — Dockerfile + docker-compose  
   *Detect:* `Dockerfile` + `docker-compose.yml` a l'arrel
 - [ ] **DEV-101** — `requirements.txt` complet (Flask, MySQL, PostgreSQL, pytest, embeddings…)  
-  *Detect:* deps instal·lables; sense deps només de scraping com a única font
+  *Detect:* deps instal·lables; pytest a requirements.txt
 - [ ] **DEV-102** — `app/config.py` amb `AGENT_*`, `MYSQL_*`, `POSTGRES_*`, embeddings  
   *Detect:* variables llegides des de `.env.example`
 - [ ] **DEV-103** — `GET /health` (MySQL + PostgreSQL + servei)  
@@ -85,8 +85,8 @@
 
 - [ ] **DEV-200** — Estructura `app/db/` (`connection.py`, `mappers.py`, `repositories/`)  
   *Detect:* directoris creats segons arquitectura
-- [ ] **DEV-201** — `tests/conftest.py` + fixture Flask app  
-  *Detect:* `pytest` arrenca sense errors
+- [x] **DEV-201** — `tests/conftest.py` + fixture Flask app  
+  *Detect:* `pytest` arrenca sense errors; API-01…04 passen
 - [ ] **DEV-202** — Mapatge `search_establishments` a `sql-mapeo.md`  
   *Detect:* SQL + casos prova SQL-01/02
 - [ ] **DEV-203** — Mapatge `search_articles`  

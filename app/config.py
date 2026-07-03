@@ -31,8 +31,16 @@ class ProductionConfig(Config):
     DEBUG = False
 
 
+class TestingConfig(Config):
+    TESTING = True
+    DEBUG = True
+    LLM_PROVIDER = 'dummy'
+    MAX_TOOL_ITERATIONS = 3
+
+
 config = {
     'development': DevelopmentConfig,
     'production':  ProductionConfig,
+    'testing':     TestingConfig,
     'default':     DevelopmentConfig,
 }

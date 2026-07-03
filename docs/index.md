@@ -49,6 +49,7 @@ Documentació del projecte de l'assistent turístic per a **femturisme.cat**.
 | [Mapeig SQL](sql-mapeo.md) | 6 buscadors MySQL — SQL TODO |
 | [Schema PostgreSQL agent](postgre_schema.md) | Base documental, chunks, pgvector |
 | [Text-to-SQL vs tools](text-to-sql-desventajas.md) | Decisió arquitectònica |
+| **[Tests (pytest)](devs/testing.md)** | API-01…04, SQL-01…07, com executar |
 
 ### Skills Cursor (workflow issues)
 

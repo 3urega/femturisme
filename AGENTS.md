@@ -48,7 +48,7 @@ docs/sql-mapeo.md                           ← SQL concreta per buscador
 | Si estàs… | Llegeix (en ordre) |
 |-----------|-------------------|
 | **Planificant qualsevol feature** | [dominio-femturisme-ca.md](docs/client/dominio-femturisme-ca.md) → [docs/devs/checklist-entrega.md](docs/devs/checklist-entrega.md) (pas obert) → docs client |
-| **Implementant codi Python (qualsevol)** | [docs/arquitectura/index.md](docs/arquitectura/index.md) → [capas-y-modulos.md](docs/arquitectura/capas-y-modulos.md) → [patrones-y-convenciones.md](docs/arquitectura/patrones-y-convenciones.md) |
+| **Implementant codi Python (qualsevol)** | [docs/arquitectura/index.md](docs/arquitectura/index.md) → [capas-y-modulos.md](docs/arquitectura/capas-y-modulos.md) → [patrones-y-convenciones.md](docs/arquitectura/patrones-y-convenciones.md) → [docs/devs/testing.md](docs/devs/testing.md) |
 | **Implementant un buscador de catàleg** | domini → [tecnic.md](docs/client/tecnic.md) §6 → arquitectura → [sql-mapeo.md](docs/sql-mapeo.md) → [fase-3-tools-mysql-ca.md](docs/fase-3-tools-mysql-ca.md) |
 | **Implementant guies PDF / RAG** | domini §4.7 → [postgre_schema.md](docs/postgre_schema.md) → especificació tècnica §6–7 → [plan-integracion-ca.md](docs/plan-integracion-ca.md) Fases 5–6 |
 | **Integrant widget PHP / proxy** | [document-funcional-client-ca.md](docs/client/document-funcional-client-ca.md) §3.1 → especificació tècnica §3–4 → [especificacio-funcional-ca.md](docs/client/especificacio-funcional-ca.md) RF-01xx |
@@ -58,6 +58,7 @@ docs/sql-mapeo.md                           ← SQL concreta per buscador
 | **Roadmap per fases complet** | [plan-integracion-ca.md](docs/plan-integracion-ca.md) (nota: alguns apartats encara mencionen 4 tools; domini fa fe) |
 | **Índex general docs** | [docs/index.md](docs/index.md) |
 | **Checklist entrega (devs)** | [docs/devs/checklist-entrega.md](docs/devs/checklist-entrega.md) |
+| **Tests** | [docs/devs/testing.md](docs/devs/testing.md) |
 | **Issues GitHub (workflow agent)** | `.cursor/skills/plan-to-issues` → `publish-github-issues` → `kanban-board` |
 
 ### 2.3 Diagrama de domini (referència ràpida)

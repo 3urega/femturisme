@@ -18,6 +18,7 @@ Guia d'entrada per implementar i lliurar l'assistent de **femturisme.cat** des d
 | 4 | [tecnic.md](../client/tecnic.md) | API, tools, desplegament |
 | 5 | [arquitectura/index.md](../arquitectura/index.md) | Capes, patrons, codi nou |
 | 6 | [checklist-entrega.md](checklist-entrega.md) | Passos amb checkboxes |
+| 7 | [testing.md](testing.md) | pytest, API-01…04, SQL-01…07 |
 
 ---
 
@@ -85,6 +86,7 @@ Actualitzar també el comptador de progrés al cap del checklist.
 |------|-----------|
 | MySQL | [fase-2-tools-mysql-ca.md](../fase-2-tools-mysql-ca.md), [fase-3-tools-mysql-ca.md](../fase-3-tools-mysql-ca.md), [sql-mapeo.md](../sql-mapeo.md) |
 | Agent / SSE | [agente.md](../agente.md) |
+| Tests | [testing.md](testing.md) |
 | PostgreSQL / RAG | [postgre_schema.md](../postgre_schema.md), [schema-agent-postgres.sql](../schema-agent-postgres.sql) |
 | Roadmap | [plan-integracion-ca.md](../plan-integracion-ca.md) |
 | Legacy (no perpetuar) | [scraping-y-respuestas.md](../scraping-y-respuestas.md) |
