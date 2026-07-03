@@ -8,6 +8,22 @@ Guia d'entrada per implementar i lliurar l'assistent de **femturisme.cat** des d
 
 ---
 
+## Arrancar ràpid (local)
+
+```powershell
+python -m venv .venv
+.\.venv\Scripts\Activate.ps1
+python -m pip install -r requirements.txt
+copy .env.example .env
+python main.py
+```
+
+→ http://127.0.0.1:5010 · Guia completa: **[desenvolupament-local.md](desenvolupament-local.md)**
+
+Configura el `.env` amb el **provider LLM i l'API key del client** abans de provar el xat (el mode `dummy` és només per `pytest`).
+
+---
+
 ## Ordre de lectura (abans de codificar)
 
 | Ordre | Document | Per què |

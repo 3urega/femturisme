@@ -80,6 +80,8 @@ python main.py
 
 Obre http://127.0.0.1:5010 · Tests: `python -m pytest -v`
 
+Copia `.env.example` → `.env` i afegeix l'**API key del client** al provider LLM (`anthropic`, `openai` o `gemini`).
+
 ### Documentació MkDocs (previsualitzar docs)
 
 ```powershell

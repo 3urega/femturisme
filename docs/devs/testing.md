@@ -53,7 +53,7 @@ tests/
 | API-03 | `test_api_03_chat_catalog_tool_flow` | Rutes + mock tool → tool_call/result/done |
 | API-04 | `test_api_04_session_reset_ok` | Reset sessió → `ok: true` |
 
-Usa `LLM_PROVIDER=dummy` via `TestingConfig`. API-03 mocka `execute_tool` (sense scraping).
+Usa `LLM_PROVIDER=dummy` via `TestingConfig`. Això **no afecta** el teu `.env` quan executes `python main.py` amb la API key del client.
 
 ---
 

@@ -6,6 +6,28 @@ Guia completa per treballar al dia a dia **sense Docker** a l'ordinador de desen
 
 ---
 
+## Arrancar ràpid
+
+```powershell
+python -m venv .venv
+.\.venv\Scripts\Activate.ps1
+python -m pip install -r requirements.txt
+copy .env.example .env
+# Edita .env: AGENT_LLM_PROVIDER + API key del client
+python main.py
+```
+
+| Resultat | URL / comanda |
+|----------|----------------|
+| Xat demo | http://127.0.0.1:5010 |
+| Tests | `python -m pytest -v` |
+
+Configura el **LLM real** al `.env` (API key del client). Veure [§7 Variables d'entorn](#7-variables-dentorn-env).
+
+Primera vegada? Llegeix [§4 Configuració inicial](#4-configuració-inicial-primera-vegada) i [§13 Solució de problemes](#13-solució-de-problemes-windows).
+
+---
+
 ## 1. Decisió d'arquitectura
 
 | Entorn | Runtime | On s'executa |
@@ -40,7 +62,7 @@ flowchart TB
   subgraph remote ["Serveis remots (no al teu PC)"]
     MYSQL["MySQL staging read-only"]
     PG["PostgreSQL gestionat + pgvector"]
-    LLM["API LLM (opcional en dev)"]
+    LLM["API LLM (clau client)"]
   end
 
   subgraph deploy ["Staging / producció"]
@@ -51,7 +73,7 @@ flowchart TB
 
   FLASK -.->|"Fase 3+"| MYSQL
   FLASK -.->|"Fase 5+"| PG
-  FLASK -.->|"opcional"| LLM
+  FLASK --> LLM
   DOCKER --> MYSQL
   DOCKER --> PG
   DOCKER --> LLM
@@ -165,25 +187,31 @@ No és un error: són dos entorns diferents. En dev local treballa amb **5010**.
 
 Plantilla: `.env.example`. El codi llegeix variables amb prefix opcional `AGENT_` (veure `app/config.py`).
 
-### 7.1 Mínim per començar (Fase actual)
+### 7.1 LLM en dev local (recomanat)
+
+En local podeu usar el **mateix provider i API key del client** que en staging/producció. Això és el flux normal de desenvolupament: el xat respon amb el LLM real i crida tools com tocarà en producció.
 
 ```env
 AGENT_SECRET_KEY=dev-local-change-me
-AGENT_LLM_PROVIDER=dummy
-AGENT_MAX_TOOL_ITERATIONS=5
-```
-
-Amb `dummy` no cal cap API key de LLM. El proveïdor dummy simula crides a tools segons paraules clau (rutes, hotels, events…).
-
-### 7.2 Provar amb LLM real (opcional)
-
-```env
 AGENT_LLM_PROVIDER=anthropic
 AGENT_ANTHROPIC_API_KEY=sk-ant-...
 AGENT_ANTHROPIC_MODEL=claude-haiku-4-5-20251001
+AGENT_MAX_TOOL_ITERATIONS=5
 ```
 
-Alternatives: `openai`, `gemini` (veure `.env.example`).
+| Provider | Variables |
+|----------|-----------|
+| Anthropic | `AGENT_LLM_PROVIDER=anthropic` + `AGENT_ANTHROPIC_API_KEY` |
+| OpenAI | `AGENT_LLM_PROVIDER=openai` + `AGENT_OPENAI_API_KEY` |
+| Gemini | `AGENT_LLM_PROVIDER=gemini` + `AGENT_GEMINI_API_KEY` |
+
+**Seguretat:** la clau va **només** al `.env` (gitignored). No la commitis ni la posis al repo.
+
+### 7.2 Mode `dummy` (només tests automàtics)
+
+`AGENT_LLM_PROVIDER=dummy` simula respostes i crides a tools per paraules clau. **No cal** per arrencar `python main.py` si tens API key.
+
+S'usa automàticament a `pytest` via `TestingConfig` (sense xarxa externa ni cost d'API). Per provar el xat manualment, usa el provider real del [§7.1](#71-llm-en-dev-local-recomanat).
 
 ### 7.3 MySQL staging (Fase 3 — buscadors)
 
@@ -217,7 +245,8 @@ Instància gestionada amb extensió **pgvector**. No instal·lar PostgreSQL al W
 
 | Fase | `.env` necessari en local |
 |------|---------------------------|
-| Agent + tests (ara) | `AGENT_*` + `dummy` |
+| Agent + xat manual | `AGENT_*` + provider real + API key client |
+| `pytest` (automàtic) | `TestingConfig` → `dummy` (no cal canviar el teu `.env`) |
 | Fase 2–3 MySQL | + `MYSQL_*` (staging remot) |
 | Fase 4 widget PHP | Agent en `:5010`; proxy PHP a staging |
 | Fase 5 RAG | + `POSTGRES_*` (cloud) |
@@ -336,7 +365,7 @@ Per cada feature:
 | Port app | 5010 | 5080 (compose actual) |
 | MySQL | Remot (tunnel si cal) | Xarxa interna client |
 | PostgreSQL | URL cloud o omit (F1) | Instància gestionada |
-| LLM | `dummy` habitual | Provider real |
+| LLM | Provider real + clau client | Mateix provider al `.env` staging |
 | Historial xat | Memòria (`agent_service`) | Mateix v1; Redis/DB si escala |
 | Scraping legacy | Evitar | No en producció |
 | Tests automàtics | `pytest` al PC | Recomanable CI (GitHub Actions) |
@@ -370,11 +399,16 @@ Venv no actiu o deps no instal·lades:
 python -m pip install -r requirements.txt
 ```
 
-### El xat no crida tools (només text dummy)
+### El xat no crida tools
 
-- Comprova `AGENT_LLM_PROVIDER=dummy` al `.env`.
-- El missatge ha de contenir paraules clau (p. ex. «rutes», «hotel», «event»).
-- En tests, API-03 mocka `execute_tool` ([testing.md](testing.md)).
+- Comprova que `AGENT_LLM_PROVIDER` i la API key al `.env` són correctes.
+- Revisa la pregunta: el LLM ha de triar la tool adequada (veure [agente.md](../agente.md)).
+- Si estàs en mode `dummy` (només tests), cal paraules clau com «rutes», «hotel», «event».
+
+### Error d'autenticació LLM (401 / invalid API key)
+
+- Verifica la clau al `.env` (sense espais ni cometes extra).
+- Confirma que el provider coincideix (`anthropic` vs `openai` vs `gemini`).
 
 ### Port 5010 ocupat
 
