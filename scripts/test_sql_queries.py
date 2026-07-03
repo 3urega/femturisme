@@ -3,12 +3,14 @@
 from __future__ import annotations
 
 import argparse
-import importlib.util
 import sys
+from pathlib import Path
+
+_ROOT = Path(__file__).resolve().parent.parent
 
 
 def _connection_module_exists() -> bool:
-    return importlib.util.find_spec('app.db.connection') is not None
+    return (_ROOT / 'app' / 'db' / 'connection.py').is_file()
 
 
 def ping() -> int:

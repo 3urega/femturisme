@@ -8,17 +8,19 @@ Guia d'execució de tests automatitzats. Mapatge amb [tecnic.md §14](../client/
 
 ```bash
 # Instal·lar deps (inclou pytest)
-pip install -r requirements.txt
+python -m pip install -r requirements.txt
 
 # Per defecte: API + unit (sense MySQL)
-pytest -v
+python -m pytest -v
 
 # Només tests d'integració SQL (requereix MYSQL_* i repositories)
-pytest -m integration -v
+python -m pytest -m integration -v
 
 # Tot excepte integració amb cobertura
-pytest -v --cov=app --cov-report=term-missing
+python -m pytest -v --cov=app --cov-report=term-missing
 ```
+
+Veure també [desenvolupament-local.md](desenvolupament-local.md) per venv i entorn Windows.
 
 ---
 
@@ -99,6 +101,7 @@ Retorna 0 amb missatge «not implemented» fins que existeixi `app/db/connection
 
 ## Referències
 
+- [desenvolupament-local.md](desenvolupament-local.md) — entorn Windows, venv, ports, MySQL remot
 - [patrones-y-convenciones.md](../arquitectura/patrones-y-convenciones.md) §8
 - [fase-3-tools-mysql-ca.md](../fase-3-tools-mysql-ca.md) §8.3
 - [checklist-entrega.md](checklist-entrega.md) DEV-201, DEV-603

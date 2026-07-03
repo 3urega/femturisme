@@ -67,8 +67,8 @@ _TOOL_KEYWORDS: dict[str, list[str]] = {
         'agenda', 'calendari', 'calendar', 'festa', 'fiesta',
     ],
     'search_routes': [
-        'ruta', 'route', 'senderisme', 'hiking', 'trekking', 'camí', 'camino',
-        'trail', 'bici', 'bicicleta', 'cycling',
+        'ruta', 'rutes', 'route', 'routes', 'senderisme', 'hiking', 'trekking',
+        'camí', 'camino', 'trail', 'bici', 'bicicleta', 'cycling',
     ],
 }
 

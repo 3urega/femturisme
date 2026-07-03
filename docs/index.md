@@ -50,6 +50,7 @@ Documentació del projecte de l'assistent turístic per a **femturisme.cat**.
 | [Schema PostgreSQL agent](postgre_schema.md) | Base documental, chunks, pgvector |
 | [Text-to-SQL vs tools](text-to-sql-desventajas.md) | Decisió arquitectònica |
 | **[Tests (pytest)](devs/testing.md)** | API-01…04, SQL-01…07, com executar |
+| **[Desenvolupament local (Windows)](devs/desenvolupament-local.md)** | Python natiu, sense Docker; staging/prod amb Docker |
 
 ### Skills Cursor (workflow issues)
 
@@ -64,6 +65,22 @@ Veure [docs/issues/README.md](issues/README.md).
 ---
 
 ## Desenvolupament local
+
+### Agent Python (servei Flask)
+
+Guia completa: **[devs/desenvolupament-local.md](devs/desenvolupament-local.md)** — venv, `python main.py`, tests, MySQL remot, Docker només staging/prod.
+
+```powershell
+python -m venv .venv
+.\.venv\Scripts\Activate.ps1
+python -m pip install -r requirements.txt
+copy .env.example .env
+python main.py
+```
+
+Obre http://127.0.0.1:5010 · Tests: `python -m pytest -v`
+
+### Documentació MkDocs (previsualitzar docs)
 
 ```powershell
 pip install -r requirements-docs.txt

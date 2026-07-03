@@ -17,8 +17,9 @@ Guia d'entrada per implementar i lliurar l'assistent de **femturisme.cat** des d
 | 3 | [funcional.md](../client/funcional.md) | Comportament agent, modes operatius |
 | 4 | [tecnic.md](../client/tecnic.md) | API, tools, desplegament |
 | 5 | [arquitectura/index.md](../arquitectura/index.md) | Capes, patrons, codi nou |
-| 6 | [checklist-entrega.md](checklist-entrega.md) | Passos amb checkboxes |
-| 7 | [testing.md](testing.md) | pytest, API-01…04, SQL-01…07 |
+| 6 | **[desenvolupament-local.md](desenvolupament-local.md)** | **Python Windows, sense Docker; staging/prod amb Docker** |
+| 7 | [checklist-entrega.md](checklist-entrega.md) | Passos amb checkboxes |
+| 8 | [testing.md](testing.md) | pytest, API-01…04, SQL-01…07 |
 
 ---
 
@@ -29,7 +30,7 @@ Fase 0   Documentació + acords          (parcialment feta)
    ↓
 Fase A   Pre-requisits client           (MySQL schema, accés, staging)
    ↓
-Fase 1   Servei Python base             (Docker, /api/chat, /health)
+Fase 1   Servei Python base             (/api/chat, /health; Docker només staging/prod)
    ↓
 Fase 2   Exploració MySQL + sql-mapeo   (Q-01…Q-08)
    ↓
@@ -84,6 +85,7 @@ Actualitzar també el comptador de progrés al cap del checklist.
 
 | Fase | Docs clau |
 |------|-----------|
+| **Entorn local** | **[desenvolupament-local.md](desenvolupament-local.md)** |
 | MySQL | [fase-2-tools-mysql-ca.md](../fase-2-tools-mysql-ca.md), [fase-3-tools-mysql-ca.md](../fase-3-tools-mysql-ca.md), [sql-mapeo.md](../sql-mapeo.md) |
 | Agent / SSE | [agente.md](../agente.md) |
 | Tests | [testing.md](testing.md) |

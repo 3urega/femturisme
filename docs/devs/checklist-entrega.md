@@ -75,7 +75,7 @@
 - [x] **DEV-107** — Widget JS demo (SSE + Markdown)  
   *Detect:* `app/static/js/chat.js`
 - [ ] **DEV-108** — Desplegament staging Docker verificat  
-  *Detect:* servei accessible; `/health` 200
+  *Detect:* servei accessible al servidor staging; `/health` 200. **No** cal executar Docker al PC de dev (veure [desenvolupament-local.md](desenvolupament-local.md)).
 - [ ] **DEV-109** — `.env.example` sense secrets (plantilla completa)  
   *Detect:* fitxer documentat a tecnic §10.2
 
