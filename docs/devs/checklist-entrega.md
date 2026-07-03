@@ -1,0 +1,266 @@
+# Checklist d'entrega — agent_femturisme
+
+**Progrés:** 14 / 90 completats · **Última actualització:** 2026-07-03
+
+> Els agents marquen `- [x]` quan el criteri **Detect** es compleix. Veure [index.md](index.md).
+
+**Referències:** [requeriments.md](../client/requeriments.md) · [funcional.md](../client/funcional.md) · [tecnic.md](../client/tecnic.md) · [dominio-femturisme-ca.md](../client/dominio-femturisme-ca.md)
+
+---
+
+## Fase 0 — Documentació i preparació equip
+
+- [x] **DEV-001** — Domini de negoci documentat (`docs/client/dominio-femturisme-ca.md`, 6 buscadors + entitats)  
+  *Detect:* fitxer existeix; distincions agenda/experiències/establiments
+- [x] **DEV-002** — Presa de requeriments (RF, CA, Fases 1/2)  
+  *Detect:* `docs/client/requeriments.md` complet
+- [x] **DEV-003** — Disseny funcional (modes, fonts, tools)  
+  *Detect:* `docs/client/funcional.md` complet
+- [x] **DEV-004** — Disseny tècnic v2.1 (API, tools, fases, ADRs)  
+  *Detect:* `docs/client/tecnic.md` complet
+- [x] **DEV-005** — Docs d'arquitectura per codi nou  
+  *Detect:* `docs/arquitectura/` (index, capes, patrons, estat actual)
+- [x] **DEV-006** — `AGENTS.md` amb mapa de docs i constraints  
+  *Detect:* fitxer a l'arrel del repo
+- [x] **DEV-007** — Schema PostgreSQL agent documentat + DDL  
+  *Detect:* `docs/postgre_schema.md` + `docs/schema-agent-postgres.sql`
+- [x] **DEV-008** — Índex i checklist developers  
+  *Detect:* `docs/devs/index.md` + aquest fitxer
+- [x] **DEV-009** — Skills Cursor (plan → publish → kanban)  
+  *Detect:* `.cursor/skills/plan-to-issues`, `publish-github-issues`, `kanban-board`
+- [ ] **DEV-010** — `sql-mapeo.md` complet (6 buscadors, SQL provada)  
+  *Detect:* cap secció TBD; totes les queries amb casos prova
+- [ ] **DEV-011** — Issues GitHub del roadmap publicades  
+  *Detect:* `gh issue list --repo 3urega/femturisme` amb batch Fase 1–3
+
+---
+
+## Fase A — Pre-requisits del client i ops
+
+- [ ] **DEV-020** — `docs/schema.sql` MySQL (estructura sense dades)  
+  *Detect:* fitxer al repo o enllaç documentat; client l'ha aportat
+- [ ] **DEV-021** — Usuari MySQL `agent_read` (SELECT only) creat  
+  *Detect:* credencials a `.env` staging; connexió OK
+- [ ] **DEV-022** — Accés MySQL staging/replica per desenvolupament  
+  *Detect:* query de prova des del servei agent
+- [ ] **DEV-023** — PostgreSQL staging amb extensió pgvector  
+  *Detect:* `CREATE EXTENSION vector` OK; connexió des de Python
+- [ ] **DEV-024** — Preguntes obertes Q-01…Q-08 resoltes amb client  
+  *Detect:* `tecnic.md` §8.3 sense TBD crítics; `sql-mapeo.md` alimentat
+- [ ] **DEV-025** — URLs canòniques per tipus de fitxa validades  
+  *Detect:* documentades a `sql-mapeo.md` per buscador
+- [ ] **DEV-026** — Regles publicació / vigència / idioma definides  
+  *Detect:* secció a `sql-mapeo.md` o domini §7 tancada
+- [ ] **DEV-027** — Xarxa staging PHP ↔ Python ↔ MySQL/PostgreSQL  
+  *Detect:* proxy de prova funcional o document d'infra signat
+
+---
+
+## Fase 1 — Servei Python base (tecnic §15.1)
+
+- [x] **DEV-100** — Dockerfile + docker-compose  
+  *Detect:* `Dockerfile` + `docker-compose.yml` a l'arrel
+- [ ] **DEV-101** — `requirements.txt` complet (Flask, MySQL, PostgreSQL, pytest, embeddings…)  
+  *Detect:* deps instal·lables; sense deps només de scraping com a única font
+- [ ] **DEV-102** — `app/config.py` amb `AGENT_*`, `MYSQL_*`, `POSTGRES_*`, embeddings  
+  *Detect:* variables llegides des de `.env.example`
+- [ ] **DEV-103** — `GET /health` (MySQL + PostgreSQL + servei)  
+  *Detect:* endpoint retorna 200 amb estat de connexions
+- [x] **DEV-104** — `POST /api/chat` amb SSE (`tool_call`, `tool_result`, `text_chunk`, `done`)  
+  *Detect:* `app/routes/api.py` + smoke curl
+- [x] **DEV-105** — `POST /api/session/reset`  
+  *Detect:* endpoint + `ok: true`
+- [x] **DEV-106** — Prototip bucle agent + multi-provider LLM  
+  *Detect:* `agent_service.py` + `llm_service.py` funcionals
+- [x] **DEV-107** — Widget JS demo (SSE + Markdown)  
+  *Detect:* `app/static/js/chat.js`
+- [ ] **DEV-108** — Desplegament staging Docker verificat  
+  *Detect:* servei accessible; `/health` 200
+- [ ] **DEV-109** — `.env.example` sense secrets (plantilla completa)  
+  *Detect:* fitxer documentat a tecnic §10.2
+
+---
+
+## Fase 2 — Exploració MySQL (tecnic §15.2, fase-2-tools-mysql-ca)
+
+- [ ] **DEV-200** — Estructura `app/db/` (`connection.py`, `mappers.py`, `repositories/`)  
+  *Detect:* directoris creats segons arquitectura
+- [ ] **DEV-201** — `tests/conftest.py` + fixture Flask app  
+  *Detect:* `pytest` arrenca sense errors
+- [ ] **DEV-202** — Mapatge `search_establishments` a `sql-mapeo.md`  
+  *Detect:* SQL + casos prova SQL-01/02
+- [ ] **DEV-203** — Mapatge `search_articles`  
+  *Detect:* SQL-03
+- [ ] **DEV-204** — Mapatge `search_destinations`  
+  *Detect:* SQL-04
+- [ ] **DEV-205** — Mapatge `search_events`  
+  *Detect:* SQL-05
+- [ ] **DEV-206** — Mapatge `search_experiences`  
+  *Detect:* SQL-06
+- [ ] **DEV-207** — Mapatge `search_routes`  
+  *Detect:* SQL-07
+- [ ] **DEV-208** — Helper `row_to_card()` + wrapper JSON comú  
+  *Detect:* `app/db/mappers.py`; contracte tecnic §6.13
+
+---
+
+## Fase 3 — Sis buscadors MySQL (tecnic §15.3, fase-3-tools-mysql-ca)
+
+Per cada buscador: **Repository + Tool refactor + test integració**. Sense `scraper.py`.
+
+- [ ] **DEV-301** — `ExperiencesRepository` + `search_experiences` MySQL + test  
+  *Detect:* `tests/integration/sql/test_experiences.py` passa; tool sense import scraper
+- [ ] **DEV-302** — `EstablishmentsRepository` + `search_establishments` (dormir+menjar)  
+  *Detect:* substitueix `search_accommodations`; test SQL-01/02
+- [ ] **DEV-303** — `ArticlesRepository` + `search_articles`  
+  *Detect:* test SQL-03
+- [ ] **DEV-304** — `DestinationsRepository` + `search_destinations`  
+  *Detect:* test SQL-04
+- [ ] **DEV-305** — `EventsRepository` + `search_events`  
+  *Detect:* test SQL-05; dates vigents
+- [ ] **DEV-306** — `RoutesRepository` + `search_routes`  
+  *Detect:* test SQL-07
+- [ ] **DEV-307** — Registre `ALL_TOOLS` amb 6 tools MySQL (noms objectiu)  
+  *Detect:* `app/services/tools/__init__.py` sense tools legacy
+- [ ] **DEV-308** — Eliminar dependència `scraper.py` del catàleg  
+  *Detect:* cap import scraper a tools de catàleg; fitxer eliminat o marcat deprecated
+- [ ] **DEV-309** — Límits operatius (LIMIT 20, truncat 6 cards al model)  
+  *Detect:* tecnic §6.14 implementat als repositories/servei
+- [ ] **DEV-310** — System prompt alineat amb 6 dominis + idiomes  
+  *Detect:* prompt descriu tools correctes; no menciona scraping
+
+---
+
+## Fase 4 — Integració web femturisme.cat (tecnic §15.4, T-PHP)
+
+- [ ] **DEV-400** — Globus + panell xat al layout PHP (T-PHP-01)  
+  *Detect:* widget visible staging
+- [ ] **DEV-401** — Reverse proxy `/api/chat` i `/api/session/reset` (T-PHP-02)  
+  *Detect:* same-origin; sense CORS al navegador
+- [ ] **DEV-402** — `page_context` al body del xat (T-PHP-03)  
+  *Detect:* JSON enviat segons URL
+- [ ] **DEV-403** — `agent_context` mode femturisme per defecte (T-PHP-04)  
+  *Detect:* `mode: femturisme`, `entity_id: null`
+- [ ] **DEV-404** — Botó «Nova conversa» (T-PHP-05)  
+  *Detect:* crida session/reset
+- [ ] **DEV-405** — Proves desktop + mòbil (T-PHP-06)  
+  *Detect:* checklist PHP §14.5
+- [ ] **DEV-406** — Headers SSE proxy (`X-Accel-Buffering: no`, timeout)  
+  *Detect:* tecnic §4.8 aplicat a nginx/apache
+
+---
+
+## Fase 5 — Infra base coneixement entitats (tecnic §15.5)
+
+*Infra es pot construir abans; **xat públic femturisme Fase 1 sense RAG** (requeriments §4).*
+
+- [ ] **DEV-500** — Schema PostgreSQL aplicat a staging  
+  *Detect:* taules `entities`, `guide_documents`, `document_chunks`
+- [ ] **DEV-501** — API CRUD `/admin/api/entities`  
+  *Detect:* tecnic §9.4; tests o smoke curl
+- [ ] **DEV-502** — API documents (upload, list, reindex, delete, smoke-test)  
+  *Detect:* tecnic §9.5–9.6
+- [ ] **DEV-503** — Emmagatzematge PDF `data/guides/{doc_id}/original.pdf`  
+  *Detect:* pujada + fitxer a disc
+- [ ] **DEV-504** — Pipeline indexació (extract → chunk → embed → indexed)  
+  *Detect:* estats BD pending…indexed; failed amb error_message
+- [ ] **DEV-505** — `DocumentsRepository` + `search_entity_knowledge`  
+  *Detect:* tool registrada; cerca per `entity_id`
+- [ ] **DEV-506** — Gestor entitats + documental UI backend PHP (RF-13)  
+  *Detect:* CRUD entitats i documents des del backend femturisme
+- [ ] **DEV-507** — UAT intern RAG (entitats prova + PDF indexats)  
+  *Detect:* tecnic §14.4 admin; smoke-test OK
+
+---
+
+## Fase 6 — Entrega Fase producte 1 (assistent femturisme, sense RAG públic)
+
+- [ ] **DEV-600** — Mode femturisme: només 6 tools MySQL exposades al LLM  
+  *Detect:* `search_entity_knowledge` no invocable des del xat públic
+- [ ] **DEV-601** — Idiomes ca / es / en / fr (RF-10)  
+  *Detect:* respostes coherents en proves manual UAT
+- [ ] **DEV-602** — Rate limiting + logging mínim (tecnic §12–13)  
+  *Detect:* logs amb session_id, latència SQL
+- [ ] **DEV-603** — Tests API (API-01…API-04)  
+  *Detect:* tecnic §14.2 passen
+- [ ] **DEV-604** — UAT catàleg (12 proves, 2 per domini)  
+  *Detect:* tecnic §14.3 lot Catàleg ≥80% routing
+- [ ] **DEV-605** — **CA-01…CA-09** verificats (requeriments §12)  
+  *Detect:* matriu CA amb evidència (staging)
+- [ ] **DEV-606** — Sign-off client Fase 1 staging  
+  *Detect:* acceptació formal documentada
+- [ ] **DEV-607** — Desplegament producció Fase 1 (sense RAG al xat públic)  
+  *Detect:* femturisme.cat xat actiu; checklist tecnic §11.2
+
+---
+
+## Fase 7 — Fase producte 2 (entitats + RAG condicional)
+
+- [ ] **DEV-700** — `entity_id` a fitxes MySQL (Q-08) + camp a card JSON  
+  *Detect:* repository inclou `entity_id` quan existeix al CMS
+- [ ] **DEV-701** — Filtratge tools per `agent_context.mode`  
+  *Detect:* mode entitat només RAG; mode femturisme 6 tools + RAG condicional
+- [ ] **DEV-702** — Flux catàleg → RAG només si `results[].entity_id` (§5.6)  
+  *Detect:* sense entity_id no hi ha crida `search_entity_knowledge`
+- [ ] **DEV-703** — Widget/xat propi per entitat (`mode: entitat`)  
+  *Detect:* agent_context amb entity_id fix
+- [ ] **DEV-704** — Un parell de fitxes prova amb entitat associada  
+  *Detect:* mapatge manual CMS documentat
+- [ ] **DEV-705** — UAT mode entitat (8 proves)  
+  *Detect:* tecnic §14.3; sense fuites de catàleg aliè
+- [ ] **DEV-706** — UAT mixtes catàleg + RAG condicional  
+  *Detect:* tecnic §14.3 lot Mixtes
+- [ ] **DEV-707** — Sign-off client Fase 2  
+  *Detect:* acceptació formal
+
+---
+
+## Fase 8 — Ops, seguretat i producció completa
+
+- [ ] **DEV-800** — Secrets `.env` producció (mai al repo)  
+  *Detect:* checklist tecnic §10–12
+- [ ] **DEV-801** — Admin documental no públic (VPN/IP, auth)  
+  *Detect:* tecnic §12.1
+- [ ] **DEV-802** — Backups PostgreSQL + `data/guides/`  
+  *Detect:* runbook §13.2
+- [ ] **DEV-803** — Runbooks incidències (PDF failed, MySQL down, LLM down…)  
+  *Detect:* tecnic §13.3
+- [ ] **DEV-804** — KPIs monitorització inicial (requeriments §13)  
+  *Detect:* mètriques recollides post-desplegament
+- [ ] **DEV-805** — Decisions pendents P-01…P-06 tancades o documentades  
+  *Detect:* tecnic §16.1 actualitzat
+
+---
+
+## Fase 9 — Entrega final al client
+
+- [ ] **DEV-900** — Documentació d'operació lliurada (desplegament, .env, runbooks)  
+  *Detect:* paquet docs per ops/client
+- [ ] **DEV-901** — Formació / handover equip femturisme (admin PDFs, entitats)  
+  *Detect:* sessió registrada o guia d'usuari admin
+- [ ] **DEV-902** — Codi en repositori `3urega/femturisme` taggejat (release)  
+  *Detect:* tag semver + changelog
+- [ ] **DEV-903** — Proves de regressió post-producció  
+  *Detect:* UAT smoke en prod
+- [ ] **DEV-904** — Tancament formal projecte / acta de recepció  
+  *Detect:* signatura client
+
+---
+
+## Matriu RF → fases (referència ràpida)
+
+| RF | Descripció breu | Fase checklist |
+|----|-----------------|----------------|
+| RF-01…RF-11 | Xat, catàleg, context, idiomes, enllaços | 3, 4, 6 |
+| RF-12 | Escalabilitat tools | 3, 7 |
+| RF-13 | Gestió documental entitat | 5, 7 |
+| RF-14 | Context operatiu (modes) | 6, 7 |
+| RF-15 | entity_id + RAG condicional | 7 |
+
+---
+
+## Historial de canvis
+
+| Data | Canvis |
+|------|--------|
+| 2026-07-03 | Creació inicial des de docs/client (requeriments, funcional, tecnic, domini) |

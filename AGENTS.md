@@ -4,6 +4,8 @@ Instruccions per **planificar** i **implementar** canvis al projecte **agent_fem
 
 Abans de proposar passos, escriure codi o documentació nova, **llegeix els documents indicats** segons el tipus de feina.
 
+**Estat del projecte:** mantén actualitzat [docs/devs/checklist-entrega.md](docs/devs/checklist-entrega.md) — veure **§11** (lectura i marcatge automàtic per agents).
+
 ---
 
 ## 1. Què és aquest projecte
@@ -32,17 +34,22 @@ docs/client/document-funcional-client-ca.md   ← què es construeix (client)
         ↓
 docs/client/especificacio-funcional-ca.md     ← RF, CU, CA, UAT
         ↓
-docs/client/especificacio-tecnica-ca.md       ← APIs, repos, desplegament
+docs/client/tecnic.md                       ← APIs, repos, desplegament (v2.1)
         ↓
-docs/sql-mapeo.md                             ← SQL concreta per buscador
+docs/devs/checklist-entrega.md              ← ROADMAP EXECUTABLE (llegir + actualitzar)
+        ↓
+docs/arquitectura/                          ← OBLIGATORI abans de codi Python nou
+        ↓
+docs/sql-mapeo.md                           ← SQL concreta per buscador
 ```
 
 ### 2.2 Documents per tipus de tasca
 
 | Si estàs… | Llegeix (en ordre) |
 |-----------|-------------------|
-| **Planificant qualsevol feature** | [dominio-femturisme-ca.md](docs/client/dominio-femturisme-ca.md) → funcional client o especificació funcional segons audiència |
-| **Implementant un buscador de catàleg** | domini → [especificacio-tecnica-ca.md](docs/client/especificacio-tecnica-ca.md) §5 → [sql-mapeo.md](docs/sql-mapeo.md) → [fase-2-tools-mysql-ca.md](docs/fase-2-tools-mysql-ca.md) / [fase-3-tools-mysql-ca.md](docs/fase-3-tools-mysql-ca.md) |
+| **Planificant qualsevol feature** | [dominio-femturisme-ca.md](docs/client/dominio-femturisme-ca.md) → [docs/devs/checklist-entrega.md](docs/devs/checklist-entrega.md) (pas obert) → docs client |
+| **Implementant codi Python (qualsevol)** | [docs/arquitectura/index.md](docs/arquitectura/index.md) → [capas-y-modulos.md](docs/arquitectura/capas-y-modulos.md) → [patrones-y-convenciones.md](docs/arquitectura/patrones-y-convenciones.md) |
+| **Implementant un buscador de catàleg** | domini → [tecnic.md](docs/client/tecnic.md) §6 → arquitectura → [sql-mapeo.md](docs/sql-mapeo.md) → [fase-3-tools-mysql-ca.md](docs/fase-3-tools-mysql-ca.md) |
 | **Implementant guies PDF / RAG** | domini §4.7 → [postgre_schema.md](docs/postgre_schema.md) → especificació tècnica §6–7 → [plan-integracion-ca.md](docs/plan-integracion-ca.md) Fases 5–6 |
 | **Integrant widget PHP / proxy** | [document-funcional-client-ca.md](docs/client/document-funcional-client-ca.md) §3.1 → especificació tècnica §3–4 → [especificacio-funcional-ca.md](docs/client/especificacio-funcional-ca.md) RF-01xx |
 | **Depurant l'agent / SSE / LLM** | [agente.md](docs/agente.md) → [app/services/agent_service.py](app/services/agent_service.py) |
@@ -50,6 +57,8 @@ docs/sql-mapeo.md                             ← SQL concreta per buscador
 | **Decidir SQL lliure vs tools** | [text-to-sql-desventajas.md](docs/text-to-sql-desventajas.md) — decisió tancada: **tools parametritzades** |
 | **Roadmap per fases complet** | [plan-integracion-ca.md](docs/plan-integracion-ca.md) (nota: alguns apartats encara mencionen 4 tools; domini fa fe) |
 | **Índex general docs** | [docs/index.md](docs/index.md) |
+| **Checklist entrega (devs)** | [docs/devs/checklist-entrega.md](docs/devs/checklist-entrega.md) |
+| **Issues GitHub (workflow agent)** | `.cursor/skills/plan-to-issues` → `publish-github-issues` → `kanban-board` |
 
 ### 2.3 Diagrama de domini (referència ràpida)
 
@@ -69,7 +78,7 @@ Consulta [dominio-femturisme-ca.md](docs/client/dominio-femturisme-ca.md) §5 ab
 | Rutes | `search_routes` | `RoutesRepository` |
 | Agenda | `search_events` | `EventsRepository` |
 | Experiències promocionals | `search_experiences` | `ExperiencesRepository` |
-| Guies PDF | `search_municipality_guides` | servei RAG |
+| Guies PDF / entitats | `search_entity_knowledge` | `DocumentsRepository` + PostgreSQL |
 
 **Regles de negoci crítiques:**
 
@@ -95,13 +104,16 @@ Consulta [dominio-femturisme-ca.md](docs/client/dominio-femturisme-ca.md) §5 ab
 
 ### Pas 1 — Planificació (abans de codi)
 
-1. Llegeix **dominio-femturisme-ca.md**: la feature encaixa en algun dels 6 dominis (+ PDF)?
-2. Si afecta comportament observable → revisa **especificacio-funcional-ca.md** (CU/RF/CA); proposa nous IDs si cal.
-3. Si afecta API, SQL o repos → revisa **especificacio-tecnica-ca.md** i **sql-mapeo.md**.
-4. Comprova si el codi actual és **legacy** (4 tools + scraping a [app/services/tools/](app/services/tools/)).
-5. Escriu un pla curt: fitxers a tocar, dependències (schema MySQL, Fase 2 prèvia), criteris d'acceptació (CA) aplicables.
+1. Obre **[docs/devs/checklist-entrega.md](docs/devs/checklist-entrega.md)** i identifica el(s) pas(s) `DEV-xxx` que aquesta feature completa o desbloqueja. Menciona'ls al pla.
+2. Llegeix **dominio-femturisme-ca.md**: la feature encaixa en algun dels 6 dominis (+ PDF)?
+3. Si afecta comportament observable → revisa **requeriments.md** / **funcional.md** (RF/CA); proposa nous IDs si cal.
+4. Si afecta API, SQL o repos → revisa **tecnic.md** i **sql-mapeo.md**.
+5. Comprova si el codi actual és **legacy** (4 tools + scraping a [app/services/tools/](app/services/tools/)).
+6. Escriu un pla curt: fitxers a tocar, dependències, criteris d'acceptació (CA) aplicables, IDs `DEV-xxx` afectats.
 
 ### Pas 2 — Implementació
+
+**Abans de tocar codi:** llegeix [docs/arquitectura/patrones-y-convenciones.md](docs/arquitectura/patrones-y-convenciones.md) i comprova [estado-actual-vs-objetivo.md](docs/arquitectura/estado-actual-vs-objetivo.md) per no copiar patrons legacy (scraping, estat global).
 
 **Buscador de catàleg (tipus A):**
 
@@ -116,9 +128,10 @@ Consulta [dominio-femturisme-ca.md](docs/client/dominio-femturisme-ca.md) §5 ab
 ### Pas 3 — Tancament
 
 - [ ] Comportament alineat amb domini (no confondre agenda/experiències/establiments).
-- [ ] JSON de sortida segons especificació tècnica §5.7 (card + wrapper).
+- [ ] JSON de sortida segons tecnic.md §6.13 (card + wrapper).
 - [ ] CA/UAT aplicables verificables.
 - [ ] Si canvia l'abast funcional → actualitzar docs `docs/client/` i, si cal, `sql-mapeo.md`.
+- [ ] **Actualitzar [checklist-entrega.md](docs/devs/checklist-entrega.md)** — veure §11.
 - [ ] No commit unless user asks.
 
 ---
@@ -140,12 +153,13 @@ Consulta [dominio-femturisme-ca.md](docs/client/dominio-femturisme-ca.md) §5 ab
 
 ## 6. Constraints (no negociables v1)
 
-1. **6 buscadors parametritzats** + `search_municipality_guides` — no text-to-SQL al xat de producció.
+1. **6 buscadors parametritzats** + `search_entity_knowledge` — no text-to-SQL al xat de producció.
 2. **MySQL read-only** (`agent_read`); agent no escriu al CMS.
 3. **Un sol xat** per al visitant; combinació automàtica de buscadors.
 4. **Enllaços** a femturisme.cat a les respostes de catàleg.
 5. **Guies PDF** només via panell admin intern; visitant no puja PDFs.
 6. **Idiomes:** ca / es / en segons pregunta de l'usuari.
+7. **RAG en femturisme.cat:** Fase 1 sense RAG; Fase 2 només si `results[].entity_id` — veure [funcional.md](docs/client/funcional.md) §8.4.
 
 ---
 
@@ -180,8 +194,67 @@ Abans d'implementar SQL definitiva, revisar **dominio-femturisme-ca.md §7** i c
 Abans de proposar un pla o escriure codi:
 
 - [ ] He llegit **dominio-femturisme-ca.md** per aquesta feature?
+- [ ] He obert **docs/devs/checklist-entrega.md** i identificat el pas `DEV-xxx` obert?
+- [ ] He llegit **docs/arquitectura/** abans d'escriure codi Python?
 - [ ] Sé si és catàleg (quina tool?), PDF, PHP o infra?
-- [ ] He comprovat **sql-mapeo.md** / especificació tècnica per contracte JSON i paràmetres?
+- [ ] He comprovat **sql-mapeo.md** / tecnic.md per contracte JSON i paràmetres?
 - [ ] La feature respecta agenda ≠ experiències i establiments unificats?
-- [ ] He identificat CA aplicables a especificació funcional?
+- [ ] He identificat CA aplicables (requeriments.md §12)?
 - [ ] No estic perpetuant scraping quan tocava MySQL?
+
+---
+
+## 11. Checklist d'entrega — obligatori per agents
+
+Font: **[docs/devs/checklist-entrega.md](docs/devs/checklist-entrega.md)** (90 passos `DEV-001`…`DEV-904`).
+
+Aquest fitxer és l'estat viu del projecte. **No és només documentació:** cal llegir-lo i mantenir-lo actualitzat en cada sessió de treball.
+
+### Quan llegir (automàtic)
+
+| Moment | Acció |
+|--------|--------|
+| **Inici de qualsevol tasca d'implementació o planificació** | Llegir checklist; localitzar `DEV-xxx` relacionats; citar-los al pla |
+| **Usuari demana «on som» / estat del projecte** | Llegir checklist; informar progrés `X / 90` i pròxims passos oberts |
+| **Després d'implementar codi, docs o infra** | Revisar criteris **Detect** dels `DEV-xxx` tocats |
+| **Tancar issue GitHub** (skill kanban-board) | Marcar checkboxes + actualitzar comptador |
+| **Auditoria de sessió** (opcional, si l'usuari no ha demanat res concret) | Escanejar repo vs **Detect** de items `[ ]` de la fase actual |
+
+### Quan marcar `- [x]` (automàtic)
+
+1. Comprova el criteri **Detect** del pas (fitxer existeix, test passa, endpoint respon, doc complet…).
+2. Canvia `- [ ]` → `- [x]` a `docs/devs/checklist-entrega.md`.
+3. Opcional: afegeix data al final de la línia, p.ex. `*(2026-07-03)*`.
+4. **Recalcula el comptador** del capçalera: `**Progrés:** X / 90 completats`.
+5. Actualitza `**Última actualització:**` amb la data d'avui.
+
+**No marcar** si: només prototip parcial, encara hi ha TODO, scraping quan tocava MySQL, o el **Detect** no es compleix literalment.
+
+### Mapatge ràpid feature → DEV
+
+| Àrea | IDs checklist |
+|------|----------------|
+| Docs / preparació | DEV-001…011 |
+| Pre-requisits client | DEV-020…027 |
+| Servei Flask base | DEV-100…109 |
+| MySQL / sql-mapeo | DEV-200…208, DEV-010 |
+| Buscador concret | DEV-301…306 (un per domini) |
+| Integració PHP | DEV-400…406 |
+| RAG / PostgreSQL | DEV-500…507 |
+| Entrega Fase 1 | DEV-600…607 |
+| Fase 2 entitats | DEV-700…707 |
+| Ops / producció | DEV-800…805 |
+| Entrega final | DEV-900…904 |
+
+### Exemple de flux agent
+
+```text
+Usuari: «Implementa ExperiencesRepository»
+  → Llegeix checklist → pas obert DEV-301
+  → Pla citant DEV-301 + sql-mapeo + arquitectura
+  → Implementa + pytest passa
+  → Marca DEV-301 [x], progrés 15/90
+  → Informa usuari què queda obert (DEV-302…)
+```
+
+Veure instruccions detallades: [docs/devs/index.md](docs/devs/index.md).
