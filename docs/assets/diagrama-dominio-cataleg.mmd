@@ -1,0 +1,28 @@
+flowchart TB
+  subgraph mysql [MySQL femturisme read-only]
+    EST[Establiments]
+    ART[Articles]
+    DEST[On anar / poblacions]
+    RUT[Rutes]
+    AGD[Agenda]
+    EXP[Experiencies]
+  end
+  subgraph agent [Servei agent Python]
+    T1[search_establishments]
+    T2[search_articles]
+    T3[search_destinations]
+    T4[search_routes]
+    T5[search_events]
+    T6[search_experiences]
+    T7[search_municipality_guides]
+  end
+  subgraph pg [PostgreSQL agent]
+    PDF[Guies PDF + vectors]
+  end
+  EST --> T1
+  ART --> T2
+  DEST --> T3
+  RUT --> T4
+  AGD --> T5
+  EXP --> T6
+  PDF --> T7

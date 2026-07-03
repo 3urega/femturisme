@@ -1,0 +1,24 @@
+version: '3.8'
+
+services:
+  web:
+    build: .
+    container_name: bergueda_agent
+    ports:
+      - "5080:5080"
+    volumes:
+      - .:/app
+    env_file:
+      - .env
+    environment:
+      - FLASK_ENV=development
+      - FLASK_APP=main.py
+      - FLASK_RUN_HOST=0.0.0.0
+      - FLASK_RUN_PORT=5080
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:5080/"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 10s

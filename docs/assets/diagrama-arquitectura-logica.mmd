@@ -1,0 +1,8 @@
+flowchart TB
+  User[Visitant] --> PHP[femturisme.cat PHP]
+  PHP -->|proxy SSE same-origin| Agent[Servei Python Flask]
+  Agent --> MySQL[(MySQL femturisme read-only)]
+  Agent --> PG[(PostgreSQL agent pgvector)]
+  Admin[Admin guies VPN] --> Agent
+  Agent --> LLM[API model llenguatge extern]
+  Agent --> Embed[API embeddings extern]

@@ -1,0 +1,90 @@
+{% extends "base.html" %}
+
+{% block title %}femturisme.cat — Assistent Turístic{% endblock %}
+
+{% block content %}
+<div class="chat-layout">
+
+    <!-- Sidebar -->
+    <aside class="chat-sidebar">
+        <div class="sidebar-header">
+            <div class="sidebar-hero-icon">
+                <i class="fas fa-comments"></i>
+            </div>
+            <h5>Assistent Turístic</h5>
+            <p>Pregunta'm sobre experiències, rutes, allotjaments i events a Catalunya i Andorra</p>
+        </div>
+
+        <div class="sidebar-suggestions">
+            <p class="suggestions-label">Suggeriments</p>
+            <button class="suggestion-btn" data-msg="Quines experiències recomaneu a la Costa Brava?">
+                <i class="fas fa-star"></i>Experiències a la Costa Brava
+            </button>
+            <button class="suggestion-btn" data-msg="On puc allotjar-me al Pirineu? Busco turisme rural.">
+                <i class="fas fa-bed"></i>Allotjament rural al Pirineu
+            </button>
+            <button class="suggestion-btn" data-msg="Quins events i fires hi ha a Catalunya aquest mes?">
+                <i class="fas fa-calendar-alt"></i>Events i fires del mes
+            </button>
+            <button class="suggestion-btn" data-msg="Recomaneu-me una ruta de senderisme fàcil en família.">
+                <i class="fas fa-hiking"></i>Rutes en família
+            </button>
+            <button class="suggestion-btn" data-msg="Quins llocs visitar al Berguedà?">
+                <i class="fas fa-map-marker-alt"></i>Descobrir el Berguedà
+            </button>
+            <button class="suggestion-btn" data-msg="Recomaneu restaurants de cuina catalana tradicional.">
+                <i class="fas fa-utensils"></i>Cuina catalana tradicional
+            </button>
+        </div>
+
+        <div class="sidebar-footer">
+            <button id="btn-reset" class="btn-reset">
+                <i class="fas fa-redo"></i>Nova conversa
+            </button>
+        </div>
+    </aside>
+
+    <!-- Chat panel -->
+    <section class="chat-panel">
+
+        <div class="chat-messages" id="chat-messages">
+            <!-- Welcome message -->
+            <div class="message message-assistant">
+                <div class="message-avatar">
+                    <i class="fas fa-map-marked-alt"></i>
+                </div>
+                <div class="message-body">
+                    <div class="message-bubble">
+                        <p class="mb-1"><strong>Hola! Soc l'assistent turístic de femturisme.cat.</strong></p>
+                        <p class="mb-0">T'ajudo a descobrir Catalunya i Andorra: experiències, rutes, allotjaments, events i molt més. Pregunta'm el que vulguis, en català, castellà o anglès!</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Input area -->
+        <div class="chat-input-area">
+            <div class="chat-input-wrapper">
+                <textarea
+                    id="chat-input"
+                    class="chat-input"
+                    placeholder="Pregunta sobre rutes, experiències, allotjaments..."
+                    rows="1"
+                    maxlength="2000"
+                ></textarea>
+                <button id="btn-send" class="btn-send" aria-label="Enviar">
+                    <i class="fas fa-paper-plane"></i>
+                </button>
+            </div>
+            <p class="input-hint">
+                Pots escriure en català, castellà o anglès &nbsp;·&nbsp; <kbd>Enter</kbd> per enviar
+            </p>
+        </div>
+
+    </section>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="{{ url_for('static', filename='js/chat.js') }}"></script>
+{% endblock %}

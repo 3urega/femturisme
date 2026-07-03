@@ -1,0 +1,62 @@
+site_name: Agent Femturisme — Documentació
+site_description: Agente turístic, integració MySQL i guies PDF
+site_url: https://example.vercel.app
+
+theme:
+  name: material
+  language: es
+  features:
+    - navigation.tabs
+    - navigation.sections
+    - navigation.top
+    - search.suggest
+    - search.highlight
+    - content.code.copy
+    - toc.integrate
+  palette:
+    - scheme: default
+      primary: teal
+      accent: amber
+      toggle:
+        icon: material/brightness-7
+        name: Mode fosc
+    - scheme: slate
+      primary: teal
+      accent: amber
+      toggle:
+        icon: material/brightness-4
+        name: Mode clar
+
+docs_dir: docs
+site_dir: site
+
+nav:
+  - Inici: index.md
+  - Resum del pla: pla-integracio-resum-ca.md
+  - "Fase 2 — SQL i sql-mapeo (guia dev)": fase-2-tools-mysql-ca.md
+  - "Fase 3 — Tools MySQL (guia dev)": fase-3-tools-mysql-ca.md
+  - Plan d'integració (detall): plan-integracion.md
+  - Arquitectura de l'agent: agente.md
+  - Referència de dades: scraping-y-respuestas.md
+
+markdown_extensions:
+  - attr_list
+  - admonition
+  - pymdownx.details
+  - pymdownx.superfences
+  - pymdownx.highlight:
+      anchor_linenums: true
+  - pymdownx.inlinehilite
+  - pymdownx.tabbed:
+      alternate_style: true
+  - tables
+  - toc:
+      permalink: true
+      toc_depth: 3
+
+plugins:
+  - search:
+      lang: es
+
+extra:
+  generator: false
