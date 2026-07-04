@@ -41,8 +41,8 @@
   *Detect:* fitxer al repo o enllaç documentat; client l'ha aportat
 - [ ] **DEV-021** — Usuari MySQL `agent_read` (SELECT only) creat  
   *Detect:* credencials a `.env` staging; connexió OK
-- [ ] **DEV-022** — Accés MySQL staging/replica per desenvolupament  
-  *Detect:* query de prova des del servei agent
+- [ ] **DEV-022** — MySQL disponible per desenvolupament  
+  *Detect:* query de prova des del servei agent. **Dev local:** dump importat a `127.0.0.1` ([desenvolupament-local.md §9](desenvolupament-local.md)). **Staging:** connexió remot quan el client obri xarxa.
 - [ ] **DEV-023** — PostgreSQL staging amb extensió pgvector  
   *Detect:* `CREATE EXTENSION vector` OK; connexió des de Python
 - [ ] **DEV-024** — Preguntes obertes Q-01…Q-08 resoltes amb client  

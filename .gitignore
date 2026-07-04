@@ -1,7 +1,13 @@
 venv/
+.venv/
 .env
 __pycache__/
 *.pyc
 site/
 site.zip
 *.zip
+
+# MySQL dumps del client (dev local — no pujar al repo)
+/data/mysql/
+*.dump.sql
+*.dump.sql.gz

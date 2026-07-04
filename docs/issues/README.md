@@ -70,6 +70,8 @@ Després de publicar: afegir `"githubNumber": 42` i `"publishedAt": "YYYY-MM-DD"
 
 Després de `plan-to-issues`, el document font ha d'incloure secció **GitHub issues (draft)** amb taula de slugs (sense URLs de GitHub fins publicar).
 
+**Batch actiu:** [plan-fase1-base-local.md](../devs/plan-fase1-base-local.md) → [manifest.fase1-base-local.json](manifest.fase1-base-local.json) — **publicat** ([#1](https://github.com/3urega/femturisme/issues/1)…[#4](https://github.com/3urega/femturisme/issues/4)).
+
 ## Neteja
 
 Quan es tanca una issue, **kanban-board** elimina el draft, actualitza el manifest i marca el pla font com a implementat.

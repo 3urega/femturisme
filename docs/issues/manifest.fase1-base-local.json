@@ -1,0 +1,44 @@
+{
+  "repo": "3urega/femturisme",
+  "sourceDoc": "docs/devs/plan-fase1-base-local.md",
+  "defaultLabels": ["enhancement", "fase-1"],
+  "publishedAt": "2026-07-03",
+  "issues": [
+    {
+      "title": "Fase 1: Config completa app/config.py + .env.example (MYSQL, POSTGRES)",
+      "bodyFile": "docs/issues/config-env-example.md",
+      "labels": ["fase-1", "infra"],
+      "checklistIds": ["DEV-102", "DEV-109"],
+      "githubNumber": 1,
+      "publishedAt": "2026-07-03",
+      "url": "https://github.com/3urega/femturisme/issues/1"
+    },
+    {
+      "title": "Fase 1: requirements.txt amb drivers MySQL i PostgreSQL",
+      "bodyFile": "docs/issues/requirements-db-deps.md",
+      "labels": ["fase-1", "infra"],
+      "checklistIds": ["DEV-101"],
+      "githubNumber": 2,
+      "publishedAt": "2026-07-03",
+      "url": "https://github.com/3urega/femturisme/issues/2"
+    },
+    {
+      "title": "Fase 1: Esquelet app/db (connection, mappers, repositories)",
+      "bodyFile": "docs/issues/db-layer-skeleton.md",
+      "labels": ["fase-1", "mysql"],
+      "checklistIds": ["DEV-200"],
+      "githubNumber": 3,
+      "publishedAt": "2026-07-03",
+      "url": "https://github.com/3urega/femturisme/issues/3"
+    },
+    {
+      "title": "Fase 1: GET /health amb estat MySQL i PostgreSQL",
+      "bodyFile": "docs/issues/health-endpoint.md",
+      "labels": ["fase-1", "infra"],
+      "checklistIds": ["DEV-103"],
+      "githubNumber": 4,
+      "publishedAt": "2026-07-03",
+      "url": "https://github.com/3urega/femturisme/issues/4"
+    }
+  ]
+}

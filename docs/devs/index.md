@@ -102,6 +102,7 @@ Actualitzar també el comptador de progrés al cap del checklist.
 | Fase | Docs clau |
 |------|-----------|
 | **Entorn local** | **[desenvolupament-local.md](desenvolupament-local.md)** |
+| **Pla Fase 1 base (issues)** | [plan-fase1-base-local.md](plan-fase1-base-local.md) |
 | MySQL | [fase-2-tools-mysql-ca.md](../fase-2-tools-mysql-ca.md), [fase-3-tools-mysql-ca.md](../fase-3-tools-mysql-ca.md), [sql-mapeo.md](../sql-mapeo.md) |
 | Agent / SSE | [agente.md](../agente.md) |
 | Tests | [testing.md](testing.md) |

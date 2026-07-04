@@ -34,7 +34,7 @@ Primera vegada? Llegeix [§4 Configuració inicial](#4-configuració-inicial-pri
 |--------|---------|--------------|
 | **Dev local** | Python 3.11 natiu + `venv` | Ordinador del developer (Windows) |
 | **Staging / producció** | Docker (només contenidor Python) | Servidor femturisme / infra client |
-| **MySQL CMS** | Servei remot | Staging/replica read-only del client |
+| **MySQL CMS** | Dump local al PC (copia del client) | Staging/replica read-only al servidor |
 | **PostgreSQL (RAG)** | Servei gestionat extern | Plataforma cloud (no al PC local) |
 
 **Per què no Docker en dev local**
@@ -60,7 +60,7 @@ flowchart TB
   end
 
   subgraph remote ["Serveis remots (no al teu PC)"]
-    MYSQL["MySQL staging read-only"]
+    MYSQL["MySQL local\n(dump client)"]
     PG["PostgreSQL gestionat + pgvector"]
     LLM["API LLM (clau client)"]
   end
@@ -71,7 +71,7 @@ flowchart TB
     DOCKER --> PROXY
   end
 
-  FLASK -.->|"Fase 3+"| MYSQL
+  FLASK --> MYSQL
   FLASK -.->|"Fase 5+"| PG
   FLASK --> LLM
   DOCKER --> MYSQL
@@ -90,7 +90,7 @@ flowchart TB
 | Git | Per clonar i sincronitzar |
 | Editor | VS Code / Cursor |
 | Docker | **No cal** en dev local |
-| MySQL local | **No cal** — s'usa staging remot |
+| MySQL local | **Recomanat** — dump del client (sense Docker) | Veure [§9](#9-mysql-en-dev-còpia-local-del-client) |
 | PostgreSQL local | **No cal** — Fase 1 xat públic sense RAG |
 
 Comprovar Python:
@@ -213,19 +213,19 @@ AGENT_MAX_TOOL_ITERATIONS=5
 
 S'usa automàticament a `pytest` via `TestingConfig` (sense xarxa externa ni cost d'API). Per provar el xat manualment, usa el provider real del [§7.1](#71-llm-en-dev-local-recomanat).
 
-### 7.3 MySQL staging (Fase 3 — buscadors)
+### 7.3 MySQL local (Fase 3 — buscadors)
 
-Quan existeixi `app/db/connection.py`:
+Quan existeixi `app/db/connection.py`, apunta al MySQL **del teu PC** (dump importat del client):
 
 ```env
-MYSQL_HOST=mysql-staging.example.com
+MYSQL_HOST=127.0.0.1
 MYSQL_PORT=3306
 MYSQL_USER=agent_read
-MYSQL_PASSWORD=...
+MYSQL_PASSWORD=dev-local
 MYSQL_DATABASE=femturisme
 ```
 
-O amb prefix `AGENT_MYSQL_*` quan s'unifiqui a `config.py`.
+Instal·lació i import: [§9](#9-mysql-en-dev-còpia-local-del-client).
 
 **Important:** usuari **només lectura** (`SELECT`). L'agent no escriu al CMS.
 
@@ -247,7 +247,7 @@ Instància gestionada amb extensió **pgvector**. No instal·lar PostgreSQL al W
 |------|---------------------------|
 | Agent + xat manual | `AGENT_*` + provider real + API key client |
 | `pytest` (automàtic) | `TestingConfig` → `dummy` (no cal canviar el teu `.env`) |
-| Fase 2–3 MySQL | + `MYSQL_*` (staging remot) |
+| Fase 2–3 MySQL | + `MYSQL_*` → `127.0.0.1` (dump local) |
 | Fase 4 widget PHP | Agent en `:5010`; proxy PHP a staging |
 | Fase 5 RAG | + `POSTGRES_*` (cloud) |
 | Fase 1 producte xat | **Sense** PostgreSQL obligatori |
@@ -279,42 +279,111 @@ Els tests usen `TestingConfig`: `LLM_PROVIDER=dummy`, sense xarxa externa.
 
 ---
 
-## 9. Connexió MySQL staging des de Windows
+## 9. MySQL en dev: còpia local del client
 
-El MySQL del client **no** corre al teu PC. Opcions:
+Si **no pots connectar** des del teu PC al MySQL real del client (firewall, VPN, política de xarxa), l'estratègia acordada és:
 
-### 9.1 Accés directe (ideal)
+1. El client et proporciona una **còpia** de la base de dades (estructura + dades).
+2. Instal·les **MySQL natiu a Windows** (sense Docker).
+3. Importes el dump i desenvolupes contra `127.0.0.1`.
+4. Staging/producció segueixen usant el MySQL del client al servidor.
 
-Si el firewall permet connexió des de la teva IP → posa `MYSQL_HOST` al `.env` i prova:
+Això desbloqueja Fase 2–3 (`sql-mapeo.md`, repositories, `pytest -m integration`) sense dependre de xarxa.
+
+### 9.1 Què demanar al client
+
+| Entregable | Checklist | Notes |
+|------------|-----------|-------|
+| `schema.sql` (estructura) | DEV-020 | Sempre, encara que sigui dump complet |
+| Dump de dades (`.sql` o `.sql.gz`) | DEV-022 (dev local) | Preferible **mostra anonimitzada** si hi ha dades personals |
+| Versió MySQL del servidor | — | Ex.: 8.0.x — instal·la la mateixa major al PC |
+| Definició usuari `agent_read` | DEV-021 | `GRANT SELECT` — el recrees en local |
+| Respostes Q-01…Q-08 | DEV-024 | Taules, URLs, publicació, idiomes |
+
+**Si el dump és massa gran**, demana un subconjunt vàlid per provar els 6 buscadors (p. ex. una comarca, registres publicats, múltiples idiomes).
+
+**Privacitat:** el dump és **només per dev local**; no el commitis al repo (afegeix `*.sql.gz`, `data/mysql/` al `.gitignore` si cal).
+
+### 9.2 Instal·lar MySQL a Windows (sense Docker)
+
+1. Descarrega [MySQL Community Server 8.0](https://dev.mysql.com/downloads/mysql/) (instal·lador Windows).
+2. Durante la instal·lació: port **3306**, usuari `root` amb contrasenya local.
+3. Opcional: MySQL Workbench per importar visualment.
+
+Alternativa lleugera: **MariaDB** (compatible amb la majoria de dumps MySQL 8).
+
+### 9.3 Importar el dump
+
+```powershell
+# Crear base de dades
+mysql -u root -p -e "CREATE DATABASE femturisme CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;"
+
+# Importar (ajusta el path del fitxer)
+mysql -u root -p femturisme < C:\ruta\dump_femturisme.sql
+
+# Usuari read-only (com producció)
+mysql -u root -p -e "CREATE USER 'agent_read'@'localhost' IDENTIFIED BY 'dev-local'; GRANT SELECT ON femturisme.* TO 'agent_read'@'localhost'; FLUSH PRIVILEGES;"
+```
+
+Dump comprimit:
+
+```powershell
+# .gz — amb 7-Zip o gzip de Git Bash
+gzip -dc dump.sql.gz | mysql -u root -p femturisme
+```
+
+### 9.4 `.env` per dev local
+
+```env
+MYSQL_HOST=127.0.0.1
+MYSQL_PORT=3306
+MYSQL_USER=agent_read
+MYSQL_PASSWORD=dev-local
+MYSQL_DATABASE=femturisme
+```
+
+Verificar (quan existeixi `connection.py`):
 
 ```powershell
 python scripts/test_sql_queries.py --ping
+python -m pytest -m integration -v
 ```
 
-(quan `app/db/connection.py` existeixi).
+### 9.5 Mantenir la còpia al dia
 
-### 9.2 Túnel SSH (si cal)
+| Situació | Acció |
+|----------|--------|
+| Canvi de schema al CMS | Demana nou `schema.sql` + dump incremental o complet |
+| Queries noves a `sql-mapeo.md` | Reimportar si cal columnes noves |
+| Pre-UAT | Validar també contra **staging remot** del client (si obren accés puntual) |
 
-Si només accessible des d'un bastion:
+### 9.6 Alternatives (menys habituals aquí)
+
+| Opció | Quan |
+|-------|------|
+| Accés directe staging | Firewall obert a la teva IP — `MYSQL_HOST` remot |
+| Túnel SSH | Bastion del client — veure §9.6 legacy a continuació |
+| Docker MySQL | **Evitar** al teu PC (mateix motiu que Docker Desktop) |
+
+<details>
+<summary>Túnel SSH (si algun dia obren bastion, no cal per defecte)</summary>
 
 ```powershell
 ssh -L 3307:mysql-staging.internal:3306 usuari@bastion.femturisme.cat
 ```
-
-Al `.env` en una altra finestra:
 
 ```env
 MYSQL_HOST=127.0.0.1
 MYSQL_PORT=3307
 ```
 
-Mantén la sessió SSH oberta mentre desenvolupes.
+</details>
 
-### 9.3 Què no fer
+### 9.7 Què no fer
 
-- No instal·lar MySQL local «per tenir dades» — divergeix del schema real del client.
-- No usar Docker només per tenir MySQL al PC.
-- No executar scraping legacy com a substitut permanent (objectiu v1 = repositories MySQL).
+- No commitir dumps amb dades reals al repo Git.
+- No usar scraping legacy com a substitut quan ja tens MySQL local.
+- No donar permisos d'escriptura a `agent_read` (ni en local): mantén `SELECT` only com producció.
 
 ---
 
@@ -363,7 +432,7 @@ Per cada feature:
 |---------|---------------------|-------------------------|
 | Runtime | Python + venv | Imatge `Dockerfile` |
 | Port app | 5010 | 5080 (compose actual) |
-| MySQL | Remot (tunnel si cal) | Xarxa interna client |
+| MySQL | Dump local `127.0.0.1` (copia client) | MySQL real staging/prod |
 | PostgreSQL | URL cloud o omit (F1) | Instància gestionada |
 | LLM | Provider real + clau client | Mateix provider al `.env` staging |
 | Historial xat | Memòria (`agent_service`) | Mateix v1; Redis/DB si escala |
@@ -450,4 +519,4 @@ Això valida la imatge **sense** executar Docker Desktop al teu ordinador.
 
 ## 16. Resum en una línia
 
-**Desenvolupa amb Python natiu al Windows; connecta a MySQL/PostgreSQL remots quan calgui; deixa Docker per al servidor de staging/producció.**
+**Desenvolupa amb Python natiu al Windows; MySQL amb còpia local del client; Docker només staging/producció.**
