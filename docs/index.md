@@ -46,7 +46,8 @@ Documentació del projecte de l'assistent turístic per a **femturisme.cat**.
 | [Resum integració (CA)](pla-integracio-resum-ca.md) | Resum infra (pot estar desactualitzat respecte 6 dominis) |
 | [Arquitectura de l'agent](agente.md) | Bucle tool use, LLM, SSE |
 | [Referència scraping](scraping-y-respuestas.md) | Prototip 4 tools (legacy) |
-| [Mapeig SQL](sql-mapeo.md) | 6 buscadors MySQL — SQL TODO |
+| [Mapeig SQL](sql-mapeo.md) | 6 buscadors MySQL — schema mapejat, SQL borrador |
+| [Schema MySQL CMS](schema.sql) | Estructura femturisme (MariaDB 10.3, sense dades) |
 | [Schema PostgreSQL agent](postgre_schema.md) | Base documental, chunks, pgvector |
 | [Text-to-SQL vs tools](text-to-sql-desventajas.md) | Decisió arquitectònica |
 | **[Tests (pytest)](devs/testing.md)** | API-01…04, SQL-01…07, com executar |

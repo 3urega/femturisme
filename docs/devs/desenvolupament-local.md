@@ -294,7 +294,7 @@ Això desbloqueja Fase 2–3 (`sql-mapeo.md`, repositories, `pytest -m integrati
 
 | Entregable | Checklist | Notes |
 |------------|-----------|-------|
-| `schema.sql` (estructura) | DEV-020 | Sempre, encara que sigui dump complet |
+| `schema.sql` (estructura) | DEV-020 | [`docs/schema.sql`](../schema.sql) — rebut 2026-07-07 |
 | Dump de dades (`.sql` o `.sql.gz`) | DEV-022 (dev local) | Preferible **mostra anonimitzada** si hi ha dades personals |
 | Versió MySQL del servidor | — | Ex.: 8.0.x — instal·la la mateixa major al PC |
 | Definició usuari `agent_read` | DEV-021 | `GRANT SELECT` — el recrees en local |

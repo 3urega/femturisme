@@ -118,9 +118,9 @@ Substitueix l'antic `search_accommodations` (només allotjament).
 | **Tool** | `search_establishments` |
 | **Repository** | `EstablishmentsRepository` |
 | **Paràmetres v1** | `destination` (required), `type` (optional: hotel, camping, restaurant…) |
-| **Secció web** | `/on-dormir`, `/on-menjar` o llistat unificat d'establiments — **TBD** |
-| **URL fitxa** | TBD segons tipus (p.ex. `/on-dormir/{slug}`, `/on-menjar/{slug}`) |
-| **Taules MySQL** | **TBD** — hipòtesi: taula `establiments` + relació tipus + ubicació |
+| **Secció web** | `/on-dormir`, `/on-menjar`, `/que-fer` (prefix per `generic_tipus_establiment.code`) — **validar Q-05** |
+| **URL fitxa** | `https://www.femturisme.cat/{prefix}/{param_url}` — prefix segons tipus (**Q-05 TBD**) |
+| **Taules MySQL** | `establiment_general`, `establiment_continguts`, `establiment_tipus`, `generic_tipus_establiment`, `establiment_pobles`, `poble_general`, `poble_comarques` |
 | **Relacions** | Experiències poden referenciar un establiment |
 
 ---
@@ -134,9 +134,9 @@ Substitueix l'antic `search_accommodations` (només allotjament).
 | **Tool** | `search_articles` |
 | **Repository** | `ArticlesRepository` |
 | **Paràmetres v1** | `destination` (optional), `topic` (optional), `query` (optional, text lliure curt) |
-| **Secció web** | **TBD** (blog, notícies, secció editorial) |
-| **URL fitxa** | **TBD** |
-| **Taules MySQL** | **TBD** — hipòtesi: `articles`, `noticies`, o equivalent legacy |
+| **Secció web** | Notícies / editorial — **validar Q-05** |
+| **URL fitxa** | Hipòtesi: `https://www.femturisme.cat/noticies/{param_url}` (**Q-05 TBD**) |
+| **Taules MySQL** | `noticia_general`, `noticia_continguts`, `noticia_pobles`, `poble_general` |
 | **Relacions** | Pot mencionar poblacions, esdeveniments, parcs; no substitueix agenda ni on anar |
 
 ---
@@ -150,9 +150,9 @@ Substitueix l'antic `search_accommodations` (només allotjament).
 | **Tool** | `search_destinations` |
 | **Repository** | `DestinationsRepository` |
 | **Paràmetres v1** | `destination` (required), `region` (optional) |
-| **Secció web** | **TBD** — secció «on anar» o fitxes de població |
-| **URL fitxa** | **TBD** |
-| **Taules MySQL** | **TBD** — hipòtesi: taules de poblacions/municipis + camps descriptius |
+| **Secció web** | Fitxes de població — **validar Q-05** |
+| **URL fitxa** | Hipòtesi: `https://www.femturisme.cat/{param_url}` (**Q-05 TBD**) |
+| **Taules MySQL** | `poble_general`, `poble_continguts`, `poble_comarques`, `generic_ubicacions` (comarca) |
 | **Relacions** | Complementa agenda, rutes i establiments (context territorial) |
 
 ---
@@ -168,7 +168,7 @@ Substitueix l'antic `search_accommodations` (només allotjament).
 | **Paràmetres v1** | `destination` (required), `type` (optional: a peu, bici…) |
 | **Secció web** | `/rutes` |
 | **URL fitxa** | `https://www.femturisme.cat/rutes/{slug}` |
-| **Taules MySQL** | **TBD** — confirmar amb schema (similar al model anterior) |
+| **Taules MySQL** | `ruta_general`, `ruta_continguts`, `ruta_pobles`, `ruta_tematica`, `generic_tematiques`, `poble_*` |
 | **Relacions** | Sovint vinculades a comarques o pobles de «on anar» |
 
 ---
@@ -184,7 +184,7 @@ Substitueix l'antic `search_accommodations` (només allotjament).
 | **Paràmetres v1** | `destination` (required), `date_from`, `date_to` (optional) |
 | **Secció web** | `/agenda` |
 | **URL fitxa** | `https://www.femturisme.cat/agenda/{slug}` |
-| **Taules MySQL** | **TBD** — confirmar regles vigència/publicació |
+| **Taules MySQL** | `agenda_general`, `agenda_continguts`, `agenda_dates`, `agenda_pobles`, `poble_*` |
 | **Relacions** | Distint d'experiències (§3.1) |
 
 ---
@@ -198,9 +198,9 @@ Substitueix l'antic `search_accommodations` (només allotjament).
 | **Tool** | `search_experiences` |
 | **Repository** | `ExperiencesRepository` |
 | **Paràmetres v1** | `destination` (required), `category` (optional), `establishment` (optional) |
-| **Secció web** | **TBD** — pot coincidir parcialment amb `/ofertes` legacy |
-| **URL fitxa** | **TBD** |
-| **Taules MySQL** | **TBD** — relació amb establiments i/o poblacions |
+| **Secció web** | Hipòtesi: `/ofertes` (legacy) — **confirmar Q-04 amb client** |
+| **URL fitxa** | Hipòtesi: `https://www.femturisme.cat/ofertes/{param_url}` (**Q-05 TBD**) |
+| **Taules MySQL** | `oferta_general`, `oferta_continguts`, `oferta_categories`, `generic_categoria_oferta`; FK `id_establiment`, `id_poble` |
 | **Relacions** | Anchor: establiment o població; no substituir agenda |
 
 ---
@@ -224,12 +224,12 @@ Veure [especificacio-tecnica-ca.md](especificacio-tecnica-ca.md) §6 per pipelin
 
 | Domini negoci | Tool | Repository | BD | Estat schema |
 |---------------|------|------------|-----|--------------|
-| Establiments (dormir/menjar) | `search_establishments` | `EstablishmentsRepository` | MySQL | TBD |
-| Articles / notícies | `search_articles` | `ArticlesRepository` | MySQL | TBD |
-| On anar | `search_destinations` | `DestinationsRepository` | MySQL | TBD |
-| Rutes | `search_routes` | `RoutesRepository` | MySQL | TBD |
-| Agenda | `search_events` | `EventsRepository` | MySQL | TBD |
-| Experiències | `search_experiences` | `ExperiencesRepository` | MySQL | TBD |
+| Establiments (dormir/menjar) | `search_establishments` | `EstablishmentsRepository` | MySQL | Schema OK — SQL ☐ |
+| Articles / notícies | `search_articles` | `ArticlesRepository` | MySQL | Schema OK — SQL ☐ |
+| On anar | `search_destinations` | `DestinationsRepository` | MySQL | Schema OK — SQL ☐ |
+| Rutes | `search_routes` | `RoutesRepository` | MySQL | Schema OK — SQL ☐ |
+| Agenda | `search_events` | `EventsRepository` | MySQL | Schema OK — SQL ☐ |
+| Experiències | `search_experiences` | `ExperiencesRepository` | MySQL | Schema OK (hipòtesi `oferta_*`) — SQL ☐ |
 | Guies PDF | `search_municipality_guides` | (servei RAG) | PostgreSQL | Definit a pla Fase 5 |
 
 ---
@@ -251,21 +251,22 @@ Documentació i prototip anterior (scraping) usaven **4 buscadors**. Mapatge de 
 
 ---
 
-## 7. Preguntes obertes (pendents de schema MySQL)
+## 7. Preguntes obertes (schema MySQL)
 
-Cal resoldre amb el mantenedor PHP / export `docs/schema.sql`:
+Font: [schema.sql](../schema.sql) (export client 2026-07-07). Detall SQL: [sql-mapeo.md](../sql-mapeo.md).
 
-| # | Pregunta |
-|---|----------|
-| Q-01 | Nom exacte de la taula d'**establiments** i com es distingeix tipus dormir vs menjar |
-| Q-02 | On viuen **articles/notícies** i quins camps retornar (títol, resum, slug, data) |
-| Q-03 | Taula(s) de **poblacions / on anar** i relació amb comarques |
-| Q-04 | Taula i relacions d'**experiències** vs agenda (FK a establiment/població?) |
-| Q-05 | URL canònica per experiències i articles |
-| Q-06 | Regles `publicat`, dates vigents, idioma per a cada entitat |
-| Q-07 | Límits de JOINs legacy (`rel_*`, noms críptics) per a cada buscador |
+| # | Pregunta | Resposta schema (2026-07) | Estat |
+|---|----------|---------------------------|-------|
+| Q-01 | Nom exacte de la taula d'**establiments** i com es distingeix tipus dormir vs menjar | Taula `establiment_general`. Tipus via `establiment_tipus` → `generic_tipus_establiment` (`code`, `tipus_ca`). Camp `eg.tipus` (int) també existeix — validar relació | Parcial |
+| Q-02 | On viuen **articles/notícies** i quins camps retornar | `noticia_general` + `noticia_continguts` (`titol`, `param_url`, `cos`, `data`, `imatge`) | Parcial |
+| Q-03 | Taula(s) de **poblacions / on anar** i relació amb comarques | `poble_general` + `poble_continguts`; comarca via `poble_comarques.id`; `generic_ubicacions` per zones agregades | Parcial |
+| Q-04 | Taula i relacions d'**experiències** vs agenda | Agenda = `agenda_*`. Hipòtesi experiències = `oferta_*` amb FK `id_establiment` / `id_poble` | **Confirmar client** |
+| Q-05 | URL canònica per experiències, articles, establiments, pobles | Rutes/agenda confirmats a tecnic. Resta hipòtesi a sql-mapeo §hipòtesis | **Confirmar client** |
+| Q-06 | Regles `publicat`, dates vigents, idioma per entitat | Documentades per domini a sql-mapeo §1.4–6.4; validar valors reals amb dump | Parcial |
+| Q-07 | Límits de JOINs legacy per buscador | Màx. 6–8 JOINs per query; evitar `fitxa`, `client`, taules admin | Documentat |
+| Q-08 | On emmagatzemar `entity_id` (UUID) a fitxes MySQL | **No apareix al schema** — Fase producte 2 | Obert |
 
-Respostes aniran a [sql-mapeo.md](sql-mapeo.md) (Fase 2).
+Respostes completes aniran a [sql-mapeo.md](../sql-mapeo.md) quan es provi SQL amb dump.
 
 ---
 
@@ -276,7 +277,7 @@ Respostes aniran a [sql-mapeo.md](sql-mapeo.md) (Fase 2).
 | Tools catàleg | 4 (`experiences`, `accommodations`, `events`, `routes`) | **6** (veure §5) |
 | Font de dades catàleg | Scraping HTML femturisme.cat | **MySQL read-only** |
 | Guies PDF | Stub / parcial | Pipeline + `search_municipality_guides` |
-| `sql-mapeo.md` | Plantilla 4 tools | **6 tools** (SQL TODO) |
+| `sql-mapeo.md` | 6 tools — schema mapejat; SQL borrador ☐ provada |
 
 ---
 

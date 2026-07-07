@@ -1,6 +1,6 @@
 # Checklist d'entrega — agent_femturisme
 
-**Progrés:** 15 / 90 completats · **Última actualització:** 2026-07-03
+**Progrés:** 16 / 90 completats · **Última actualització:** 2026-07-07
 
 > Els agents marquen `- [x]` quan el criteri **Detect** es compleix. Veure [index.md](index.md).
 
@@ -29,7 +29,7 @@
 - [x] **DEV-009** — Skills Cursor (plan → publish → kanban)  
   *Detect:* `.cursor/skills/plan-to-issues`, `publish-github-issues`, `kanban-board`
 - [ ] **DEV-010** — `sql-mapeo.md` complet (6 buscadors, SQL provada)  
-  *Detect:* cap secció TBD; totes les queries amb casos prova
+  *Detect:* cap secció TBD; totes les queries amb casos prova. **Parcial (2026-07):** schema mapejat + SQL borrador; falta provar amb dump
 - [ ] **DEV-011** — Issues GitHub del roadmap publicades  
   *Detect:* `gh issue list --repo 3urega/femturisme` amb batch Fase 1–3
 
@@ -37,8 +37,8 @@
 
 ## Fase A — Pre-requisits del client i ops
 
-- [ ] **DEV-020** — `docs/schema.sql` MySQL (estructura sense dades)  
-  *Detect:* fitxer al repo o enllaç documentat; client l'ha aportat
+- [x] **DEV-020** — `docs/schema.sql` MySQL (estructura sense dades)  
+  *Detect:* fitxer al repo; export client MariaDB 10.3.39 (2026-07-07)
 - [ ] **DEV-021** — Usuari MySQL `agent_read` (SELECT only) creat  
   *Detect:* credencials a `.env` staging; connexió OK
 - [ ] **DEV-022** — MySQL disponible per desenvolupament  
