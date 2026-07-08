@@ -1,6 +1,6 @@
 # Checklist d'entrega — agent_femturisme
 
-**Progrés:** 19 / 90 completats · **Última actualització:** 2026-07-08
+**Progrés:** 21 / 90 completats · **Última actualització:** 2026-07-08
 
 > Els agents marquen `- [x]` quan el criteri **Detect** es compleix. Veure [index.md](index.md).
 
@@ -64,8 +64,8 @@
   *Detect:* deps instal·lables; pytest a requirements.txt *(2026-07-08)*
 - [x] **DEV-102** — `app/config.py` amb `AGENT_*`, `MYSQL_*`, `POSTGRES_*`, embeddings  
   *Detect:* variables llegides des de `.env.example`
-- [ ] **DEV-103** — `GET /health` (MySQL + PostgreSQL + servei)  
-  *Detect:* endpoint retorna 200 amb estat de connexions
+- [x] **DEV-103** — `GET /health` (MySQL + PostgreSQL + servei)  
+  *Detect:* endpoint retorna 200 amb estat de connexions *(2026-07-08)*
 - [x] **DEV-104** — `POST /api/chat` amb SSE (`tool_call`, `tool_result`, `text_chunk`, `done`)  
   *Detect:* `app/routes/api.py` + smoke curl
 - [x] **DEV-105** — `POST /api/session/reset`  
@@ -83,8 +83,8 @@
 
 ## Fase 2 — Exploració MySQL (tecnic §15.2, fase-2-tools-mysql-ca)
 
-- [ ] **DEV-200** — Estructura `app/db/` (`connection.py`, `mappers.py`, `repositories/`)  
-  *Detect:* directoris creats segons arquitectura
+- [x] **DEV-200** — Estructura `app/db/` (`connection.py`, `mappers.py`, `repositories/`)  
+  *Detect:* directoris creats segons arquitectura *(2026-07-08)*
 - [x] **DEV-201** — `tests/conftest.py` + fixture Flask app  
   *Detect:* `pytest` arrenca sense errors; API-01…04 passen
 - [ ] **DEV-202** — Mapatge `search_establishments` a `sql-mapeo.md`  
