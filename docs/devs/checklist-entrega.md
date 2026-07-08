@@ -1,6 +1,6 @@
 # Checklist d'entrega — agent_femturisme
 
-**Progrés:** 21 / 90 completats · **Última actualització:** 2026-07-08
+**Progrés:** 22 / 90 completats · **Última actualització:** 2026-07-08
 
 > Els agents marquen `- [x]` quan el criteri **Detect** es compleix. Veure [index.md](index.md).
 
@@ -99,8 +99,8 @@
   *Detect:* SQL-06
 - [ ] **DEV-207** — Mapatge `search_routes`  
   *Detect:* SQL-07
-- [ ] **DEV-208** — Helper `row_to_card()` + wrapper JSON comú  
-  *Detect:* `app/db/mappers.py`; contracte tecnic §6.13
+- [x] **DEV-208** — Helper `row_to_card()` + wrapper JSON comú  
+  *Detect:* `app/db/mappers.py`; contracte tecnic §6.13 *(2026-07-08)*
 
 ---
 
