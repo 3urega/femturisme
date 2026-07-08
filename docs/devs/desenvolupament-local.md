@@ -185,7 +185,7 @@ No és un error: són dos entorns diferents. En dev local treballa amb **5010**.
 
 ## 7. Variables d'entorn (`.env`)
 
-Plantilla: `.env.example`. El codi llegeix variables amb prefix opcional `AGENT_` (veure `app/config.py`).
+Plantilla: `.env.example`. El codi llegeix variables amb prefix opcional `AGENT_` (veure `app/config.py`) — p.ex. `AGENT_MYSQL_HOST` o `MYSQL_HOST`.
 
 ### 7.1 LLM en dev local (recomanat)
 
@@ -222,8 +222,10 @@ MYSQL_HOST=127.0.0.1
 MYSQL_PORT=3306
 MYSQL_USER=agent_read
 MYSQL_PASSWORD=dev-local
-MYSQL_DATABASE=femturisme
+MYSQL_CONNECT_TIMEOUT=5
 ```
+
+També vàlid amb prefix `AGENT_` (ex. `AGENT_MYSQL_HOST`). Timeouts per defecte: 5 s.
 
 Instal·lació i import: [§9](#9-mysql-en-dev-còpia-local-del-client).
 
@@ -236,10 +238,11 @@ POSTGRES_HOST=db.example.neon.tech
 POSTGRES_PORT=5432
 POSTGRES_USER=...
 POSTGRES_PASSWORD=...
-POSTGRES_DATABASE=femturisme_agent
+POSTGRES_DATABASE=agent_femturisme
+POSTGRES_CONNECT_TIMEOUT=5
 ```
 
-Instància gestionada amb extensió **pgvector**. No instal·lar PostgreSQL al Windows de dev.
+Prefix `AGENT_POSTGRES_*` alternatiu. Base per defecte segons [tecnic.md §10.2](../client/tecnic.md). Instància gestionada amb extensió **pgvector**; no cal instal·lar PostgreSQL al Windows de dev.
 
 ### 7.5 Què cal per fase
 

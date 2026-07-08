@@ -1,6 +1,6 @@
 # Checklist d'entrega — agent_femturisme
 
-**Progrés:** 16 / 90 completats · **Última actualització:** 2026-07-07
+**Progrés:** 18 / 90 completats · **Última actualització:** 2026-07-07
 
 > Els agents marquen `- [x]` quan el criteri **Detect** es compleix. Veure [index.md](index.md).
 
@@ -62,7 +62,7 @@
   *Detect:* `Dockerfile` + `docker-compose.yml` a l'arrel
 - [ ] **DEV-101** — `requirements.txt` complet (Flask, MySQL, PostgreSQL, pytest, embeddings…)  
   *Detect:* deps instal·lables; pytest a requirements.txt
-- [ ] **DEV-102** — `app/config.py` amb `AGENT_*`, `MYSQL_*`, `POSTGRES_*`, embeddings  
+- [x] **DEV-102** — `app/config.py` amb `AGENT_*`, `MYSQL_*`, `POSTGRES_*`, embeddings  
   *Detect:* variables llegides des de `.env.example`
 - [ ] **DEV-103** — `GET /health` (MySQL + PostgreSQL + servei)  
   *Detect:* endpoint retorna 200 amb estat de connexions
@@ -76,7 +76,7 @@
   *Detect:* `app/static/js/chat.js`
 - [ ] **DEV-108** — Desplegament staging Docker verificat  
   *Detect:* servei accessible al servidor staging; `/health` 200. **No** cal executar Docker al PC de dev (veure [desenvolupament-local.md](desenvolupament-local.md)).
-- [ ] **DEV-109** — `.env.example` sense secrets (plantilla completa)  
+- [x] **DEV-109** — `.env.example` sense secrets (plantilla completa)  
   *Detect:* fitxer documentat a tecnic §10.2
 
 ---
