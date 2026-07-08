@@ -2,7 +2,7 @@
 
 Treball executable **abans de tenir** MySQL staging del client. Tanca gaps de Fase 1 i prepara Fase 2–3.
 
-**Estat:** publicades a GitHub (2026-07-03) · **Manifest:** [manifest.fase1-base-local.json](../issues/manifest.fase1-base-local.json)
+**Estat:** publicades a GitHub (2026-07-03) · **Implementades:** #1 (2026-07-07), #2 (2026-07-08) · **Manifest:** [manifest.fase1-base-local.json](../issues/manifest.fase1-base-local.json)
 
 ---
 
@@ -32,12 +32,12 @@ Treball executable **abans de tenir** MySQL staging del client. Tanca gaps de Fa
 
 ## GitHub issues (publicades)
 
-| Ordre | GitHub | Títol | Checklist |
-|-------|--------|-------|-----------|
-| 1 | [#1](https://github.com/3urega/femturisme/issues/1) | Config completa app/config.py + .env.example | DEV-102, DEV-109 |
-| 2 | [#2](https://github.com/3urega/femturisme/issues/2) | requirements.txt amb drivers MySQL i PostgreSQL | DEV-101 |
-| 3 | [#3](https://github.com/3urega/femturisme/issues/3) | Esquelet app/db | DEV-200 |
-| 4 | [#4](https://github.com/3urega/femturisme/issues/4) | GET /health | DEV-103 |
+| Ordre | GitHub | Títol | Checklist | Estat |
+|-------|--------|-------|-----------|-------|
+| 1 | [#1](https://github.com/3urega/femturisme/issues/1) | Config completa app/config.py + .env.example | DEV-102, DEV-109 | Implementada |
+| 2 | [#2](https://github.com/3urega/femturisme/issues/2) | requirements.txt amb drivers MySQL i PostgreSQL | DEV-101 | Implementada |
+| 3 | [#3](https://github.com/3urega/femturisme/issues/3) | Esquelet app/db | DEV-200 | Oberta |
+| 4 | [#4](https://github.com/3urega/femturisme/issues/4) | GET /health | DEV-103 | Oberta |
 
 Drafts locals: [docs/issues/](../issues/) (eliminar quan es tanquin les issues).
 

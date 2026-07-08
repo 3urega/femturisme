@@ -15,11 +15,11 @@
     },
     {
       "title": "Fase 1: requirements.txt amb drivers MySQL i PostgreSQL",
-      "bodyFile": "docs/issues/requirements-db-deps.md",
       "labels": ["fase-1", "infra"],
       "checklistIds": ["DEV-101"],
       "githubNumber": 2,
       "publishedAt": "2026-07-03",
+      "closedAt": "2026-07-08",
       "url": "https://github.com/3urega/femturisme/issues/2"
     },
     {

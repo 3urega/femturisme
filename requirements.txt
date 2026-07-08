@@ -8,6 +8,10 @@ anthropic>=0.40.0
 openai>=1.50.0
 google-generativeai>=0.8.0
 
+# Database drivers (Fase 3+: repositories MySQL / PostgreSQL)
+PyMySQL>=1.1
+psycopg2-binary>=2.9
+
 # Testing
 pytest>=8.0
 pytest-cov>=4.0

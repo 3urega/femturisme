@@ -116,6 +116,7 @@ python -m venv .venv
 # 2. Dependències
 python -m pip install --upgrade pip
 python -m pip install -r requirements.txt
+# Inclou PyMySQL i psycopg2-binary (Fase 3+: repositories MySQL/PostgreSQL; no cal BD local a Fase 1)
 
 # 3. Variables d'entorn
 copy .env.example .env

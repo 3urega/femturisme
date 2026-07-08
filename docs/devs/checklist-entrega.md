@@ -1,6 +1,6 @@
 # Checklist d'entrega — agent_femturisme
 
-**Progrés:** 18 / 90 completats · **Última actualització:** 2026-07-07
+**Progrés:** 19 / 90 completats · **Última actualització:** 2026-07-08
 
 > Els agents marquen `- [x]` quan el criteri **Detect** es compleix. Veure [index.md](index.md).
 
@@ -60,8 +60,8 @@
 
 - [x] **DEV-100** — Dockerfile + docker-compose  
   *Detect:* `Dockerfile` + `docker-compose.yml` a l'arrel
-- [ ] **DEV-101** — `requirements.txt` complet (Flask, MySQL, PostgreSQL, pytest, embeddings…)  
-  *Detect:* deps instal·lables; pytest a requirements.txt
+- [x] **DEV-101** — `requirements.txt` complet (Flask, MySQL, PostgreSQL, pytest, embeddings…)  
+  *Detect:* deps instal·lables; pytest a requirements.txt *(2026-07-08)*
 - [x] **DEV-102** — `app/config.py` amb `AGENT_*`, `MYSQL_*`, `POSTGRES_*`, embeddings  
   *Detect:* variables llegides des de `.env.example`
 - [ ] **DEV-103** — `GET /health` (MySQL + PostgreSQL + servei)  

@@ -107,6 +107,7 @@ Actualitzar també el comptador de progrés al cap del checklist.
 | Agent / SSE | [agente.md](../agente.md) |
 | Tests | [testing.md](testing.md) |
 | PostgreSQL / RAG | [postgre_schema.md](../postgre_schema.md), [schema-agent-postgres.sql](../schema-agent-postgres.sql) |
+| RAG futur sobre catàleg (preparació) | [preparacio-rag-cataleg.md](preparacio-rag-cataleg.md) |
 | Roadmap | [plan-integracion-ca.md](../plan-integracion-ca.md) |
 | Legacy (no perpetuar) | [scraping-y-respuestas.md](../scraping-y-respuestas.md) |
 
