@@ -13,6 +13,7 @@ Treball executable **abans de tenir** dump de dades del client. Implementa codi,
 | GitHub | Item | Data |
 |--------|------|------|
 | [#5](https://github.com/3urega/femturisme/issues/5) | `row_to_card()` + `build_search_wrapper()` — DEV-208 | 2026-07-08 |
+| [#6](https://github.com/3urega/femturisme/issues/6) | `EstablishmentsRepository` + `search_establishments` — DEV-302 (tests #11) | 2026-07-08 |
 
 ---
 
@@ -51,7 +52,7 @@ Treball executable **abans de tenir** dump de dades del client. Implementa codi,
 | Ordre | GitHub | Títol | Checklist |
 |-------|--------|-------|-----------|
 | 1 | [#5](https://github.com/3urega/femturisme/issues/5) ✅ | Fase 3 prep: row_to_card + wrapper JSON comú | DEV-208 |
-| 2 | [#6](https://github.com/3urega/femturisme/issues/6) | Fase 3 prep: EstablishmentsRepository + search_establishments | DEV-302 |
+| 2 | [#6](https://github.com/3urega/femturisme/issues/6) ✅ | Fase 3 prep: EstablishmentsRepository + search_establishments | DEV-302 |
 | 3 | [#7](https://github.com/3urega/femturisme/issues/7) | Fase 3 prep: EventsRepository + search_events MySQL | DEV-305 |
 | 4 | [#8](https://github.com/3urega/femturisme/issues/8) | Fase 3 prep: DestinationsRepository + search_destinations | DEV-304 |
 | 5 | [#9](https://github.com/3urega/femturisme/issues/9) | Fase 3 prep: Registry 6 tools i eliminar scraping migrat | DEV-307, DEV-308 |

@@ -5,13 +5,6 @@
   "publishedAt": "2026-07-08",
   "issues": [
     {
-      "title": "Fase 3 prep: EstablishmentsRepository + search_establishments",
-      "bodyFile": "docs/issues/establishments-repository-mysql.md",
-      "labels": ["fase-3", "mysql"],
-      "checklistIds": ["DEV-302"],
-      "githubNumber": 6
-    },
-    {
       "title": "Fase 3 prep: EventsRepository + search_events MySQL",
       "bodyFile": "docs/issues/events-repository-mysql.md",
       "labels": ["fase-3", "mysql"],
