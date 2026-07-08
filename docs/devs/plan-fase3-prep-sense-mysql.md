@@ -16,6 +16,7 @@ Treball executable **abans de tenir** dump de dades del client. Implementa codi,
 | [#6](https://github.com/3urega/femturisme/issues/6) | `EstablishmentsRepository` + `search_establishments` — DEV-302 (tests #11) | 2026-07-08 |
 | [#7](https://github.com/3urega/femturisme/issues/7) | `EventsRepository` + `search_events` MySQL — DEV-305 (tests #11) | 2026-07-08 |
 | [#8](https://github.com/3urega/femturisme/issues/8) | `DestinationsRepository` + `search_destinations` — DEV-304 (tests #11) | 2026-07-08 |
+| [#9](https://github.com/3urega/femturisme/issues/9) | Registry 3 MySQL + 2 legacy; sin `search_accommodations` — DEV-307/308 parcial | 2026-07-08 |
 
 ---
 
@@ -57,7 +58,7 @@ Treball executable **abans de tenir** dump de dades del client. Implementa codi,
 | 2 | [#6](https://github.com/3urega/femturisme/issues/6) ✅ | Fase 3 prep: EstablishmentsRepository + search_establishments | DEV-302 |
 | 3 | [#7](https://github.com/3urega/femturisme/issues/7) ✅ | Fase 3 prep: EventsRepository + search_events MySQL | DEV-305 |
 | 4 | [#8](https://github.com/3urega/femturisme/issues/8) ✅ | Fase 3 prep: DestinationsRepository + search_destinations | DEV-304 |
-| 5 | [#9](https://github.com/3urega/femturisme/issues/9) | Fase 3 prep: Registry 6 tools i eliminar scraping migrat | DEV-307, DEV-308 |
+| 5 | [#9](https://github.com/3urega/femturisme/issues/9) ✅ | Fase 3 prep: Registry 6 tools i eliminar scraping migrat | DEV-307, DEV-308 (parcial) |
 | 6 | [#10](https://github.com/3urega/femturisme/issues/10) | Fase 3 prep: System prompt 6 dominis + idiomes | DEV-310 |
 | 7 | [#11](https://github.com/3urega/femturisme/issues/11) | Fase 3 prep: Tests integració MySQL batch 1 | DEV-202, DEV-204, DEV-205 |
 

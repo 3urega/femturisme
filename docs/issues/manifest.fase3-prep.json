@@ -5,13 +5,6 @@
   "publishedAt": "2026-07-08",
   "issues": [
     {
-      "title": "Fase 3 prep: Registry 6 tools i eliminar scraping migrat",
-      "bodyFile": "docs/issues/tool-registry-legacy-cleanup.md",
-      "labels": ["fase-3", "agent"],
-      "checklistIds": ["DEV-307", "DEV-308"],
-      "githubNumber": 9
-    },
-    {
       "title": "Fase 3 prep: System prompt 6 dominis + idiomes",
       "bodyFile": "docs/issues/system-prompt-6-domains.md",
       "labels": ["fase-3", "agent"],

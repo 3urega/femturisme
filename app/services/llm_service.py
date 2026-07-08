@@ -53,14 +53,20 @@ class BaseLLMProvider:
 # ---------------------------------------------------------------------------
 
 _TOOL_KEYWORDS: dict[str, list[str]] = {
-    'search_experiences': [
-        'experiència', 'experiencias', 'experience', 'activitat', 'actividad',
-        'activity', 'excursió', 'excursion', 'visitar', 'visita', 'fer', 'hacer',
-        'que fer', 'que hacer', 'turisme', 'turismo',
+    'search_destinations': [
+        'on anar', 'destinació', 'destinacion', 'destination', 'poble', 'pobles',
+        'municipi', 'municipio', 'comarca', 'lloc', 'llocs', 'visitar', 'besalú',
+        'besalu', 'girona', 'empordà', 'emporda',
     ],
-    'search_accommodations': [
+    'search_establishments': [
         'hotel', 'allotjament', 'alojamiento', 'accommodation', 'dormir', 'sleep',
         'hostal', 'hostel', 'casa rural', 'rural', 'camping', 'apartament',
+        'restaurant', 'menjar', 'on menjar', 'on dormir', 'bar', 'cuina',
+    ],
+    'search_experiences': [
+        'experiència', 'experiencias', 'experience', 'activitat', 'actividad',
+        'activity', 'excursió', 'excursion', 'fer', 'hacer',
+        'que fer', 'que hacer', 'turisme', 'turismo',
     ],
     'search_events': [
         'event', 'evento', 'festival', 'concert', 'fira', 'feria', 'fair',
