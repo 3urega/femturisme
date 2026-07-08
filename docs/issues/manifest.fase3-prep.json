@@ -5,20 +5,6 @@
   "publishedAt": "2026-07-08",
   "issues": [
     {
-      "title": "Fase 3 prep: EventsRepository + search_events MySQL",
-      "bodyFile": "docs/issues/events-repository-mysql.md",
-      "labels": ["fase-3", "mysql"],
-      "checklistIds": ["DEV-305"],
-      "githubNumber": 7
-    },
-    {
-      "title": "Fase 3 prep: DestinationsRepository + search_destinations",
-      "bodyFile": "docs/issues/destinations-repository-mysql.md",
-      "labels": ["fase-3", "mysql"],
-      "checklistIds": ["DEV-304"],
-      "githubNumber": 8
-    },
-    {
       "title": "Fase 3 prep: Registry 6 tools i eliminar scraping migrat",
       "bodyFile": "docs/issues/tool-registry-legacy-cleanup.md",
       "labels": ["fase-3", "agent"],

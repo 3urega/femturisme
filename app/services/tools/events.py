@@ -1,6 +1,10 @@
-"""Tool: search_events — scrapes /agenda on femturisme.cat."""
+"""Tool: search_events — MySQL agenda catalog."""
+from __future__ import annotations
+
 import json
-from .scraper import fetch_page, extract_cards, result_count
+
+from app.db.connection import DatabaseError
+from app.db.repositories import events
 
 SCHEMA = {
     'name': 'search_events',
@@ -32,34 +36,30 @@ SCHEMA = {
 
 def execute(tool_input: dict) -> str:
     destination = tool_input.get('destination', '').strip()
-    date_from   = tool_input.get('date_from', '').strip()
-    date_to     = tool_input.get('date_to', '').strip()
+    if not destination:
+        return json.dumps({'error': 'destination required', 'results': []})
 
-    params: dict = {}
-    if destination:
-        params['ubicacio'] = destination
-    if date_from:
-        params['data_inici'] = date_from
-    if date_to:
-        params['data_fi'] = date_to
+    date_from = tool_input.get('date_from', '')
+    date_from = str(date_from).strip() if date_from is not None else ''
+    date_from = date_from or None
 
-    soup = fetch_page('/agenda', params)
-    if not soup:
-        return json.dumps({'error': 'No s\'ha pogut accedir a femturisme.cat', 'results': []})
+    date_to = tool_input.get('date_to', '')
+    date_to = str(date_to).strip() if date_to is not None else ''
+    date_to = date_to or None
 
-    cards = extract_cards(soup, limit=6)
-    count = result_count(soup)
+    try:
+        data = events.search(
+            destination=destination,
+            date_from=date_from,
+            date_to=date_to,
+        )
+    except DatabaseError:
+        return json.dumps(
+            {
+                'error': "No s'ha pogut accedir a les dades del catàleg",
+                'results': [],
+            },
+            ensure_ascii=False,
+        )
 
-    # Events store date in the 'location' field (ft-card__loc holds date range)
-    for c in cards:
-        if c.get('location') and not c.get('date'):
-            c['date']     = c.pop('location')
-            c['location'] = None
-
-    return json.dumps({
-        'destination': destination,
-        'date_from':   date_from or None,
-        'date_to':     date_to or None,
-        'total':       count,
-        'results':     cards,
-    }, ensure_ascii=False)
+    return json.dumps(data, ensure_ascii=False)
