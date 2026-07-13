@@ -1,6 +1,6 @@
 # Checklist d'entrega — agent_femturisme
 
-**Progrés:** 34 / 90 completats · **Última actualització:** 2026-07-13
+**Progrés:** 36 / 90 completats · **Última actualització:** 2026-07-13
 
 > Els agents marquen `- [x]` quan el criteri **Detect** es compleix. Veure [index.md](index.md).
 
@@ -95,8 +95,8 @@
   *Detect:* SQL-04 *(2026-07-13)*
 - [x] **DEV-205** — Mapatge `search_events`  
   *Detect:* SQL-05 *(2026-07-13)*
-- [ ] **DEV-206** — Mapatge `search_experiences`  
-  *Detect:* SQL-06
+- [x] **DEV-206** — Mapatge `search_experiences`  
+  *Detect:* SQL-06 *(2026-07-13)*
 - [x] **DEV-207** — Mapatge `search_routes`  
   *Detect:* SQL-07 *(2026-07-13)*
 - [x] **DEV-208** — Helper `row_to_card()` + wrapper JSON comú  
@@ -108,8 +108,8 @@
 
 Per cada buscador: **Repository + Tool refactor + test integració**. Sense `scraper.py`.
 
-- [ ] **DEV-301** — `ExperiencesRepository` + `search_experiences` MySQL + test  
-  *Detect:* `tests/integration/sql/test_experiences.py` passa; tool sense import scraper
+- [x] **DEV-301** — `ExperiencesRepository` + `search_experiences` MySQL + test  
+  *Detect:* `tests/integration/sql/test_experiences.py` passa; tool sense import scraper *(2026-07-13)*
 - [x] **DEV-302** — `EstablishmentsRepository` + `search_establishments` (dormir+menjar)  
   *Detect:* substitueix `search_accommodations`; test SQL-01/02 *(2026-07-13)*
 - [x] **DEV-303** — `ArticlesRepository` + `search_articles`  

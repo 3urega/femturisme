@@ -13,7 +13,7 @@ def test_experiences_olvan(app):
     experiences = pytest.importorskip('app.db.repositories.experiences')
     with app.app_context():
         data = experiences.search(destination='Olvan')
-    assert data['total'] >= 0
+    assert int(data['total']) >= 0
     if int(data['total']) >= 1:
         assert data['results'][0]['title']
         assert data['results'][0]['url'].startswith('https://www.femturisme.cat/')

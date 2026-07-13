@@ -7,7 +7,9 @@ from typing import Any, Callable
 
 CATALOG_BASE_URL = 'https://www.femturisme.cat'
 DESCRIPTION_MAX_LEN = 200
-SUPPORTED_CONTENT_TYPES = frozenset({'establishment', 'event', 'destination', 'article', 'route'})
+SUPPORTED_CONTENT_TYPES = frozenset({
+    'establishment', 'event', 'destination', 'article', 'route', 'experience',
+})
 
 _CARD_FIELDS = (
     'id',
@@ -33,7 +35,7 @@ def row_to_card(row: dict, content_type: str) -> dict:
 
     Args:
         row: Raw row dict from a repository query.
-        content_type: Domain discriminator (establishment, event, destination, article, route).
+        content_type: Domain discriminator (establishment, event, destination, article, route, experience).
 
     Returns:
         Normalized card dict for results[].
@@ -140,6 +142,16 @@ def _combine_location(location: object, region: object) -> str | None:
     return loc or reg
 
 
+def _combine_experience_location(
+    establishment: object, location: object, comarca: object
+) -> str | None:
+    place = _combine_location(location, comarca)
+    name = _clean_text(establishment)
+    if name and place:
+        return f'{name} ({place})'
+    return name or place
+
+
 def _build_establishment_url(type_code: object, param_url: object) -> str | None:
     slug = _clean_text(param_url)
     if not slug:
@@ -176,6 +188,13 @@ def _build_route_url(param_url: object) -> str | None:
     if not slug:
         return None
     return f'{CATALOG_BASE_URL}/rutes/{slug.strip("/")}'
+
+
+def _build_experience_url(param_url: object) -> str | None:
+    slug = _clean_text(param_url)
+    if not slug:
+        return None
+    return f'{CATALOG_BASE_URL}/ofertes/{slug.strip("/")}'
 
 
 def _coerce_date(value: object) -> date | None:
@@ -317,10 +336,37 @@ def _map_route(row: dict) -> dict:
     return card
 
 
+def _map_experience(row: dict) -> dict:
+    card = _base_card()
+    card.update(
+        {
+            'id': _string_id(row.get('id')),
+            'type': _clean_text(row.get('category') or row.get('type')),
+            'title': _clean_text(row.get('title')),
+            'location': _combine_experience_location(
+                row.get('establishment_name'),
+                row.get('location'),
+                row.get('comarca'),
+            ),
+            'description': _truncate_description(
+                row.get('description') or row.get('resum')
+            ),
+            'url': _build_experience_url(row.get('param_url')),
+            'image': _absolute_media_url(row.get('image')),
+            'date': None,
+            'entity_id': _clean_text(row.get('entity_id')),
+            'source_type': 'experience',
+            'source_id': _string_id(row.get('id')),
+        }
+    )
+    return card
+
+
 _ROW_MAPPERS: dict[str, Callable[[dict], dict]] = {
     'establishment': _map_establishment,
     'event': _map_event,
     'destination': _map_destination,
     'article': _map_article,
     'route': _map_route,
+    'experience': _map_experience,
 }

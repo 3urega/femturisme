@@ -59,7 +59,7 @@ Detall respostes parcials: [dominio-femturisme-ca.md §7](client/dominio-femturi
 | 3 | `search_destinations` | `DestinationsRepository` | `poble_*`, `poble_comarques`, `generic_ubicacions` | ☐ | ☐ |
 | 4 | `search_routes` | `RoutesRepository` | `ruta_*`, `generic_tematiques`, `poble_*` | ☑ | ☐ |
 | 5 | `search_events` | `EventsRepository` | `agenda_*`, `poble_*` | ☐ | ☐ |
-| 6 | `search_experiences` | `ExperiencesRepository` | `oferta_*`, `establiment_*`, `poble_*` | ☐ | ☐ |
+| 6 | `search_experiences` | `ExperiencesRepository` | `oferta_*`, `establiment_*`, `poble_*` | ☑ | ☐ |
 
 **Nota migració:** el prototip antic usava `search_accommodations` i `search_experiences` (scraping `/ofertes`). Veure [dominio-femturisme-ca.md §6](client/dominio-femturisme-ca.md).
 
@@ -552,7 +552,8 @@ erDiagram
 ### 6.2 Query SQL borrador
 
 ```sql
--- Paràmetres: :lang, :destination_pattern, :category_pattern (opcional), :establishment_pattern (opcional)
+-- Paràmetres: %s lang, destination_pattern, category_pattern (opcional),
+--             establishment_pattern (opcional), limit
 SELECT
     og.id,
     oc.titol AS title,
@@ -566,7 +567,7 @@ SELECT
     gco.categoria_ca AS category
 FROM oferta_general og
 INNER JOIN oferta_continguts oc
-    ON oc.id_oferta = og.id AND oc.idioma = :lang
+    ON oc.id_oferta = og.id AND oc.idioma = %s
 LEFT JOIN establiment_general eg ON eg.id = og.id_establiment
 LEFT JOIN poble_general pg ON pg.id = COALESCE(NULLIF(og.id_poble, 0), eg.id_poble)
 LEFT JOIN poble_comarques pc ON pc.id = pg.id_comarca
@@ -574,17 +575,20 @@ LEFT JOIN oferta_categories ocat ON ocat.id_oferta = og.id
 LEFT JOIN generic_categoria_oferta gco ON gco.id = ocat.id_categoria
 WHERE og.estat <> 'borrador'
   AND og.data_inicial <= NOW()
-  AND (og.data_final = '0000-00-00 00:00:00' OR og.data_final >= NOW())
+  AND (og.data_final IS NULL OR og.data_final < '1000-01-01' OR og.data_final >= NOW())
   AND (
-      pg.poble LIKE :destination_pattern
-      OR pc.comarca LIKE :destination_pattern
+      pg.poble LIKE %s
+      OR pc.comarca LIKE %s
   )
-  AND (:category_pattern IS NULL OR gco.categoria_ca LIKE :category_pattern)
-  AND (:establishment_pattern IS NULL OR eg.nom LIKE :establishment_pattern)
-GROUP BY og.id
+  AND (%s IS NULL OR gco.categoria_ca LIKE %s)
+  AND (%s IS NULL OR eg.nom LIKE %s)
+GROUP BY og.id, oc.titol, oc.param_url, oc.resum, og.imatge, og.preu_oferta,
+         og.data_inicial, eg.nom, pg.poble, pc.comarca, gco.categoria_ca
 ORDER BY og.data_inicial DESC
-LIMIT 20;
+LIMIT %s;
 ```
+
+**Implementació:** `app/db/repositories/experiences.py` — dates zero-date strict-safe; vigència actual.
 
 ### 6.3 Mapatge columna → JSON
 
@@ -610,7 +614,7 @@ LIMIT 20;
 
 | # | destination | category / establishment | Files min | URL provada |
 |---|-------------|--------------------------|-----------|-------------|
-| SQL-06 | Olvan | arrossada | ≥ 0 | ☐ |
+| SQL-06 | Olvan | arrossada | ≥ 0 | ☑ |
 | — | Berguedà | Sant Valentí | ≥ 0 | ☐ |
 
 ### 6.6 Pendents client

@@ -96,6 +96,27 @@ def test_row_to_card_route():
     assert card['location'] == 'Cadaqués (Alt Empordà)'
 
 
+def test_row_to_card_experience():
+    card = row_to_card(
+        {
+            'id': 88,
+            'title': 'Arrossada popular',
+            'param_url': 'arrossada-olvan',
+            'category': 'Menús',
+            'establishment_name': 'Restaurant Cal Pere',
+            'location': 'Olvan',
+            'comarca': 'Berguedà',
+            'description': 'Arrossada de temporada.',
+        },
+        'experience',
+    )
+    assert card['source_type'] == 'experience'
+    assert card['source_id'] == '88'
+    assert card['url'] == 'https://www.femturisme.cat/ofertes/arrossada-olvan'
+    assert card['type'] == 'Menús'
+    assert card['location'] == 'Restaurant Cal Pere (Olvan (Berguedà))'
+
+
 def test_row_to_card_invalid_content_type():
     try:
         row_to_card({'id': 1, 'title': 'Test'}, 'unknown')

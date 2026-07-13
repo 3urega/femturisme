@@ -1,20 +1,25 @@
-"""Tool: search_experiences — scrapes /ofertes on femturisme.cat."""
+"""Tool: search_experiences — MySQL catalog (experiències promocionals)."""
+from __future__ import annotations
+
 import json
-from .scraper import fetch_page, extract_cards, result_count
+
+from app.db.connection import DatabaseError
+from app.db.repositories import experiences
 
 SCHEMA = {
     'name': 'search_experiences',
     'description': (
-        'Search tourism experiences, offers and activities in Catalonia or Andorra: '
-        'guided visits, workshops, adventure sports, gastronomy, family activities, etc. '
-        'Use for questions like "what to do in X", "experiences near X", "activities in X".'
+        'Search promotional tourism experiences and offers linked to an establishment '
+        'or town in Catalonia or Andorra: themed dinners, popular meals, family '
+        'activities, guided visits, etc. Use for commercial/promotional proposals — '
+        'NOT calendar agenda (use search_events for dated festivals and fairs).'
     ),
     'input_schema': {
         'type': 'object',
         'properties': {
             'destination': {
                 'type': 'string',
-                'description': 'Town, comarca or region, e.g. "Berga", "Costa Brava", "Pirineu"',
+                'description': 'Town, comarca or region, e.g. "Olvan", "Berguedà", "Cerdanya"',
             },
             'category': {
                 'type': 'string',
@@ -23,45 +28,75 @@ SCHEMA = {
                     'Visites guiades | Escapades | Menús'
                 ),
             },
+            'establishment': {
+                'type': 'string',
+                'description': 'Optional establishment name filter, e.g. restaurant name',
+            },
+            'lang': {
+                'type': 'string',
+                'description': 'Content language: ca (default), es, or en',
+            },
         },
         'required': ['destination'],
     },
 }
 
 _CATEGORY_MAP = {
-    'activitats':     'Activitats',
-    'activities':     'Activitats',
-    'familiar':       'Familiar',
-    'family':         'Familiar',
-    'visites':        'Visites guiades',
-    'guided':         'Visites guiades',
-    'escapades':      'Escapades',
-    'escapes':        'Escapades',
-    'menus':          'Menús',
-    'gastronomy':     'Menús',
+    'activitats': 'Activitats',
+    'activities': 'Activitats',
+    'familiar': 'Familiar',
+    'family': 'Familiar',
+    'visites': 'Visites guiades',
+    'guided': 'Visites guiades',
+    'escapades': 'Escapades',
+    'escapes': 'Escapades',
+    'menus': 'Menús',
+    'gastronomy': 'Menús',
 }
+
+
+def _normalize_category(value: object) -> str | None:
+    if value is None:
+        return None
+    text = str(value).strip()
+    if not text:
+        return None
+    return _CATEGORY_MAP.get(text.lower(), text)
 
 
 def execute(tool_input: dict) -> str:
     destination = tool_input.get('destination', '').strip()
-    category    = tool_input.get('category', '').lower()
+    if not destination:
+        return json.dumps({'error': 'destination required', 'results': []})
 
-    params: dict = {}
-    if destination:
-        params['ubicacio'] = destination
-    if category:
-        params['tipus'] = _CATEGORY_MAP.get(category, category)
+    category = _normalize_category(tool_input.get('category'))
 
-    soup = fetch_page('/ofertes', params)
-    if not soup:
-        return json.dumps({'error': 'No s\'ha pogut accedir a femturisme.cat', 'results': []})
+    establishment = tool_input.get('establishment')
+    if establishment is not None:
+        establishment = str(establishment).strip() or None
+    else:
+        establishment = None
 
-    cards = extract_cards(soup, limit=6)
-    count = result_count(soup)
+    lang = tool_input.get('lang', 'ca')
+    if lang is not None:
+        lang = str(lang).strip() or 'ca'
+    else:
+        lang = 'ca'
 
-    return json.dumps({
-        'destination': destination,
-        'category':    tool_input.get('category'),
-        'total':       count,
-        'results':     cards,
-    }, ensure_ascii=False)
+    try:
+        data = experiences.search(
+            destination=destination,
+            category=category,
+            establishment=establishment,
+            lang=lang,
+        )
+    except DatabaseError:
+        return json.dumps(
+            {
+                'error': "No s'ha pogut accedir a les dades del catàleg",
+                'results': [],
+            },
+            ensure_ascii=False,
+        )
+
+    return json.dumps(data, ensure_ascii=False)
