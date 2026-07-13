@@ -7,7 +7,7 @@ from typing import Any, Callable
 
 CATALOG_BASE_URL = 'https://www.femturisme.cat'
 DESCRIPTION_MAX_LEN = 200
-SUPPORTED_CONTENT_TYPES = frozenset({'establishment', 'event', 'destination'})
+SUPPORTED_CONTENT_TYPES = frozenset({'establishment', 'event', 'destination', 'article'})
 
 _CARD_FIELDS = (
     'id',
@@ -33,7 +33,7 @@ def row_to_card(row: dict, content_type: str) -> dict:
 
     Args:
         row: Raw row dict from a repository query.
-        content_type: Domain discriminator (establishment, event, destination).
+        content_type: Domain discriminator (establishment, event, destination, article).
 
     Returns:
         Normalized card dict for results[].
@@ -164,6 +164,13 @@ def _build_event_url(param_url: object) -> str | None:
     return f'{CATALOG_BASE_URL}/agenda/{slug.strip("/")}'
 
 
+def _build_article_url(param_url: object) -> str | None:
+    slug = _clean_text(param_url)
+    if not slug:
+        return None
+    return f'{CATALOG_BASE_URL}/noticies/{slug.strip("/")}'
+
+
 def _coerce_date(value: object) -> date | None:
     if value is None:
         return None
@@ -260,8 +267,30 @@ def _map_event(row: dict) -> dict:
     return card
 
 
+def _map_article(row: dict) -> dict:
+    published = _coerce_date(row.get('published_at'))
+    card = _base_card()
+    card.update(
+        {
+            'id': _string_id(row.get('id')),
+            'type': None,
+            'title': _clean_text(row.get('title')),
+            'location': _clean_text(row.get('location')),
+            'description': _truncate_description(row.get('description')),
+            'url': _build_article_url(row.get('param_url')),
+            'image': _absolute_media_url(row.get('image')),
+            'date': _format_date_value(published) if published else None,
+            'entity_id': _clean_text(row.get('entity_id')),
+            'source_type': 'article',
+            'source_id': _string_id(row.get('id')),
+        }
+    )
+    return card
+
+
 _ROW_MAPPERS: dict[str, Callable[[dict], dict]] = {
     'establishment': _map_establishment,
     'event': _map_event,
     'destination': _map_destination,
+    'article': _map_article,
 }

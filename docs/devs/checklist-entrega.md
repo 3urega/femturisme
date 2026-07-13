@@ -1,6 +1,6 @@
 # Checklist d'entrega — agent_femturisme
 
-**Progrés:** 29 / 90 completats · **Última actualització:** 2026-07-13
+**Progrés:** 30 / 90 completats · **Última actualització:** 2026-07-13
 
 > Els agents marquen `- [x]` quan el criteri **Detect** es compleix. Veure [index.md](index.md).
 
@@ -30,8 +30,8 @@
   *Detect:* `.cursor/skills/plan-to-issues`, `publish-github-issues`, `kanban-board`
 - [ ] **DEV-010** — `sql-mapeo.md` complet (6 buscadors, SQL provada)  
   *Detect:* cap secció TBD; totes les queries amb casos prova. **Parcial (2026-07):** schema mapejat + SQL borrador; falta provar amb dump
-- [ ] **DEV-011** — Issues GitHub del roadmap publicades  
-  *Detect:* `gh issue list --repo 3urega/femturisme` amb batch Fase 1–3
+- [x] **DEV-011** — Issues GitHub del roadmap publicades  
+  *Detect:* `gh issue list --repo 3urega/femturisme` amb batch Fase 1–3 *(2026-07-13)*
 
 ---
 

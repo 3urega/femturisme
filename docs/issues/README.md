@@ -70,9 +70,11 @@ Després de publicar: afegir `"githubNumber": 42` i `"publishedAt": "YYYY-MM-DD"
 
 Després de `plan-to-issues`, el document font ha d'incloure secció **GitHub issues (draft)** amb taula de slugs (sense URLs de GitHub fins publicar).
 
-**Batch actiu:** [plan-fase3-prep-sense-mysql.md](../devs/plan-fase3-prep-sense-mysql.md) → [manifest.fase3-prep.json](manifest.fase3-prep.json) — **publicat** ([#5](https://github.com/3urega/femturisme/issues/5)…[#11](https://github.com/3urega/femturisme/issues/11)).
+**Batch actiu:** [plan-fase3-batch2-mysql.md](../devs/plan-fase3-batch2-mysql.md) → [manifest.fase3-batch2.json](manifest.fase3-batch2.json) — **publicat** ([#12](https://github.com/3urega/femturisme/issues/12)…[#17](https://github.com/3urega/femturisme/issues/17)).
 
-Ordre: codi #5–#10 primer; **tests MySQL al final** ([#11](https://github.com/3urega/femturisme/issues/11)).
+Ordre: codi #12–#16 primer; **tests MySQL al final** ([#17](https://github.com/3urega/femturisme/issues/17)).
+
+**Batch anterior:** [plan-fase3-prep-sense-mysql.md](../devs/plan-fase3-prep-sense-mysql.md) — **tancat** ([#5](https://github.com/3urega/femturisme/issues/5)…[#11](https://github.com/3urega/femturisme/issues/11)).
 
 **Batch anterior:** [plan-fase1-base-local.md](../devs/plan-fase1-base-local.md) → [manifest.fase1-base-local.json](manifest.fase1-base-local.json) — tancat ([#1](https://github.com/3urega/femturisme/issues/1)…[#4](https://github.com/3urega/femturisme/issues/4)).
 

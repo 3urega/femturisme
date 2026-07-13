@@ -57,12 +57,31 @@ def test_row_to_card_destination():
     assert card['location'] == 'Garrotxa'
 
 
+def test_row_to_card_article():
+    card = row_to_card(
+        {
+            'id': 99,
+            'title': 'Parc Natural del Cadí',
+            'param_url': 'parc-natural-cadi',
+            'published_at': '2025-03-15',
+            'location': 'La Seu d\'Urgell',
+            'description': 'Article sobre el parc natural.',
+        },
+        'article',
+    )
+    assert card['source_type'] == 'article'
+    assert card['source_id'] == '99'
+    assert card['url'] == 'https://www.femturisme.cat/noticies/parc-natural-cadi'
+    assert card['date'] == '15/03/2025'
+    assert card['location'] == "La Seu d'Urgell"
+
+
 def test_row_to_card_invalid_content_type():
     try:
-        row_to_card({'id': 1, 'title': 'Test'}, 'article')
+        row_to_card({'id': 1, 'title': 'Test'}, 'unknown')
         assert False, 'expected ValueError'
     except ValueError as exc:
-        assert 'article' in str(exc)
+        assert 'unknown' in str(exc)
 
 
 def test_rows_to_cards_skips_empty_title():
