@@ -31,6 +31,16 @@ generic_*            → catàlegs (tipus establiment, temàtiques, categories)
 
 Filtrar `{domini}_continguts.idioma = :lang` (`ca` per defecte; `es` / `en` segons idioma de la pregunta de l'usuari).
 
+### Territori ampli (`Catalunya`, `Andorra`)
+
+Implementació: [`app/db/territory.py`](../app/db/territory.py) (`is_broad_territory`, `resolve_location_filter`).
+
+Quan `destination` és un territori ampli (p. ex. `Catalunya`, `Cataluña`, `Catalonia`, `tot Catalunya`, `Andorra`), el filtre SQL de poble/comarca **no s'aplica** — equivalent al paràmetre `ubicacio=Catalunya` del CMS web. La consulta retorna resultats de tot el catàleg (limitats a `LIMIT 20`) i el wrapper inclou `meta.scope = "territory_wide"`.
+
+Per destinacions concretes (poble, comarca), el filtre és `pg.poble LIKE %destination% OR pc.comarca LIKE %destination%` i `meta.scope = "location"`.
+
+Si `total = 0` amb filtre de ubicació, `meta.hint = "zero_results_with_location"`; si és territori ampli sense resultats, `meta.hint = "zero_results_territory_wide"`.
+
 ### Estat de validació
 
 Totes les queries d'aquest document són **borrador validat contra schema** — marcar ☑ «SQL provada» només després d'executar-les contra un dump local amb dades.
@@ -40,9 +50,9 @@ Totes les queries d'aquest document són **borrador validat contra schema** — 
 | ID | Hipòtesi | Estat |
 |----|----------|-------|
 | Q-04 | `search_experiences` = taules `oferta_*` (no agenda) | Hipòtesi schema — confirmar amb client |
-| Q-05 | Prefix URL establiments segons `generic_tipus_establiment.code` | Hipòtesi — confirmar |
+| Q-05 | URL establiments: `/establiments/{param_url}` | Confirmat web 2026-07-13 |
 | Q-05 | URL articles: `/noticies/{param_url}` | Hipòtesi — confirmar |
-| Q-05 | URL poblacions: `/{param_url}` o `/pobles/{param_url}` | Hipòtesi — confirmar |
+| Q-05 | URL poblacions: `/pobles/{param_url}` | Confirmat web 2026-07-13 |
 | Q-05 | URL experiències: `/ofertes/{param_url}` | Hipòtesi — confirmar |
 | Q-08 | Camp `entity_id` (UUID) a fitxes MySQL | **Obert** — no apareix al schema |
 
@@ -122,8 +132,7 @@ LEFT JOIN poble_comarques pc ON pc.id = pg.id_comarca
 LEFT JOIN establiment_pobles ep ON ep.id_establiment = eg.id
 LEFT JOIN poble_general pg2 ON pg2.id = ep.id_poble
 LEFT JOIN poble_comarques pc2 ON pc2.id = pg2.id_comarca
-WHERE eg.actiu = 1
-  AND (eg.data_baixa IS NULL OR eg.data_baixa < '1000-01-01')
+WHERE (eg.data_baixa IS NULL OR eg.data_baixa < '1000-01-01')
   AND eg.sense_fitxa = 0
   AND (
       pg.poble LIKE :destination_pattern
@@ -142,7 +151,7 @@ LIMIT 20;
 | Columna SQL | Camp JSON | Notes |
 |-------------|-----------|-------|
 | `title` / `nom` | `title` | |
-| `param_url` + `type_code` | `url` | `https://www.femturisme.cat/{prefix}/{param_url}` — prefix des de `generic_tipus_establiment.code` (**Q-05 TBD**) |
+| `param_url` | `url` | `https://www.femturisme.cat/establiments/{param_url}` — prefix fix per a totes les fitxes (**Q-05 confirmat 2026-07-13**) |
 | `type_label` | `type` | |
 | `location`, `comarca` | `location` | Combinar si cal |
 | `description` | `description` | Truncar a ~200 chars al mapper |
@@ -152,9 +161,10 @@ LIMIT 20;
 
 | Camp | Valor |
 |------|-------|
-| `eg.actiu` | `= 1` |
-| `eg.data_baixa` | NULL o data anterior a `1000-01-01` (legacy zero-date) |
+| `eg.data_baixa` | NULL o data anterior a `1000-01-01` (legacy zero-date); exclou establiments donats de baixa |
 | `eg.sense_fitxa` | `= 0` |
+
+**Nota manteniment (2026-07-13):** no es filtra per `eg.actiu` — al dump Railway el camp no reflecteix publicació web; la baixa explícita (`data_baixa`) és el filtre fiable.
 
 ### 1.5 Casos de prova
 
@@ -162,11 +172,13 @@ LIMIT 20;
 |---|-------------|------|-----------|-------------|
 | SQL-01 | Girona | hotel | ≥ 0 | ☑ |
 | SQL-02 | Pals | restaurant | ≥ 0 | ☑ |
+| — | Berguedà | restaurant | ≥ 0 | ☑ `https://www.femturisme.cat/establiments/cal-ferrer-de-borreda` |
+| — | Catalunya | — | ≥ 0 (territori ampli) | ☑ |
 
 ### 1.6 Pendents client
 
-- Mapatge exacte `generic_tipus_establiment.code` → prefix URL (`on-dormir`, `on-menjar`, `que-fer`)
 - Validar si `eg.tipus` (int a `establiment_general`) duplica o substitueix `establiment_tipus`
+- **Nota URL (2026-07-13):** `generic_tipus_establiment.code` (p. ex. `restaurants`) és codi intern; **no** s'usa com a prefix web. Les seccions de navegació són `/on-dormir`, `/on-menjar`, `/que-fer`; la fitxa individual és sempre `/establiments/{param_url}`.
 
 ---
 
@@ -316,7 +328,7 @@ LIMIT 10;
 | Columna SQL | Camp JSON | Notes |
 |-------------|-----------|-------|
 | `title` | `title` | `poble` |
-| `param_url` | `url` | Hipòtesi: `https://www.femturisme.cat/{param_url}` (**Q-05 TBD**) |
+| `param_url` | `url` | `https://www.femturisme.cat/pobles/{param_url}` |
 | `description` | `description` | |
 | `region` | `location` | Comarca |
 | `image` | `image` | |
@@ -331,6 +343,7 @@ No hi ha `actiu` a `poble_general`. Filtrar per `poble <> ''` i `description` no
 |---|-------------|-----------|-------------|
 | SQL-04 | Besalú | ≥ 0 | ☑ |
 | — | Empordà (comarca) | ≥ 0 | ☐ |
+| — | Catalunya (territori ampli) | ≥ 1 | ☑ |
 
 ### 3.6 Pendents client
 
@@ -422,6 +435,7 @@ LIMIT %s;
 | # | destination | type | Files min | URL provada |
 |---|-------------|------|-----------|-------------|
 | SQL-07 | Empordà | A peu | ≥ 1 | ☑ |
+| SQL-07b | Catalunya | — | ≥ 1 (territori ampli) | ☑ |
 | — | Pirineu | A peu | ≥ 0 | ☐ |
 
 ### 4.6 Pendents client
@@ -514,6 +528,7 @@ LIMIT 20;
 | # | destination | date_from | date_to | Files min | URL provada |
 |---|-------------|-----------|---------|-----------|-------------|
 | SQL-05 | Empordà | cap setmana | cap setmana | ≥ 0 | ☑ |
+| SQL-05b | Catalunya | 2026-07-01 | 2026-07-31 | ≥ 1 (territori ampli) | ☑ |
 | — | Barcelona | 2026-06-01 | 2026-06-30 | ≥ 0 | ☐ |
 
 ### 5.6 Pendents client

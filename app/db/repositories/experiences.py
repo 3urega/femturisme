@@ -5,6 +5,7 @@ from typing import Any, Mapping
 
 from app.db.connection import get_mysql_connection
 from app.db.mappers import build_search_wrapper, rows_to_cards
+from app.db.territory import resolve_location_filter
 
 _SEARCH_SQL = """
 SELECT
@@ -29,10 +30,7 @@ LEFT JOIN generic_categoria_oferta gco ON gco.id = ocat.id_categoria
 WHERE og.estat <> 'borrador'
   AND og.data_inicial <= NOW()
   AND (og.data_final IS NULL OR og.data_final < '1000-01-01' OR og.data_final >= NOW())
-  AND (
-      pg.poble LIKE %s
-      OR pc.comarca LIKE %s
-  )
+  AND (%s IS NULL OR pg.poble LIKE %s OR pc.comarca LIKE %s)
   AND (%s IS NULL OR gco.categoria_ca LIKE %s)
   AND (%s IS NULL OR eg.nom LIKE %s)
 GROUP BY og.id, oc.titol, oc.param_url, oc.resum, og.imatge, og.preu_oferta,
@@ -58,6 +56,8 @@ def search(
     establishment: str | None = None,
     lang: str = 'ca',
     limit: int = 20,
+    skip_location_filter: bool = False,
+    retried: bool = False,
     config: Mapping[str, Any] | None = None,
 ) -> dict:
     """
@@ -68,7 +68,10 @@ def search(
     destination = destination.strip()
     lang = (lang or 'ca').strip()
     row_limit = max(1, min(int(limit), 20))
-    destination_pattern = f'%{destination}%'
+    destination_pattern, location_filter_applied = resolve_location_filter(
+        destination,
+        skip_location_filter=skip_location_filter,
+    )
 
     category_text = (category or '').strip() or None
     establishment_text = (establishment or '').strip() or None
@@ -77,6 +80,7 @@ def search(
 
     params = (
         lang,
+        destination_pattern,
         destination_pattern,
         destination_pattern,
         category_pattern,
@@ -99,6 +103,8 @@ def search(
         destination=destination,
         results=cards,
         total=str(len(cards)),
+        location_filter_applied=location_filter_applied,
+        retried=retried,
         category=category_text,
         establishment=establishment_text,
         lang=lang,

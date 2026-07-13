@@ -5,6 +5,7 @@ from typing import Any, Mapping
 
 from app.db.connection import get_mysql_connection
 from app.db.mappers import build_search_wrapper, rows_to_cards
+from app.db.territory import resolve_location_filter
 
 _SEARCH_SQL = """
 SELECT
@@ -27,10 +28,7 @@ LEFT JOIN poble_comarques pc ON pc.id = pg.id_comarca
 WHERE ag.activa = 1
   AND ag.baixa = 0
   AND ag.arxivada = 0
-  AND (
-      pg.poble LIKE %s
-      OR pc.comarca LIKE %s
-  )
+  AND (%s IS NULL OR pg.poble LIKE %s OR pc.comarca LIKE %s)
   AND (%s IS NULL OR ad.data_final >= %s)
   AND (%s IS NULL OR ad.data_inici <= %s)
 GROUP BY ag.id, ac.titol, ac.param_url, ac.descripcio, ag.imatge, pg.poble, pc.comarca
@@ -53,6 +51,8 @@ def search(
     date_to: str | None = None,
     lang: str = 'ca',
     limit: int = 20,
+    skip_location_filter: bool = False,
+    retried: bool = False,
     config: Mapping[str, Any] | None = None,
 ) -> dict:
     """
@@ -63,12 +63,16 @@ def search(
     destination = destination.strip()
     lang = (lang or 'ca').strip()
     row_limit = max(1, min(int(limit), 20))
-    destination_pattern = f'%{destination}%'
+    destination_pattern, location_filter_applied = resolve_location_filter(
+        destination,
+        skip_location_filter=skip_location_filter,
+    )
     date_from = _normalize_date(date_from)
     date_to = _normalize_date(date_to)
 
     params = (
         lang,
+        destination_pattern,
         destination_pattern,
         destination_pattern,
         date_from,
@@ -91,6 +95,8 @@ def search(
         destination=destination,
         results=cards,
         total=str(len(cards)),
+        location_filter_applied=location_filter_applied,
+        retried=retried,
         date_from=date_from,
         date_to=date_to,
         lang=lang,

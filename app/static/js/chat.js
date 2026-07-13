@@ -78,11 +78,13 @@
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ session_id: sessionId }),
         });
+        sessionStorage.removeItem('chat_session_id');
         // Clear messages except welcome
         const messages = messagesEl.querySelectorAll('.message');
         messages.forEach((m, i) => { if (i > 0) m.remove(); });
         // Also remove any leftover tool indicators
         messagesEl.querySelectorAll('.tool-indicator').forEach(el => el.remove());
+        window.location.reload();
     });
 
     // ── Main send function ───────────────────────────────────────────

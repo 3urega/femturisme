@@ -20,8 +20,26 @@ def test_row_to_card_establishment_shape():
     assert card['title'] == 'Hotel Test'
     assert card['source_type'] == 'establishment'
     assert card['source_id'] == '1'
-    assert card['url'] == 'https://www.femturisme.cat/on-dormir/hotel-test'
+    assert card['url'] == 'https://www.femturisme.cat/establiments/hotel-test'
     assert card['location'] == 'Girona (Gironès)'
+
+
+def test_row_to_card_establishment_restaurant_uses_establiments_prefix():
+    card = row_to_card(
+        {
+            'id': 2,
+            'title': 'Cal Ferrer de Borredà',
+            'param_url': 'cal-ferrer-de-borreda',
+            'type_code': 'restaurants',
+            'type_label': 'Restaurant',
+            'location': 'Borredà',
+            'comarca': 'Berguedà',
+        },
+        'establishment',
+    )
+    assert card['url'] == (
+        'https://www.femturisme.cat/establiments/cal-ferrer-de-borreda'
+    )
 
 
 def test_row_to_card_event_date_range():
@@ -53,7 +71,7 @@ def test_row_to_card_destination():
         'destination',
     )
     assert card['source_type'] == 'destination'
-    assert card['url'] == 'https://www.femturisme.cat/besalu'
+    assert card['url'] == 'https://www.femturisme.cat/pobles/besalu'
     assert card['location'] == 'Garrotxa'
 
 
@@ -162,3 +180,35 @@ def test_build_search_wrapper_success():
     assert payload['error'] is None
     assert payload['type'] == 'hotel'
     assert payload['lang'] == 'ca'
+
+
+def test_build_search_wrapper_includes_meta():
+    payload = build_search_wrapper(
+        destination='Catalunya',
+        results=[{'title': 'Festa'}],
+        location_filter_applied=False,
+    )
+    assert payload['meta']['scope'] == 'territory_wide'
+    assert payload['meta']['location_filter_applied'] is False
+    assert payload['meta']['hint'] is None
+
+
+def test_build_search_wrapper_meta_zero_results_with_location():
+    payload = build_search_wrapper(
+        destination='Girona',
+        results=[],
+        location_filter_applied=True,
+    )
+    assert payload['meta']['scope'] == 'location'
+    assert payload['meta']['hint'] == 'zero_results_with_location'
+
+
+def test_build_search_meta_truncated():
+    from app.db.mappers import build_search_meta
+
+    meta = build_search_meta(
+        location_filter_applied=False,
+        results=[{'title': 'A'}],
+        total='50',
+    )
+    assert meta['truncated'] is True

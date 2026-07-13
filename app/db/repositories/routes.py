@@ -5,6 +5,7 @@ from typing import Any, Mapping
 
 from app.db.connection import get_mysql_connection
 from app.db.mappers import build_search_wrapper, rows_to_cards
+from app.db.territory import resolve_location_filter
 
 _SEARCH_SQL = """
 SELECT
@@ -25,10 +26,7 @@ LEFT JOIN poble_comarques pc ON pc.id = pg.id_comarca
 LEFT JOIN ruta_tematica rt ON rt.id_ruta = rg.id
 LEFT JOIN generic_tematiques gt ON gt.id = rt.id_tematica
 WHERE rg.actiu = 1
-  AND (
-      pg.poble LIKE %s
-      OR pc.comarca LIKE %s
-  )
+  AND (%s IS NULL OR pg.poble LIKE %s OR pc.comarca LIKE %s)
   AND (%s IS NULL OR gt.tematica_ca LIKE %s OR gt.code LIKE %s)
 GROUP BY rg.id, rc.titol, rc.param_url, rc.introduccio, rg.imatge,
          gt.tematica_ca, pg.poble, pc.comarca
@@ -52,6 +50,8 @@ def search(
     type: str | None = None,
     lang: str = 'ca',
     limit: int = 20,
+    skip_location_filter: bool = False,
+    retried: bool = False,
     config: Mapping[str, Any] | None = None,
 ) -> dict:
     """
@@ -62,13 +62,17 @@ def search(
     destination = destination.strip()
     lang = (lang or 'ca').strip()
     row_limit = max(1, min(int(limit), 20))
-    destination_pattern = f'%{destination}%'
+    destination_pattern, location_filter_applied = resolve_location_filter(
+        destination,
+        skip_location_filter=skip_location_filter,
+    )
 
     type_text = (type or '').strip() or None
     type_pattern = _optional_pattern(type_text)
 
     params = (
         lang,
+        destination_pattern,
         destination_pattern,
         destination_pattern,
         type_pattern,
@@ -90,6 +94,8 @@ def search(
         destination=destination,
         results=cards,
         total=str(len(cards)),
+        location_filter_applied=location_filter_applied,
+        retried=retried,
         type=type_text,
         lang=lang,
     )

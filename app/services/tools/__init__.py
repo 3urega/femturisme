@@ -5,6 +5,14 @@ Each tool module exposes:
   SCHEMA  : dict  — JSON schema in Anthropic format (name, description, input_schema)
   execute : callable(input: dict) -> str (JSON string)
 """
+from __future__ import annotations
+
+import json
+
+from app.db.territory import is_broad_territory
+from app.services.period_hints import apply_event_period_hints
+from app.services.request_context import turn_user_message
+
 from .establishments   import SCHEMA as EST_SCHEMA, execute as est_execute
 from .destinations     import SCHEMA as DST_SCHEMA, execute as dst_execute
 from .events           import SCHEMA as EVT_SCHEMA, execute as evt_execute
@@ -34,10 +42,61 @@ _EXECUTORS: dict[str, callable] = {
     LOC_SCHEMA['name']: loc_execute,
 }
 
+_GEO_CATALOG_TOOLS = frozenset({
+    'search_events',
+    'search_routes',
+    'search_experiences',
+    'search_establishments',
+    'search_destinations',
+})
 
-def execute_tool(name: str, tool_input: dict) -> str:
+
+def _parse_tool_result(raw: str) -> dict:
+    try:
+        parsed = json.loads(raw)
+    except json.JSONDecodeError:
+        return {}
+    return parsed if isinstance(parsed, dict) else {}
+
+
+def _should_retry_broad_territory(
+    name: str,
+    tool_input: dict,
+    parsed: dict,
+) -> bool:
+    if name not in _GEO_CATALOG_TOOLS:
+        return False
+    if tool_input.get('_skip_location_filter'):
+        return False
+    if parsed.get('error'):
+        return False
+    try:
+        total = int(parsed.get('total', 0) or 0)
+    except (TypeError, ValueError):
+        total = 0
+    if total > 0:
+        return False
+    destination = (tool_input.get('destination') or '').strip()
+    return is_broad_territory(destination)
+
+
+def execute_tool(name: str, tool_input: dict, *, user_message: str = '') -> str:
     fn = _EXECUTORS.get(name)
     if fn is None:
-        import json
         return json.dumps({'error': f'Unknown tool: {name}'})
-    return fn(tool_input)
+    resolved_message = user_message or turn_user_message.get()
+    normalized_input = apply_event_period_hints(
+        name,
+        tool_input,
+        resolved_message,
+    )
+    raw_result = fn(normalized_input)
+    parsed = _parse_tool_result(raw_result)
+    if _should_retry_broad_territory(name, normalized_input, parsed):
+        retry_input = {
+            **normalized_input,
+            '_skip_location_filter': True,
+            '_retried': True,
+        }
+        raw_result = fn(retry_input)
+    return raw_result

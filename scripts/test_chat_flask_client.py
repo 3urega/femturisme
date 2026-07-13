@@ -4,6 +4,8 @@ from __future__ import annotations
 import json
 import sys
 
+import _bootstrap  # noqa: F401 — add project root to sys.path
+
 from dotenv import load_dotenv
 
 load_dotenv()

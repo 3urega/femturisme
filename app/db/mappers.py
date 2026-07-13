@@ -62,19 +62,50 @@ def rows_to_cards(rows: list[dict], content_type: str) -> list[dict]:
     return cards
 
 
+def build_search_meta(
+    *,
+    location_filter_applied: bool,
+    results: list[dict],
+    total: int | str | None = None,
+    retried: bool = False,
+) -> dict[str, Any]:
+    """Build meta block so the LLM can interpret scope and empty results."""
+    scope = 'location' if location_filter_applied else 'territory_wide'
+    resolved_total = int(total) if total is not None else len(results)
+    hint: str | None = None
+    if len(results) == 0:
+        hint = (
+            'zero_results_with_location'
+            if location_filter_applied
+            else 'zero_results_territory_wide'
+        )
+    meta: dict[str, Any] = {
+        'scope': scope,
+        'location_filter_applied': location_filter_applied,
+        'hint': hint,
+        'truncated': resolved_total > len(results),
+    }
+    if retried:
+        meta['retried'] = True
+    return meta
+
+
 def build_search_wrapper(
     *,
     destination: str = '',
     results: list[dict],
     total: int | str | None = None,
     error: str | None = None,
+    location_filter_applied: bool | None = None,
+    retried: bool = False,
     **extra: object,
 ) -> dict:
     """
     Build the common catalog search wrapper JSON (tecnic §6.13).
 
     Extra keyword arguments (e.g. date_from, date_to, region) are merged into
-    the wrapper for tool-specific fields.
+    the wrapper for tool-specific fields. When location_filter_applied is set
+    and meta is not provided, meta is built automatically.
     """
     if error:
         payload: dict[str, Any] = {
@@ -87,12 +118,19 @@ def build_search_wrapper(
         return payload
 
     resolved_total = str(total) if total is not None else str(len(results))
-    payload = {
+    payload: dict[str, Any] = {
         'destination': destination,
         'total': resolved_total,
         'results': results,
         'error': None,
     }
+    if location_filter_applied is not None and 'meta' not in extra:
+        payload['meta'] = build_search_meta(
+            location_filter_applied=location_filter_applied,
+            results=results,
+            total=resolved_total,
+            retried=retried,
+        )
     payload.update(extra)
     return payload
 
@@ -156,17 +194,16 @@ def _build_establishment_url(type_code: object, param_url: object) -> str | None
     slug = _clean_text(param_url)
     if not slug:
         return None
-    # Q-05 TBD: confirm generic_tipus_establiment.code → URL prefix mapping.
-    prefix = _clean_text(type_code) or 'on-dormir'
-    return f'{CATALOG_BASE_URL}/{prefix.strip("/")}/{slug.strip("/")}'
+    # Q-05 confirmat: fitxes individuals sempre a /establiments/{param_url}
+    # (type_code és intern; no coincideix amb /on-dormir, /on-menjar ni /restaurants)
+    return f'{CATALOG_BASE_URL}/establiments/{slug.strip("/")}'
 
 
 def _build_destination_url(param_url: object) -> str | None:
     slug = _clean_text(param_url)
     if not slug:
         return None
-    # Q-05 TBD: confirm canonical destination URL pattern.
-    return f'{CATALOG_BASE_URL}/{slug.strip("/")}'
+    return f'{CATALOG_BASE_URL}/pobles/{slug.strip("/")}'
 
 
 def _build_event_url(param_url: object) -> str | None:

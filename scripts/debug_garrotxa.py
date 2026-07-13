@@ -1,3 +1,5 @@
+import _bootstrap  # noqa: F401
+
 from dotenv import load_dotenv
 
 load_dotenv()

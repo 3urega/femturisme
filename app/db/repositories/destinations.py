@@ -5,6 +5,7 @@ from typing import Any, Mapping
 
 from app.db.connection import get_mysql_connection
 from app.db.mappers import build_search_wrapper, rows_to_cards
+from app.db.territory import resolve_location_filter
 
 _SEARCH_SQL = """
 SELECT
@@ -20,7 +21,8 @@ LEFT JOIN poble_continguts pcont
 LEFT JOIN poble_comarques pc ON pc.id = pg.id_comarca
 WHERE pg.poble <> ''
   AND (
-      pg.poble LIKE %s
+      %s IS NULL
+      OR pg.poble LIKE %s
       OR pg.param_url LIKE %s
       OR pc.comarca LIKE %s
   )
@@ -36,6 +38,8 @@ def search(
     region: str | None = None,
     lang: str = 'ca',
     limit: int = 20,
+    skip_location_filter: bool = False,
+    retried: bool = False,
     config: Mapping[str, Any] | None = None,
 ) -> dict:
     """
@@ -46,7 +50,10 @@ def search(
     destination = destination.strip()
     lang = (lang or 'ca').strip()
     row_limit = max(1, min(int(limit), 20))
-    destination_pattern = f'%{destination}%'
+    destination_pattern, location_filter_applied = resolve_location_filter(
+        destination,
+        skip_location_filter=skip_location_filter,
+    )
 
     region_pattern: str | None = None
     if region:
@@ -56,6 +63,7 @@ def search(
 
     params = (
         lang,
+        destination_pattern,
         destination_pattern,
         destination_pattern,
         destination_pattern,
@@ -77,6 +85,8 @@ def search(
         destination=destination,
         results=cards,
         total=str(len(cards)),
+        location_filter_applied=location_filter_applied,
+        retried=retried,
         region=region,
         lang=lang,
     )

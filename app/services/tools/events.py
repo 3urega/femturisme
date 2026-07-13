@@ -1,7 +1,9 @@
 """Tool: search_events — MySQL agenda catalog."""
 from __future__ import annotations
 
+import calendar
 import json
+from datetime import date
 
 from app.db.connection import DatabaseError
 from app.db.repositories import events
@@ -47,11 +49,19 @@ def execute(tool_input: dict) -> str:
     date_to = str(date_to).strip() if date_to is not None else ''
     date_to = date_to or None
 
+    if not date_from and not date_to:
+        today = date.today()
+        date_from = today.replace(day=1).isoformat()
+        last_day = calendar.monthrange(today.year, today.month)[1]
+        date_to = today.replace(day=last_day).isoformat()
+
     try:
         data = events.search(
             destination=destination,
             date_from=date_from,
             date_to=date_to,
+            skip_location_filter=bool(tool_input.get('_skip_location_filter')),
+            retried=bool(tool_input.get('_retried')),
         )
     except DatabaseError:
         return json.dumps(

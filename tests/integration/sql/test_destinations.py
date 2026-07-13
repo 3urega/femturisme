@@ -14,3 +14,5 @@ def test_destinations_besalu(app):
     with app.app_context():
         data = destinations.search(destination='Besalú')
     assert int(data['total']) >= 0
+    if int(data['total']) >= 1:
+        assert data['results'][0]['url'].startswith('https://www.femturisme.cat/pobles/')

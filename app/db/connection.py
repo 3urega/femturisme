@@ -132,9 +132,17 @@ def ping_postgres(config: Mapping[str, Any] | None = None) -> dict[str, str]:
 
 def build_health_payload() -> dict[str, object]:
     """Aggregate service and database ping status for GET /health."""
+    from flask import current_app
+
     return {
         'ok': True,
         'service': 'up',
+        'started_at': current_app.config.get('STARTED_AT'),
+        'agent_features': {
+            'period_hints': True,
+            'territory_wide': True,
+            'destination_url_prefix': 'pobles',
+        },
         'mysql': ping_mysql(),
         'postgres': ping_postgres(),
     }

@@ -89,6 +89,8 @@ def execute(tool_input: dict) -> str:
             category=category,
             establishment=establishment,
             lang=lang,
+            skip_location_filter=bool(tool_input.get('_skip_location_filter')),
+            retried=bool(tool_input.get('_retried')),
         )
     except DatabaseError:
         return json.dumps(

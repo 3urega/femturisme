@@ -125,9 +125,9 @@ Per cada buscador: **Repository + Tool refactor + test integració**. Sense `scr
 - [x] **DEV-308** — Eliminar dependència `scraper.py` del catàleg  
   *Detect:* cap import scraper a tools de catàleg; fitxer eliminat o marcat deprecated *(2026-07-13)*
 - [ ] **DEV-309** — Límits operatius (LIMIT 20, truncat 6 cards al model)  
-  *Detect:* tecnic §6.14 implementat als repositories/servei
+  *Detect:* tecnic §6.14 implementat als repositories/servei; `meta.truncated` al wrapper *(parcial 2026-07-13)*
 - [x] **DEV-310** — System prompt alineat amb 6 dominis + idiomes  
-  *Detect:* prompt descriu tools correctes; no menciona scraping *(2026-07-13)*
+  *Detect:* prompt descriu tools correctes; regles CA-08 i lectura de `meta`; no menciona scraping *(2026-07-13)*
 
 ---
 
