@@ -25,8 +25,13 @@ def chat():
     agent = _get_agent()
 
     def generate():
-        for event in agent.run(user_message, session_id):
-            yield f"data: {json.dumps(event)}\n\n"
+        try:
+            for event in agent.run(user_message, session_id):
+                yield f"data: {json.dumps(event, ensure_ascii=False)}\n\n"
+        except Exception as exc:
+            err = {'type': 'error', 'message': str(exc)}
+            yield f"data: {json.dumps(err, ensure_ascii=False)}\n\n"
+            yield f"data: {json.dumps({'type': 'done'}, ensure_ascii=False)}\n\n"
 
     return Response(
         stream_with_context(generate()),

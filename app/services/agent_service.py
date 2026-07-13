@@ -71,12 +71,20 @@ class AgentService:
                         'input': tc.input,
                     }
 
-                    raw_result = execute_tool(tc.name, tc.input)
+                    try:
+                        raw_result = execute_tool(tc.name, tc.input)
+                        parsed = json.loads(raw_result)
+                    except Exception as exc:
+                        parsed = {
+                            'error': f"Error executant {tc.name}: {exc}",
+                            'results': [],
+                        }
+                        raw_result = json.dumps(parsed, ensure_ascii=False)
 
                     yield {
                         'type':   'tool_result',
                         'tool':   tc.name,
-                        'result': json.loads(raw_result),
+                        'result': parsed,
                     }
 
                     tool_results_content.append({
