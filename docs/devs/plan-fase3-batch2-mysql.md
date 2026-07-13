@@ -23,7 +23,7 @@ Completar el catàleg MySQL: **articles**, **routes**, **experiences** (encara s
 
 ---
 
-## Estat actual (post #12)
+## Estat actual (post #13)
 
 | Domini | Tool | Estat |
 |--------|------|-------|
@@ -31,7 +31,7 @@ Completar el catàleg MySQL: **articles**, **routes**, **experiences** (encara s
 | On anar | `search_destinations` | MySQL |
 | Agenda | `search_events` | MySQL |
 | Articles | `search_articles` | MySQL *(#12, 2026-07-13)* |
-| Rutes | `search_routes` | Scraping |
+| Rutes | `search_routes` | MySQL *(#13, 2026-07-13)* |
 | Experiències | `search_experiences` | Scraping |
 
 ---
@@ -56,7 +56,7 @@ Completar el catàleg MySQL: **articles**, **routes**, **experiences** (encara s
 | Ordre | GitHub | Slug | Títol | Checklist |
 |-------|--------|------|-------|-----------|
 | 1 | [#12](https://github.com/3urega/femturisme/issues/12) ✅ | `articles-repository-mysql.md` | Fase 3 batch 2: ArticlesRepository + search_articles | DEV-203, DEV-303 |
-| 2 | [#13](https://github.com/3urega/femturisme/issues/13) | `routes-repository-mysql.md` | Fase 3 batch 2: RoutesRepository + search_routes MySQL | DEV-207, DEV-306 |
+| 2 | [#13](https://github.com/3urega/femturisme/issues/13) ✅ | `routes-repository-mysql.md` | Fase 3 batch 2: RoutesRepository + search_routes MySQL | DEV-207, DEV-306 |
 | 3 | [#14](https://github.com/3urega/femturisme/issues/14) | `experiences-repository-mysql.md` | Fase 3 batch 2: ExperiencesRepository + search_experiences MySQL | DEV-206, DEV-301 |
 | 4 | [#15](https://github.com/3urega/femturisme/issues/15) | `registry-scraper-final.md` | Fase 3 batch 2: Registry 6 MySQL i retirar scraper | DEV-307, DEV-308 |
 | 5 | [#16](https://github.com/3urega/femturisme/issues/16) | `system-prompt-articles.md` | Fase 3 batch 2: System prompt amb search_articles | DEV-310 |

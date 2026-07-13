@@ -57,7 +57,7 @@ Detall respostes parcials: [dominio-femturisme-ca.md §7](client/dominio-femturi
 | 1 | `search_establishments` | `EstablishmentsRepository` | `establiment_*`, `generic_tipus_establiment`, `poble_*` | ☐ | ☐ |
 | 2 | `search_articles` | `ArticlesRepository` | `noticia_*`, `poble_general` | ☑ | ☐ |
 | 3 | `search_destinations` | `DestinationsRepository` | `poble_*`, `poble_comarques`, `generic_ubicacions` | ☐ | ☐ |
-| 4 | `search_routes` | `RoutesRepository` | `ruta_*`, `generic_tematiques`, `poble_*` | ☐ | ☐ |
+| 4 | `search_routes` | `RoutesRepository` | `ruta_*`, `generic_tematiques`, `poble_*` | ☑ | ☐ |
 | 5 | `search_events` | `EventsRepository` | `agenda_*`, `poble_*` | ☐ | ☐ |
 | 6 | `search_experiences` | `ExperiencesRepository` | `oferta_*`, `establiment_*`, `poble_*` | ☐ | ☐ |
 
@@ -368,7 +368,7 @@ erDiagram
 ### 4.2 Query SQL borrador
 
 ```sql
--- Paràmetres: :lang, :destination_pattern, :type_pattern (opcional)
+-- Paràmetres: %s lang, destination_pattern, type_pattern (opcional), limit
 SELECT
     rg.id,
     rc.titol AS title,
@@ -380,7 +380,7 @@ SELECT
     pc.comarca
 FROM ruta_general rg
 INNER JOIN ruta_continguts rc
-    ON rc.id_ruta = rg.id AND rc.idioma = :lang
+    ON rc.id_ruta = rg.id AND rc.idioma = %s
 LEFT JOIN ruta_pobles rp ON rp.id_ruta = rg.id
 LEFT JOIN poble_general pg ON pg.id = rp.id_poble
 LEFT JOIN poble_comarques pc ON pc.id = pg.id_comarca
@@ -388,14 +388,17 @@ LEFT JOIN ruta_tematica rt ON rt.id_ruta = rg.id
 LEFT JOIN generic_tematiques gt ON gt.id = rt.id_tematica
 WHERE rg.actiu = 1
   AND (
-      pg.poble LIKE :destination_pattern
-      OR pc.comarca LIKE :destination_pattern
+      pg.poble LIKE %s
+      OR pc.comarca LIKE %s
   )
-  AND (:type_pattern IS NULL OR gt.tematica_ca LIKE :type_pattern OR gt.code LIKE :type_pattern)
-GROUP BY rg.id
+  AND (%s IS NULL OR gt.tematica_ca LIKE %s OR gt.code LIKE %s)
+GROUP BY rg.id, rc.titol, rc.param_url, rc.introduccio, rg.imatge,
+         gt.tematica_ca, pg.poble, pc.comarca
 ORDER BY rc.titol
-LIMIT 20;
+LIMIT %s;
 ```
+
+**Implementació:** `app/db/repositories/routes.py` — filtre `type` via `generic_tematiques.tematica_ca` / `code`.
 
 ### 4.3 Mapatge columna → JSON
 
@@ -418,7 +421,7 @@ LIMIT 20;
 
 | # | destination | type | Files min | URL provada |
 |---|-------------|------|-----------|-------------|
-| SQL-07 | Empordà | A peu | ≥ 0 | ☐ |
+| SQL-07 | Empordà | A peu | ≥ 0 | ☑ |
 | — | Pirineu | A peu | ≥ 0 | ☐ |
 
 ### 4.6 Pendents client

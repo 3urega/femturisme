@@ -76,6 +76,26 @@ def test_row_to_card_article():
     assert card['location'] == "La Seu d'Urgell"
 
 
+def test_row_to_card_route():
+    card = row_to_card(
+        {
+            'id': 15,
+            'title': 'Camí de ronda',
+            'param_url': 'cami-de-ronda',
+            'route_type': 'A peu',
+            'location': 'Cadaqués',
+            'comarca': 'Alt Empordà',
+            'description': 'Itinerari costaner.',
+        },
+        'route',
+    )
+    assert card['source_type'] == 'route'
+    assert card['source_id'] == '15'
+    assert card['url'] == 'https://www.femturisme.cat/rutes/cami-de-ronda'
+    assert card['type'] == 'A peu'
+    assert card['location'] == 'Cadaqués (Alt Empordà)'
+
+
 def test_row_to_card_invalid_content_type():
     try:
         row_to_card({'id': 1, 'title': 'Test'}, 'unknown')

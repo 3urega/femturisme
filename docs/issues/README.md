@@ -72,7 +72,7 @@ Després de `plan-to-issues`, el document font ha d'incloure secció **GitHub is
 
 **Batch actiu:** [plan-fase3-batch2-mysql.md](../devs/plan-fase3-batch2-mysql.md) → [manifest.fase3-batch2.json](manifest.fase3-batch2.json) — **publicat** ([#12](https://github.com/3urega/femturisme/issues/12)…[#17](https://github.com/3urega/femturisme/issues/17)).
 
-Ordre: codi #13–#16 primer; **tests MySQL al final** ([#17](https://github.com/3urega/femturisme/issues/17)). [#12](https://github.com/3urega/femturisme/issues/12) tancada.
+Ordre: codi #14–#16 primer; **tests MySQL al final** ([#17](https://github.com/3urega/femturisme/issues/17)). [#12](https://github.com/3urega/femturisme/issues/12) i [#13](https://github.com/3urega/femturisme/issues/13) tancades.
 
 **Batch anterior:** [plan-fase3-prep-sense-mysql.md](../devs/plan-fase3-prep-sense-mysql.md) — **tancat** ([#5](https://github.com/3urega/femturisme/issues/5)…[#11](https://github.com/3urega/femturisme/issues/11)).
 

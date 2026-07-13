@@ -4,14 +4,6 @@
   "defaultLabels": ["enhancement", "fase-3"],
   "issues": [
     {
-      "title": "Fase 3 batch 2: RoutesRepository + search_routes MySQL",
-      "bodyFile": "docs/issues/routes-repository-mysql.md",
-      "labels": ["fase-3", "mysql"],
-      "checklistIds": ["DEV-207", "DEV-306"],
-      "githubNumber": 13,
-      "publishedAt": "2026-07-13"
-    },
-    {
       "title": "Fase 3 batch 2: ExperiencesRepository + search_experiences MySQL",
       "bodyFile": "docs/issues/experiences-repository-mysql.md",
       "labels": ["fase-3", "mysql"],

@@ -1,6 +1,6 @@
 # Checklist d'entrega — agent_femturisme
 
-**Progrés:** 32 / 90 completats · **Última actualització:** 2026-07-13
+**Progrés:** 34 / 90 completats · **Última actualització:** 2026-07-13
 
 > Els agents marquen `- [x]` quan el criteri **Detect** es compleix. Veure [index.md](index.md).
 
@@ -97,8 +97,8 @@
   *Detect:* SQL-05 *(2026-07-13)*
 - [ ] **DEV-206** — Mapatge `search_experiences`  
   *Detect:* SQL-06
-- [ ] **DEV-207** — Mapatge `search_routes`  
-  *Detect:* SQL-07
+- [x] **DEV-207** — Mapatge `search_routes`  
+  *Detect:* SQL-07 *(2026-07-13)*
 - [x] **DEV-208** — Helper `row_to_card()` + wrapper JSON comú  
   *Detect:* `app/db/mappers.py`; contracte tecnic §6.13 *(2026-07-08)*
 
@@ -118,8 +118,8 @@ Per cada buscador: **Repository + Tool refactor + test integració**. Sense `scr
   *Detect:* test SQL-04 *(2026-07-13)*
 - [x] **DEV-305** — `EventsRepository` + `search_events`  
   *Detect:* test SQL-05; dates vigents *(2026-07-13)*
-- [ ] **DEV-306** — `RoutesRepository` + `search_routes`  
-  *Detect:* test SQL-07
+- [x] **DEV-306** — `RoutesRepository` + `search_routes`  
+  *Detect:* test SQL-07 *(2026-07-13)*
 - [ ] **DEV-307** — Registre `ALL_TOOLS` amb 6 tools MySQL (noms objectiu)  
   *Detect:* `app/services/tools/__init__.py` sense tools legacy
 - [ ] **DEV-308** — Eliminar dependència `scraper.py` del catàleg  

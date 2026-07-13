@@ -7,7 +7,7 @@ from typing import Any, Callable
 
 CATALOG_BASE_URL = 'https://www.femturisme.cat'
 DESCRIPTION_MAX_LEN = 200
-SUPPORTED_CONTENT_TYPES = frozenset({'establishment', 'event', 'destination', 'article'})
+SUPPORTED_CONTENT_TYPES = frozenset({'establishment', 'event', 'destination', 'article', 'route'})
 
 _CARD_FIELDS = (
     'id',
@@ -33,7 +33,7 @@ def row_to_card(row: dict, content_type: str) -> dict:
 
     Args:
         row: Raw row dict from a repository query.
-        content_type: Domain discriminator (establishment, event, destination, article).
+        content_type: Domain discriminator (establishment, event, destination, article, route).
 
     Returns:
         Normalized card dict for results[].
@@ -171,6 +171,13 @@ def _build_article_url(param_url: object) -> str | None:
     return f'{CATALOG_BASE_URL}/noticies/{slug.strip("/")}'
 
 
+def _build_route_url(param_url: object) -> str | None:
+    slug = _clean_text(param_url)
+    if not slug:
+        return None
+    return f'{CATALOG_BASE_URL}/rutes/{slug.strip("/")}'
+
+
 def _coerce_date(value: object) -> date | None:
     if value is None:
         return None
@@ -288,9 +295,32 @@ def _map_article(row: dict) -> dict:
     return card
 
 
+def _map_route(row: dict) -> dict:
+    card = _base_card()
+    card.update(
+        {
+            'id': _string_id(row.get('id')),
+            'type': _clean_text(row.get('route_type') or row.get('type')),
+            'title': _clean_text(row.get('title')),
+            'location': _combine_location(row.get('location'), row.get('comarca')),
+            'description': _truncate_description(
+                row.get('description') or row.get('introduccio')
+            ),
+            'url': _build_route_url(row.get('param_url')),
+            'image': _absolute_media_url(row.get('image')),
+            'date': None,
+            'entity_id': _clean_text(row.get('entity_id')),
+            'source_type': 'route',
+            'source_id': _string_id(row.get('id')),
+        }
+    )
+    return card
+
+
 _ROW_MAPPERS: dict[str, Callable[[dict], dict]] = {
     'establishment': _map_establishment,
     'event': _map_event,
     'destination': _map_destination,
     'article': _map_article,
+    'route': _map_route,
 }

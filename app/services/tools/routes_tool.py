@@ -1,6 +1,10 @@
-"""Tool: search_routes — scrapes /rutes on femturisme.cat."""
+"""Tool: search_routes — MySQL catalog (itineraris / rutes)."""
+from __future__ import annotations
+
 import json
-from .scraper import fetch_page, extract_cards, result_count
+
+from app.db.connection import DatabaseError
+from app.db.repositories import routes
 
 SCHEMA = {
     'name': 'search_routes',
@@ -23,52 +27,71 @@ SCHEMA = {
                     'Esports i aventura | Gastronomia | Història | Natura | Literària'
                 ),
             },
+            'lang': {
+                'type': 'string',
+                'description': 'Content language: ca (default), es, or en',
+            },
         },
         'required': ['destination'],
     },
 }
 
 _TYPE_MAP = {
-    'hiking':    'A peu',
-    'walking':   'A peu',
-    'peu':       'A peu',
-    'culture':   'Cultura',
-    'cultural':  'Cultura',
-    'cycling':   'En bicicleta',
-    'bike':      'En bicicleta',
+    'hiking': 'A peu',
+    'walking': 'A peu',
+    'peu': 'A peu',
+    'culture': 'Cultura',
+    'cultural': 'Cultura',
+    'cycling': 'En bicicleta',
+    'bike': 'En bicicleta',
     'bicicleta': 'En bicicleta',
     'adventure': 'Esports i aventura',
-    'sport':     'Esports i aventura',
-    'gastro':    'Gastronomia',
-    'food':      'Gastronomia',
-    'history':   'Història',
-    'historia':  'Història',
-    'nature':    'Natura',
-    'natura':    'Natura',
-    'literary':  'Literària',
+    'sport': 'Esports i aventura',
+    'gastro': 'Gastronomia',
+    'food': 'Gastronomia',
+    'history': 'Història',
+    'historia': 'Història',
+    'nature': 'Natura',
+    'natura': 'Natura',
+    'literary': 'Literària',
 }
+
+
+def _normalize_route_type(value: object) -> str | None:
+    if value is None:
+        return None
+    text = str(value).strip()
+    if not text:
+        return None
+    return _TYPE_MAP.get(text.lower(), text)
 
 
 def execute(tool_input: dict) -> str:
     destination = tool_input.get('destination', '').strip()
-    route_type  = tool_input.get('type', '').lower().strip()
+    if not destination:
+        return json.dumps({'error': 'destination required', 'results': []})
 
-    params: dict = {}
-    if destination:
-        params['ubicacio'] = destination
-    if route_type:
-        params['tipus'] = _TYPE_MAP.get(route_type, route_type)
+    route_type = _normalize_route_type(tool_input.get('type'))
 
-    soup = fetch_page('/rutes', params)
-    if not soup:
-        return json.dumps({'error': 'No s\'ha pogut accedir a femturisme.cat', 'results': []})
+    lang = tool_input.get('lang', 'ca')
+    if lang is not None:
+        lang = str(lang).strip() or 'ca'
+    else:
+        lang = 'ca'
 
-    cards = extract_cards(soup, limit=6)
-    count = result_count(soup)
+    try:
+        data = routes.search(
+            destination=destination,
+            type=route_type,
+            lang=lang,
+        )
+    except DatabaseError:
+        return json.dumps(
+            {
+                'error': "No s'ha pogut accedir a les dades del catàleg",
+                'results': [],
+            },
+            ensure_ascii=False,
+        )
 
-    return json.dumps({
-        'destination': destination,
-        'type':        tool_input.get('type'),
-        'total':       count,
-        'results':     cards,
-    }, ensure_ascii=False)
+    return json.dumps(data, ensure_ascii=False)
