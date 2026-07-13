@@ -13,4 +13,4 @@ def test_articles_parc_cadi(app):
     articles = pytest.importorskip('app.db.repositories.articles')
     with app.app_context():
         data = articles.search(topic='Parc Natural Cadí')
-    assert data['total'] >= 0
+    assert int(data['total']) >= 0

@@ -55,7 +55,7 @@ Detall respostes parcials: [dominio-femturisme-ca.md §7](client/dominio-femturi
 | # | Tool | Repository | Taules principals | SQL provada | Casos prova |
 |---|------|------------|-------------------|-------------|-------------|
 | 1 | `search_establishments` | `EstablishmentsRepository` | `establiment_*`, `generic_tipus_establiment`, `poble_*` | ☐ | ☐ |
-| 2 | `search_articles` | `ArticlesRepository` | `noticia_*`, `poble_general` | ☐ | ☐ |
+| 2 | `search_articles` | `ArticlesRepository` | `noticia_*`, `poble_general` | ☑ | ☐ |
 | 3 | `search_destinations` | `DestinationsRepository` | `poble_*`, `poble_comarques`, `generic_ubicacions` | ☐ | ☐ |
 | 4 | `search_routes` | `RoutesRepository` | `ruta_*`, `generic_tematiques`, `poble_*` | ☐ | ☐ |
 | 5 | `search_events` | `EventsRepository` | `agenda_*`, `poble_*` | ☐ | ☐ |
@@ -194,7 +194,8 @@ erDiagram
 ### 2.2 Query SQL borrador
 
 ```sql
--- Paràmetres: :lang, :destination_pattern (opcional), :query_pattern (opcional)
+-- Paràmetres: %s lang, destination_pattern (opcional), topic_pattern (opcional),
+--             query_pattern (opcional), limit
 SELECT
     ng.id,
     nc.titol AS title,
@@ -202,21 +203,25 @@ SELECT
     ng.data AS published_at,
     ng.imatge AS image,
     LEFT(nc.cos, 300) AS description,
-    pg.poble AS location
+    pg.poble AS location,
+    pc.comarca
 FROM noticia_general ng
 INNER JOIN noticia_continguts nc
-    ON nc.id_noticia = ng.id AND nc.idioma = :lang
+    ON nc.id_noticia = ng.id AND nc.idioma = %s
 LEFT JOIN noticia_pobles np ON np.id_noticia = ng.id
 LEFT JOIN poble_general pg ON pg.id = np.id_poble
 LEFT JOIN poble_comarques pc ON pc.id = pg.id_comarca
 WHERE ng.actiu = 1
   AND (ng.permanent = 1 OR ng.data_caducitat >= CURDATE())
-  AND (:destination_pattern IS NULL OR pg.poble LIKE :destination_pattern OR pc.comarca LIKE :destination_pattern)
-  AND (:query_pattern IS NULL OR nc.titol LIKE :query_pattern OR nc.cos LIKE :query_pattern)
-GROUP BY ng.id
+  AND (%s IS NULL OR pg.poble LIKE %s OR pc.comarca LIKE %s)
+  AND (%s IS NULL OR nc.titol LIKE %s OR nc.cos LIKE %s)
+  AND (%s IS NULL OR nc.titol LIKE %s OR nc.cos LIKE %s)
+GROUP BY ng.id, nc.titol, nc.param_url, ng.data, ng.imatge, nc.cos, pg.poble, pc.comarca
 ORDER BY ng.data DESC
-LIMIT 20;
+LIMIT %s;
 ```
+
+**Implementació:** `app/db/repositories/articles.py` — `topic` i `query` mapen a patrons LIKE independents (OR dins cada bloc).
 
 ### 2.3 Mapatge columna → JSON
 
@@ -240,7 +245,7 @@ LIMIT 20;
 
 | # | topic / query | Files min | URL provada |
 |---|---------------|-----------|-------------|
-| SQL-03 | Parc Natural Cadí | ≥ 0 | ☐ |
+| SQL-03 | Parc Natural Cadí | ≥ 0 | ☑ |
 
 ### 2.6 Pendents client
 

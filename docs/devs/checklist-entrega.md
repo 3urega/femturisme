@@ -1,6 +1,6 @@
 # Checklist d'entrega — agent_femturisme
 
-**Progrés:** 30 / 90 completats · **Última actualització:** 2026-07-13
+**Progrés:** 32 / 90 completats · **Última actualització:** 2026-07-13
 
 > Els agents marquen `- [x]` quan el criteri **Detect** es compleix. Veure [index.md](index.md).
 
@@ -89,8 +89,8 @@
   *Detect:* `pytest` arrenca sense errors; API-01…04 passen
 - [x] **DEV-202** — Mapatge `search_establishments` a `sql-mapeo.md`  
   *Detect:* SQL + casos prova SQL-01/02 *(2026-07-13)*
-- [ ] **DEV-203** — Mapatge `search_articles`  
-  *Detect:* SQL-03
+- [x] **DEV-203** — Mapatge `search_articles`  
+  *Detect:* SQL-03 *(2026-07-13)*
 - [x] **DEV-204** — Mapatge `search_destinations`  
   *Detect:* SQL-04 *(2026-07-13)*
 - [x] **DEV-205** — Mapatge `search_events`  
@@ -112,8 +112,8 @@ Per cada buscador: **Repository + Tool refactor + test integració**. Sense `scr
   *Detect:* `tests/integration/sql/test_experiences.py` passa; tool sense import scraper
 - [x] **DEV-302** — `EstablishmentsRepository` + `search_establishments` (dormir+menjar)  
   *Detect:* substitueix `search_accommodations`; test SQL-01/02 *(2026-07-13)*
-- [ ] **DEV-303** — `ArticlesRepository` + `search_articles`  
-  *Detect:* test SQL-03
+- [x] **DEV-303** — `ArticlesRepository` + `search_articles`  
+  *Detect:* test SQL-03 *(2026-07-13)*
 - [x] **DEV-304** — `DestinationsRepository` + `search_destinations`  
   *Detect:* test SQL-04 *(2026-07-13)*
 - [x] **DEV-305** — `EventsRepository` + `search_events`  

@@ -8,6 +8,7 @@ Each tool module exposes:
 from .establishments   import SCHEMA as EST_SCHEMA, execute as est_execute
 from .destinations     import SCHEMA as DST_SCHEMA, execute as dst_execute
 from .events           import SCHEMA as EVT_SCHEMA, execute as evt_execute
+from .articles         import SCHEMA as ART_SCHEMA, execute as art_execute
 from .experiences      import SCHEMA as EXP_SCHEMA, execute as exp_execute
 from .routes_tool      import SCHEMA as RTE_SCHEMA, execute as rte_execute
 from .local_knowledge  import SCHEMA as LOC_SCHEMA, execute as loc_execute
@@ -17,6 +18,7 @@ ALL_TOOLS: list[dict] = [
     EST_SCHEMA,
     DST_SCHEMA,
     EVT_SCHEMA,
+    ART_SCHEMA,
     EXP_SCHEMA,
     RTE_SCHEMA,
     LOC_SCHEMA,
@@ -26,6 +28,7 @@ _EXECUTORS: dict[str, callable] = {
     EST_SCHEMA['name']: est_execute,
     DST_SCHEMA['name']: dst_execute,
     EVT_SCHEMA['name']: evt_execute,
+    ART_SCHEMA['name']: art_execute,
     EXP_SCHEMA['name']: exp_execute,
     RTE_SCHEMA['name']: rte_execute,
     LOC_SCHEMA['name']: loc_execute,
