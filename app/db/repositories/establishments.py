@@ -37,17 +37,35 @@ WHERE (eg.data_baixa IS NULL OR eg.data_baixa < '1000-01-01')
       OR pg2.poble LIKE %s
       OR pc2.comarca LIKE %s
   )
-  AND (%s IS NULL OR gte.code = %s OR gte.tipus_ca LIKE %s)
+  AND (%s IS NULL OR gte.code LIKE %s OR gte.tipus_ca LIKE %s)
+  AND (
+      %s IS NULL
+      OR eg.nom LIKE %s
+      OR ec.description LIKE %s
+      OR ec.introduccio LIKE %s
+      OR ec.contingut LIKE %s
+      OR ec.keywords LIKE %s
+  )
 GROUP BY eg.id, eg.nom, eg.param_url, eg.imatge
 ORDER BY eg.nom
 LIMIT %s
 """
 
 
+def _optional_pattern(value: str | None) -> str | None:
+    if value is None:
+        return None
+    text = str(value).strip()
+    if not text:
+        return None
+    return f'%{text}%'
+
+
 def search(
     *,
     destination: str,
     type: str | None = None,
+    query: str | None = None,
     lang: str = 'ca',
     limit: int = 20,
     skip_location_filter: bool = False,
@@ -55,7 +73,7 @@ def search(
     config: Mapping[str, Any] | None = None,
 ) -> dict:
     """
-    Search establishments by destination and optional type.
+    Search establishments by destination, optional type and optional free text.
 
     Returns the catalog search wrapper (destination, total, results[], error).
     """
@@ -67,13 +85,14 @@ def search(
         skip_location_filter=skip_location_filter,
     )
 
-    type_code: str | None = None
     type_pattern: str | None = None
     if type:
         normalized = type.strip().lower()
         if normalized:
-            type_code = normalized
             type_pattern = f'%{normalized}%'
+
+    query_text = (query or '').strip() or None
+    query_pattern = _optional_pattern(query_text)
 
     params = (
         lang,
@@ -82,9 +101,15 @@ def search(
         destination_pattern,
         destination_pattern,
         destination_pattern,
-        type_code,
-        type_code,
         type_pattern,
+        type_pattern,
+        type_pattern,
+        query_pattern,
+        query_pattern,
+        query_pattern,
+        query_pattern,
+        query_pattern,
+        query_pattern,
         row_limit,
     )
 
@@ -104,5 +129,6 @@ def search(
         location_filter_applied=location_filter_applied,
         retried=retried,
         type=type,
+        query=query_text,
         lang=lang,
     )

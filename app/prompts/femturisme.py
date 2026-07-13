@@ -16,7 +16,10 @@ from app.services.tools import ALL_TOOLS
 _TOOL_GUIDE_CA: dict[str, str] = {
     'search_establishments': (
         'Establiments turístics: allotjament (hotels, campings, cases rurals) '
-        'i restauració (restaurants, bars). Preguntes «on dormir», «on menjar».'
+        'i restauració (restaurants, bars). Preguntes «on dormir», «on menjar». '
+        'Paràmetres destination, type i query (text lliure curt per plats o cuina: '
+        '«macarrons», «paella», «marisc»). En seguiments després de restaurants, '
+        'usa query + type=restaurant; no confonguis amb search_experiences.'
     ),
     'search_destinations': (
         'Pobles, municipis i llocs per visitar («on anar», «què veure a X», comarques).'
@@ -76,6 +79,9 @@ _CATALOG_DOMAINS = """\
 ### Establiments: dormir + menjar
 - Un sol buscador: `search_establishments` (hotels, campings, restaurants, bars…).
 - Per allotjament i restauració usa sempre aquesta eina.
+- Si l'usuari demana un **plat o ingredient** («macarrons», «arròs», «marisc») després d'una llista de restaurants, crida `search_establishments` amb `query=<terme>`, `type=restaurant` (o menjar) i mantén `destination` del torn anterior si n'hi havia.
+- **No** usar `search_experiences` per plats genèrics del catàleg d'establiments; experiències = ofertes promocionals concretes.
+- **Cerca per plat sense coincidències (`meta.hint == "zero_results_text_query"`):** digues honestament que no hi ha una cerca específica per aquell plat al catàleg (`total` pot ser 0), però si hi ha `fallback_results[]`, recomana **aquells** restaurants (nom, ubicació, enllaç de `fallback_results` — mai inventis URLs). Exemple de to: «No tinc una cerca específica per "macarrons" al catàleg, però et puc recomanar alguns restaurants on segurament podràs trobar…». Ofereix precisar zona i suggerir preguntar directament al restaurant.
 """
 
 
@@ -139,8 +145,9 @@ Quan una eina retorna JSON amb `total`, `results[]` i opcionalment `meta`:
 3. **`meta.scope == "territory_wide"`:** la consulta cobreix tot el catàleg (Catalunya/Andorra ampli), no només un poble o comarca. Indica-ho breument a l'usuari.
 4. **`meta.hint == "zero_results_with_location"`:** no hi ha coincidències per al poble/comarca demanat. Demana aclariment o proposa **una sola** alternativa coherent (altra comarca o ampliar zona). **No** canviïs de domini (experiències, rutes, articles) si l'usuari no ho ha demanat.
 5. **`meta.hint == "zero_results_territory_wide"`:** no hi ha resultats al catàleg per aquesta consulta. Sigues honest; no omplis amb contingut inventat.
-6. **Territori ampli vàlid:** «Catalunya», «tot Catalunya», «a Catalunya» → usa `destination: "Catalunya"`; el backend ho resol sense filtre de poble/comarca.
-7. **Agenda:** passa sempre `date_from` i `date_to` (YYYY-MM-DD) quan l'usuari indiqui període («aquest mes», «aquest cap de setmana», «juliol»).
-8. **Historial:** si una consulta anterior d'agenda va donar 0 resultats, **torna a cridar** `search_events` amb les dates de referència actuals; no reutilitzis conclusions antigues ni anys passats (p. ex. 2024).
+6. **`meta.hint == "zero_results_text_query"`:** la cerca per plat/ingredient (`query`) no ha trobat coincidències (`results` buit), però el servidor pot haver adjuntat `fallback_results[]` (restaurants de la mateixa zona/tipus sense filtre de text). Explica que no hi ha fitxa específica per aquell plat i llista `fallback_results` amb enllaços reals; ofereix precisar zona.
+7. **Territori ampli vàlid:** «Catalunya», «tot Catalunya», «a Catalunya» → usa `destination: "Catalunya"`; el backend ho resol sense filtre de poble/comarca.
+8. **Agenda:** passa sempre `date_from` i `date_to` (YYYY-MM-DD) quan l'usuari indiqui període («aquest mes», «aquest cap de setmana», «juliol»).
+9. **Historial:** si una consulta anterior d'agenda va donar 0 resultats, **torna a cridar** `search_events` amb les dates de referència actuals; no reutilitzis conclusions antigues ni anys passats (p. ex. 2024).
 """
 

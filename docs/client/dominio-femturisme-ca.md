@@ -117,7 +117,7 @@ Substitueix l'antic `search_accommodations` (només allotjament).
 | **Exemples de preguntes** | «Hotel a Girona», «Camping Costa Brava», «On menjar a Berga», «Restaurant romàntic Empordà» |
 | **Tool** | `search_establishments` |
 | **Repository** | `EstablishmentsRepository` |
-| **Paràmetres v1** | `destination` (required), `type` (optional: hotel, camping, restaurant…) |
+| **Paràmetres v1** | `destination` (optional si hi ha `query`), `type` (optional), `query` (optional, text lliure curt: plat, cuina, ingredient) |
 | **Secció web** | `/on-dormir`, `/on-menjar`, `/que-fer` (llistats de navegació; no URL de fitxa) |
 | **URL fitxa** | `https://www.femturisme.cat/establiments/{param_url}` — prefix fix per a tots els tipus (**Q-05 confirmat 2026-07-13**) |
 | **Taules MySQL** | `establiment_general`, `establiment_continguts`, `establiment_tipus`, `generic_tipus_establiment`, `establiment_pobles`, `poble_general`, `poble_comarques` |

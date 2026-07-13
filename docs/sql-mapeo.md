@@ -85,7 +85,7 @@ Veure [tecnic.md §6.13](client/tecnic.md) — card + wrapper amb `results[]`, c
 
 **Domini:** on dormir i on menjar (mateixa entitat, filtre per tipus)  
 **Fitxer tool (objectiu):** `app/services/tools/establishments.py`  
-**Paràmetres:** `destination` (required), `type` (optional), `lang` (optional, default `ca`)
+**Paràmetres:** `destination?`, `type?`, `query?`, `lang?` (default `ca`)
 
 ### 1.1 Taules i relacions
 
@@ -140,7 +140,15 @@ WHERE (eg.data_baixa IS NULL OR eg.data_baixa < '1000-01-01')
       OR pg2.poble LIKE :destination_pattern
       OR pc2.comarca LIKE :destination_pattern
   )
-  AND (:type_code IS NULL OR gte.code = :type_code OR gte.tipus_ca LIKE :type_pattern)
+  AND (:type_pattern IS NULL OR gte.code LIKE :type_pattern OR gte.tipus_ca LIKE :type_pattern)
+  AND (
+      :query_pattern IS NULL
+      OR eg.nom LIKE :query_pattern
+      OR ec.description LIKE :query_pattern
+      OR ec.introduccio LIKE :query_pattern
+      OR ec.contingut LIKE :query_pattern
+      OR ec.keywords LIKE :query_pattern
+  )
 GROUP BY eg.id, eg.nom, eg.param_url, eg.imatge
 ORDER BY eg.nom
 LIMIT 20;
@@ -174,6 +182,7 @@ LIMIT 20;
 | SQL-02 | Pals | restaurant | ≥ 0 | ☑ |
 | — | Berguedà | restaurant | ≥ 0 | ☑ `https://www.femturisme.cat/establiments/cal-ferrer-de-borreda` |
 | — | Catalunya | — | ≥ 0 (territori ampli) | ☑ |
+| SQL-03 | Catalunya | restaurant | macarrons | ≥ 0 fitxes amb text que mencioni macarrons |
 
 ### 1.6 Pendents client
 

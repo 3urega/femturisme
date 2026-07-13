@@ -11,14 +11,19 @@ SCHEMA = {
     'description': (
         'Search tourist establishments in Catalonia or Andorra: accommodation '
         'and dining in one catalog. Use for where to sleep, where to eat, hotels, '
-        'campings, restaurants, bars, rural houses, and similar by town or comarca.'
+        'campings, restaurants, bars, rural houses, and similar by town or comarca. '
+        'Use query for dish or cuisine keywords (e.g. macarrons, paella) when there '
+        'is no structured type or place filter.'
     ),
     'input_schema': {
         'type': 'object',
         'properties': {
             'destination': {
                 'type': 'string',
-                'description': 'Town, comarca or region, e.g. "Girona", "Pals", "Empordà"',
+                'description': (
+                    'Town, comarca or region, e.g. "Girona", "Pals", "Empordà", '
+                    '"Catalunya". Optional if query is set (defaults to Catalunya).'
+                ),
             },
             'type': {
                 'type': 'string',
@@ -27,20 +32,40 @@ SCHEMA = {
                     'hostal, apartament…'
                 ),
             },
+            'query': {
+                'type': 'string',
+                'description': (
+                    'Optional short free-text search in establishment name or '
+                    'description (dish, cuisine, ingredient). Use when the user '
+                    'asks for something specific like "macarrons", "paella", '
+                    '"cuina de mar" that is not a type or place.'
+                ),
+            },
             'lang': {
                 'type': 'string',
                 'description': 'Content language: ca (default), es, or en',
             },
         },
-        'required': ['destination'],
+        'required': [],
     },
 }
 
 
 def execute(tool_input: dict) -> str:
-    destination = tool_input.get('destination', '').strip()
+    destination = str(tool_input.get('destination') or '').strip()
+    query = str(tool_input.get('query') or '').strip()
+
+    if not destination and not query:
+        return json.dumps(
+            {
+                'error': 'At least one of destination or query is required',
+                'results': [],
+            },
+            ensure_ascii=False,
+        )
+
     if not destination:
-        return json.dumps({'error': 'destination required', 'results': []})
+        destination = 'Catalunya'
 
     lang = tool_input.get('lang', 'ca')
     if lang is not None:
@@ -52,14 +77,18 @@ def execute(tool_input: dict) -> str:
     acc_type = str(acc_type).strip() if acc_type is not None else ''
     acc_type = acc_type or None
 
+    search_kwargs = {
+        'destination': destination,
+        'type': acc_type,
+        'query': query or None,
+        'lang': lang,
+        'skip_location_filter': bool(tool_input.get('_skip_location_filter')),
+        'retried': bool(tool_input.get('_retried')),
+    }
+
     try:
-        data = establishments.search(
-            destination=destination,
-            type=acc_type,
-            lang=lang,
-            skip_location_filter=bool(tool_input.get('_skip_location_filter')),
-            retried=bool(tool_input.get('_retried')),
-        )
+        data = establishments.search(**search_kwargs)
+        data = _apply_query_fallback(data, search_kwargs)
     except DatabaseError:
         return json.dumps(
             {
@@ -70,3 +99,45 @@ def execute(tool_input: dict) -> str:
         )
 
     return json.dumps(data, ensure_ascii=False)
+
+
+def _apply_query_fallback(data: dict, search_kwargs: dict) -> dict:
+    """
+    When a text query returns no matches, attach broader results (same zone/type)
+    so the LLM can recommend alternatives without inventing URLs.
+    """
+    query = (search_kwargs.get('query') or '').strip()
+    if not query:
+        return data
+
+    try:
+        total = int(data.get('total', 0) or 0)
+    except (TypeError, ValueError):
+        total = 0
+    if total > 0 or data.get('error'):
+        return data
+
+    fallback = establishments.search(
+        destination=search_kwargs['destination'],
+        type=search_kwargs.get('type'),
+        query=None,
+        lang=search_kwargs.get('lang', 'ca'),
+        skip_location_filter=search_kwargs.get('skip_location_filter', False),
+        retried=search_kwargs.get('retried', False),
+    )
+    try:
+        fallback_total = int(fallback.get('total', 0) or 0)
+    except (TypeError, ValueError):
+        fallback_total = 0
+    if fallback_total <= 0:
+        return data
+
+    merged = dict(data)
+    merged['fallback_results'] = fallback.get('results', [])
+    merged['fallback_total'] = str(fallback_total)
+    meta = dict(merged.get('meta') or {})
+    meta['hint'] = 'zero_results_text_query'
+    meta['fallback_applied'] = True
+    meta['query_term'] = query
+    merged['meta'] = meta
+    return merged

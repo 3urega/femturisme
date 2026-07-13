@@ -26,3 +26,20 @@ def test_establishments_pals_restaurant(app):
     with app.app_context():
         data = establishments.search(destination='Pals', type='restaurant')
     assert int(data['total']) >= 0
+
+
+@pytest.mark.integration
+@pytest.mark.skipif(not mysql_available(), reason='MYSQL_* not configured')
+def test_establishments_catalunya_restaurant_macarrons_query(app):
+    """SQL-03: free-text query for dish keyword in establishment descriptions."""
+    establishments = pytest.importorskip('app.db.repositories.establishments')
+    with app.app_context():
+        data = establishments.search(
+            destination='Catalunya',
+            type='restaurant',
+            query='macarrons',
+        )
+    assert data.get('error') is None
+    assert int(data['total']) >= 0
+    for card in data['results']:
+        assert card['url'].startswith('https://www.femturisme.cat/establiments/')

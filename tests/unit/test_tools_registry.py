@@ -43,7 +43,7 @@ def test_execute_tool_unknown_returns_error():
 def test_execute_tool_resolves_catalog_tools_without_unknown_error():
     """Each catalog tool is registered; missing required args return validation, not Unknown tool."""
     cases = {
-        'search_establishments': {'destination': ''},
+        'search_establishments': {'destination': '', 'query': ''},
         'search_destinations': {'destination': ''},
         'search_events': {'destination': ''},
         'search_articles': {},

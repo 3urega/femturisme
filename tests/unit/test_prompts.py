@@ -65,3 +65,12 @@ def test_build_system_prompt_catalan_language_rules():
     assert "digues-m'ho" in prompt
     assert 'dime-ho' in prompt
     assert 'no barregis' in prompt.lower() or 'no barregis' in prompt
+
+
+def test_build_system_prompt_establishments_query_for_dishes():
+    prompt = build_system_prompt()
+    assert 'query' in prompt
+    assert 'macarrons' in prompt
+    assert 'search_experiences' in prompt
+    assert 'zero_results_text_query' in prompt
+    assert 'fallback_results' in prompt
