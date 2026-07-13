@@ -4,7 +4,33 @@ Integrar el xat al portal públic via **widget JS/CSS portable**, suport API per
 
 **Prerequisit tancat:** Fase 3 batch 2 ([#12](https://github.com/3urega/femturisme/issues/12)…[#17](https://github.com/3urega/femturisme/issues/17)) — 6 buscadors MySQL + tests integració.
 
-**Estat:** publicat a GitHub ([#18](https://github.com/3urega/femturisme/issues/18)…[#22](https://github.com/3urega/femturisme/issues/22), 2026-07-13) · Manifest: [manifest.fase4-php.json](../issues/manifest.fase4-php.json)
+**Estat:** **posposada** *(2026-07-13)* — issues publicades a GitHub ([#18](https://github.com/3urega/femturisme/issues/18)…[#22](https://github.com/3urega/femturisme/issues/22)) en backlog; **no s'implementa** fins tancar qualitat de l'agent al xat Python. Manifest: [manifest.fase4-php.json](../issues/manifest.fase4-php.json)
+
+---
+
+## Decisió: posposar Fase 4
+
+La integració PHP (globus, proxy, staging) **queda en espera** mentre es valida i s'estabilitza el comportament de l'agent al **xat de prova Flask** (`http://127.0.0.1:5010/`).
+
+| Motiu | Detall |
+|-------|--------|
+| Entorn de prova suficient | `POST /api/chat` SSE, `POST /api/session/reset` i `app/static/js/chat.js` cobreixen proves funcionals sense tocar el CMS PHP del client |
+| Fase 4 = integració web | Globus, layout PHP, reverse proxy same-origin i UAT responsive **no desbloquegen** lògica d'agent ni buscadors MySQL |
+| Evitar fricció prematura | Staging PHP (**DEV-027**) i canvis al repo client abans d'hora només afegeixen dependències externes |
+
+**Prioritat actual (abans de Fase 4):**
+
+1. Qualitat de l'agent — prompts, routing de tools, consistència de resultats (p. ex. DEV-309)
+2. Tests d'integració MySQL i casos UAT del catàleg al xat Python
+3. Tancar punts oberts de Fase 3
+
+**Porta d'entrada a Fase 4** — reprendre quan es donin **totes**:
+
+- [ ] L'agent respon de forma estable al xat Python (6 dominis, idiomes, CA-08)
+- [ ] Casos de prova acordats passen de forma repetible (agenda, establiments, destinacions…)
+- [ ] Staging PHP accessible per l'equip (**DEV-027**) o el client demana demo al portal real
+
+Fins llavors, les issues #18–#22 romanen obertes sense bloquejar el desenvolupament Python.
 
 ---
 

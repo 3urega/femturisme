@@ -17,9 +17,11 @@ _TOOL_GUIDE_CA: dict[str, str] = {
     'search_establishments': (
         'Establiments turístics: allotjament (hotels, campings, cases rurals) '
         'i restauració (restaurants, bars). Preguntes «on dormir», «on menjar». '
-        'Paràmetres destination, type i query (text lliure curt per plats o cuina: '
-        '«macarrons», «paella», «marisc»). En seguiments després de restaurants, '
-        'usa query + type=restaurant; no confonguis amb search_experiences.'
+        'Paràmetres destination i type. Usa query només per plats o ingredients '
+        'curts («macarrons», «paella», «marisc») — mai per estils de cuina '
+        '(«cuina catalana tradicional» → type=restaurant + destination, sense query). '
+        'En seguiments després de restaurants, usa query + type=restaurant; '
+        'no confonguis amb search_experiences.'
     ),
     'search_destinations': (
         'Pobles, municipis i llocs per visitar («on anar», «què veure a X», comarques).'
@@ -79,7 +81,13 @@ _CATALOG_DOMAINS = """\
 ### Establiments: dormir + menjar
 - Un sol buscador: `search_establishments` (hotels, campings, restaurants, bars…).
 - Per allotjament i restauració usa sempre aquesta eina.
-- Si l'usuari demana un **plat o ingredient** («macarrons», «arròs», «marisc») després d'una llista de restaurants, crida `search_establishments` amb `query=<terme>`, `type=restaurant` (o menjar) i mantén `destination` del torn anterior si n'hi havia.
+
+#### Cuina / estil vs plat concret
+- **Estil o tipus de cuina** (recomanacions genèriques): `type=restaurant`, `destination` (p. ex. `Catalunya` o la zona del torn) i **sense** `query`.
+  Exemples: «restaurants de cuina catalana tradicional», «on menjar cuina de mar a la Costa Brava».
+- **Plat o ingredient concret**: `query=<terme curt>`, `type=restaurant` i `destination` del torn anterior si n'hi havia.
+  Exemples: «bons macarrons», «on menjar paella», «I si vull menjar uns bons macarrons?» (seguiment).
+- **No** posis frases d'estil de cuina a `query` (p. ex. «cuina catalana tradicional»): la cerca per `query` és literal al text de la fitxa i dona molt poques coincidències.
 - **No** usar `search_experiences` per plats genèrics del catàleg d'establiments; experiències = ofertes promocionals concretes.
 - **Cerca per plat sense coincidències (`meta.hint == "zero_results_text_query"`):** digues honestament que no hi ha una cerca específica per aquell plat al catàleg (`total` pot ser 0), però si hi ha `fallback_results[]`, recomana **aquells** restaurants (nom, ubicació, enllaç de `fallback_results` — mai inventis URLs). Exemple de to: «No tinc una cerca específica per "macarrons" al catàleg, però et puc recomanar alguns restaurants on segurament podràs trobar…». Ofereix precisar zona i suggerir preguntar directament al restaurant.
 """

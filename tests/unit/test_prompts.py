@@ -74,3 +74,13 @@ def test_build_system_prompt_establishments_query_for_dishes():
     assert 'search_experiences' in prompt
     assert 'zero_results_text_query' in prompt
     assert 'fallback_results' in prompt
+
+
+def test_build_system_prompt_establishments_cuisine_vs_dish_routing():
+    prompt = build_system_prompt()
+    assert 'Cuina / estil vs plat concret' in prompt
+    assert 'cuina catalana tradicional' in prompt
+    assert 'sense' in prompt.lower() and 'query' in prompt
+    assert 'literal' in prompt.lower() or 'coincidències' in prompt.lower()
+    assert 'macarrons' in prompt
+    assert 'type=restaurant' in prompt

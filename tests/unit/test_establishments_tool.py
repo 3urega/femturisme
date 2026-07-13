@@ -45,14 +45,14 @@ def test_execute_defaults_destination_when_only_query():
 
 
 def test_execute_passes_query_with_destination():
-    captured: dict = {}
+    calls: list[dict] = []
 
     def fake_search(**kwargs):
-        captured.update(kwargs)
+        calls.append(dict(kwargs))
         return {
             'destination': kwargs['destination'],
-            'total': '0',
-            'results': [],
+            'total': '1',
+            'results': [{'title': 'Match', 'url': 'https://example.com'}],
             'error': None,
         }
 
@@ -66,8 +66,8 @@ def test_execute_passes_query_with_destination():
             'query': 'macarrons',
         })
 
-    assert captured['destination'] == 'Berguedà'
-    assert captured['query'] == 'macarrons'
+    assert calls[0]['destination'] == 'Berguedà'
+    assert calls[0]['query'] == 'macarrons'
 
 
 def test_execute_query_fallback_when_text_search_empty():

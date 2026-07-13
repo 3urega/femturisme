@@ -133,6 +133,8 @@ Per cada buscador: **Repository + Tool refactor + test integració**. Sense `scr
 
 ## Fase 4 — Integració web femturisme.cat (tecnic §15.4, T-PHP)
 
+> **Posposada** *(2026-07-13):* no iniciar fins tancar qualitat de l'agent al xat Python de prova. Veure [plan-fase4-php-widget.md](plan-fase4-php-widget.md) § «Decisió: posposar Fase 4». Issues #18–#22 en backlog.
+
 - [ ] **DEV-400** — Globus + panell xat al layout PHP (T-PHP-01)  
   *Detect:* widget visible staging
 - [ ] **DEV-401** — Reverse proxy `/api/chat` i `/api/session/reset` (T-PHP-02)  

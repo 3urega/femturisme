@@ -12,8 +12,9 @@ SCHEMA = {
         'Search tourist establishments in Catalonia or Andorra: accommodation '
         'and dining in one catalog. Use for where to sleep, where to eat, hotels, '
         'campings, restaurants, bars, rural houses, and similar by town or comarca. '
-        'Use query for dish or cuisine keywords (e.g. macarrons, paella) when there '
-        'is no structured type or place filter.'
+        'For cuisine style or restaurant type (e.g. traditional Catalan cuisine), '
+        'use type and destination without query. Use query only for specific dishes '
+        'or ingredients (e.g. macarrons, paella, seafood).'
     ),
     'input_schema': {
         'type': 'object',
@@ -36,9 +37,11 @@ SCHEMA = {
                 'type': 'string',
                 'description': (
                     'Optional short free-text search in establishment name or '
-                    'description (dish, cuisine, ingredient). Use when the user '
-                    'asks for something specific like "macarrons", "paella", '
-                    '"cuina de mar" that is not a type or place.'
+                    'description for a specific dish or ingredient only (e.g. '
+                    '"macarrons", "paella", "marisc"). Do not use for cuisine '
+                    'styles or restaurant types (e.g. do not use for '
+                    '"cuina catalana tradicional" — use type=restaurant and '
+                    'destination instead).'
                 ),
             },
             'lang': {
