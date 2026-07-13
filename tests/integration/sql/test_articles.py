@@ -14,3 +14,6 @@ def test_articles_parc_cadi(app):
     with app.app_context():
         data = articles.search(topic='Parc Natural Cadí')
     assert int(data['total']) >= 0
+    if int(data['total']) >= 1:
+        assert data['results'][0]['title']
+        assert '/noticies/' in data['results'][0]['url']

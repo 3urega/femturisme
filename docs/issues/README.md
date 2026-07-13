@@ -70,9 +70,9 @@ Després de publicar: afegir `"githubNumber": 42` i `"publishedAt": "YYYY-MM-DD"
 
 Després de `plan-to-issues`, el document font ha d'incloure secció **GitHub issues (draft)** amb taula de slugs (sense URLs de GitHub fins publicar).
 
-**Batch actiu:** [plan-fase3-batch2-mysql.md](../devs/plan-fase3-batch2-mysql.md) → [manifest.fase3-batch2.json](manifest.fase3-batch2.json) — **publicat** ([#12](https://github.com/3urega/femturisme/issues/12)…[#17](https://github.com/3urega/femturisme/issues/17)).
+**Batch actiu:** [plan-fase4-php-widget.md](../devs/plan-fase4-php-widget.md) → [manifest.fase4-php.json](manifest.fase4-php.json) — **publicat** ([#18](https://github.com/3urega/femturisme/issues/18)…[#22](https://github.com/3urega/femturisme/issues/22), 2026-07-13). Ordre: widget (#18) + API context (#19) en paral·lel; wiring (#20); proxy docs (#21); UAT al final (#22).
 
-Ordre: codi #15–#16 primer; **tests MySQL al final** ([#17](https://github.com/3urega/femturisme/issues/17)). [#12](https://github.com/3urega/femturisme/issues/12)…[#14](https://github.com/3urega/femturisme/issues/14) tancades.
+**Batch tancat:** [plan-fase3-batch2-mysql.md](../devs/plan-fase3-batch2-mysql.md) — **complet** ([#12](https://github.com/3urega/femturisme/issues/12)…[#17](https://github.com/3urega/femturisme/issues/17), 2026-07-13).
 
 **Batch anterior:** [plan-fase3-prep-sense-mysql.md](../devs/plan-fase3-prep-sense-mysql.md) — **tancat** ([#5](https://github.com/3urega/femturisme/issues/5)…[#11](https://github.com/3urega/femturisme/issues/11)).
 

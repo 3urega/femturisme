@@ -421,7 +421,7 @@ LIMIT %s;
 
 | # | destination | type | Files min | URL provada |
 |---|-------------|------|-----------|-------------|
-| SQL-07 | Empordà | A peu | ≥ 0 | ☑ |
+| SQL-07 | Empordà | A peu | ≥ 1 | ☑ |
 | — | Pirineu | A peu | ≥ 0 | ☐ |
 
 ### 4.6 Pendents client

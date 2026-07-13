@@ -45,7 +45,9 @@ tests/
     ├── test_establishments.py  # SQL-01, SQL-02
     ├── test_destinations.py    # SQL-04
     ├── test_events.py          # SQL-05
-    └── ...                     # SQL-03/06/07 batch 2
+    ├── test_articles.py        # SQL-03
+    ├── test_experiences.py     # SQL-06
+    └── test_routes.py          # SQL-07
 ```
 
 ---
@@ -79,6 +81,8 @@ Usa `LLM_PROVIDER=dummy` via `TestingConfig`. Això **no afecta** el teu `.env` 
 Marcat `@pytest.mark.integration`. Es **salten** si no hi ha `MYSQL_HOST` + `MYSQL_USER` (o prefix `AGENT_`). `conftest.py` carrega `.env` via `load_dotenv()` abans d'importar l'app.
 
 **Batch 1 verificat** (#11): SQL-01/02/04/05 contra MySQL Railway (còpia producció).
+
+**Batch 2 verificat** (#17): SQL-03/06/07 contra MySQL Railway — articles, experiències promocionals i rutes.
 
 ---
 

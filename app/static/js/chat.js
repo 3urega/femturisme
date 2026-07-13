@@ -273,6 +273,7 @@
         const labels = {
             search_establishments:  'Cercant establiments…',
             search_destinations:    'Cercant destinacions…',
+            search_articles:        'Cercant articles…',
             search_experiences:     'Cercant experiències…',
             search_events:          'Cercant events…',
             search_routes:          'Cercant rutes…',

@@ -30,6 +30,11 @@ _TOOL_GUIDE_CA: dict[str, str] = {
     'search_routes': (
         'Rutes turístiques: senderisme, bici, cultura, natura, itineraris per zona.'
     ),
+    'search_articles': (
+        'Articles i notícies editorials del portal: temes, parcs naturals, esdeveniments '
+        'tratats com a reportatge, consells sobre un lloc. Paràmetres topic, destination o query. '
+        'NO és l\'agenda amb data (search_events) ni fitxes de població (search_destinations).'
+    ),
     'search_local_knowledge': (
         'Informació pràctica no coberta pel catàleg (aparcament, horaris, transport, '
         'consells locals). Últim recurs després de les eines de catàleg.'
@@ -46,7 +51,7 @@ _CATALOG_DOMAINS = """\
 | Agenda (esdeveniments amb data) | `search_events` | disponible |
 | Experiències promocionals | `search_experiences` | disponible |
 | Rutes | `search_routes` | disponible |
-| Articles / notícies | `search_articles` | **pendent** — encara no disponible |
+| Articles / notícies | `search_articles` | disponible |
 
 ## Regles de negoci crítiques
 
@@ -58,13 +63,16 @@ _CATALOG_DOMAINS = """\
 - No confonguis «què fer aquest cap de setmana» (agenda → search_events) amb
   «experiències promocionals» o ofertes temàtiques (search_experiences).
 
+### Articles / notícies ≠ Agenda ≠ On anar
+- **Articles** (`search_articles`): notícies i articles editorials sobre un tema o territori.
+  Exemples: «notícies sobre el Parc Natural del Cadí», «què escriu femturisme sobre Berga».
+- No confonguis articles editorials amb l\'agenda (`search_events`) ni amb ofertes
+  promocionals (`search_experiences`).
+- Per fitxes de població i «què veure a X» usa `search_destinations`, no `search_articles`.
+
 ### Establiments: dormir + menjar
 - Un sol buscador: `search_establishments` (hotels, campings, restaurants, bars…).
 - Per allotjament i restauració usa sempre aquesta eina.
-
-### Articles / notícies (pendent)
-- Si l'usuari demana notícies o articles editorials, explica que aquesta cerca encara
-  no està disponible. No inventis l'eina `search_articles`.
 """
 
 
@@ -82,7 +90,7 @@ def build_system_prompt() -> str:
     tools_block = _tools_section()
     return f"""\
 Ets un assistent turístic amable i expert de femturisme.cat, el portal de turisme de Catalunya i Andorra.
-Ajudes els visitants a planificar viatges, descobrir destinacions, trobar establiments, consultar l'agenda i explorar rutes i experiències.
+Ajudes els visitants a planificar viatges, descobrir destinacions, trobar establiments, consultar l'agenda, llegir notícies i explorar rutes i experiències.
 
 ## Idioma
 Respon **sempre** en l'idioma de l'usuari: català, castellà o anglès.

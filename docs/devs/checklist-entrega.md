@@ -1,6 +1,6 @@
 # Checklist d'entrega — agent_femturisme
 
-**Progrés:** 36 / 90 completats · **Última actualització:** 2026-07-13
+**Progrés:** 38 / 90 completats · **Última actualització:** 2026-07-13
 
 > Els agents marquen `- [x]` quan el criteri **Detect** es compleix. Veure [index.md](index.md).
 
@@ -31,7 +31,7 @@
 - [ ] **DEV-010** — `sql-mapeo.md` complet (6 buscadors, SQL provada)  
   *Detect:* cap secció TBD; totes les queries amb casos prova. **Parcial (2026-07):** schema mapejat + SQL borrador; falta provar amb dump
 - [x] **DEV-011** — Issues GitHub del roadmap publicades  
-  *Detect:* `gh issue list --repo 3urega/femturisme` amb batch Fase 1–3 *(2026-07-13)*
+  *Detect:* `gh issue list --repo 3urega/femturisme` amb batch Fase 1–4 *(2026-07-13)*
 
 ---
 
@@ -120,10 +120,10 @@ Per cada buscador: **Repository + Tool refactor + test integració**. Sense `scr
   *Detect:* test SQL-05; dates vigents *(2026-07-13)*
 - [x] **DEV-306** — `RoutesRepository` + `search_routes`  
   *Detect:* test SQL-07 *(2026-07-13)*
-- [ ] **DEV-307** — Registre `ALL_TOOLS` amb 6 tools MySQL (noms objectiu)  
-  *Detect:* `app/services/tools/__init__.py` sense tools legacy
-- [ ] **DEV-308** — Eliminar dependència `scraper.py` del catàleg  
-  *Detect:* cap import scraper a tools de catàleg; fitxer eliminat o marcat deprecated
+- [x] **DEV-307** — Registre `ALL_TOOLS` amb 6 tools MySQL (noms objectiu)  
+  *Detect:* `app/services/tools/__init__.py` sense tools legacy *(2026-07-13)*
+- [x] **DEV-308** — Eliminar dependència `scraper.py` del catàleg  
+  *Detect:* cap import scraper a tools de catàleg; fitxer eliminat o marcat deprecated *(2026-07-13)*
 - [ ] **DEV-309** — Límits operatius (LIMIT 20, truncat 6 cards al model)  
   *Detect:* tecnic §6.14 implementat als repositories/servei
 - [x] **DEV-310** — System prompt alineat amb 6 dominis + idiomes  

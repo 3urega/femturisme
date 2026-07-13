@@ -1,0 +1,47 @@
+{
+  "repo": "3urega/femturisme",
+  "sourceDoc": "docs/devs/plan-fase4-php-widget.md",
+  "defaultLabels": ["enhancement", "fase-4"],
+  "issues": [
+    {
+      "title": "Fase 4: Widget globus JS/CSS portable per PHP",
+      "bodyFile": "docs/issues/widget-globus-assets.md",
+      "labels": ["fase-4", "php", "widget"],
+      "checklistIds": ["DEV-400"],
+      "githubNumber": 18,
+      "publishedAt": "2026-07-13"
+    },
+    {
+      "title": "Fase 4: API page_context i agent_context",
+      "bodyFile": "docs/issues/api-page-agent-context.md",
+      "labels": ["fase-4", "agent", "api"],
+      "checklistIds": ["DEV-402", "DEV-403"],
+      "githubNumber": 19,
+      "publishedAt": "2026-07-13"
+    },
+    {
+      "title": "Fase 4: Widget envia context i Nova conversa",
+      "bodyFile": "docs/issues/widget-context-reset.md",
+      "labels": ["fase-4", "php", "widget"],
+      "checklistIds": ["DEV-404"],
+      "githubNumber": 20,
+      "publishedAt": "2026-07-13"
+    },
+    {
+      "title": "Fase 4: Docs reverse proxy SSE same-origin",
+      "bodyFile": "docs/issues/php-proxy-docs.md",
+      "labels": ["fase-4", "php", "documentation"],
+      "checklistIds": ["DEV-401", "DEV-406"],
+      "githubNumber": 21,
+      "publishedAt": "2026-07-13"
+    },
+    {
+      "title": "Fase 4: UAT widget staging desktop i mobil",
+      "bodyFile": "docs/issues/uat-widget-staging.md",
+      "labels": ["fase-4", "php", "testing"],
+      "checklistIds": ["DEV-405"],
+      "githubNumber": 22,
+      "publishedAt": "2026-07-13"
+    }
+  ]
+}

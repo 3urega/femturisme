@@ -13,4 +13,6 @@ def test_routes_emporda_foot(app):
     routes = pytest.importorskip('app.db.repositories.routes')
     with app.app_context():
         data = routes.search(destination='Empordà', type='A peu')
-    assert int(data['total']) >= 0
+    assert int(data['total']) >= 1
+    assert data['results'][0]['url'].startswith('https://www.femturisme.cat/')
+    assert '/rutes/' in data['results'][0]['url']
