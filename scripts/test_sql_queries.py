@@ -10,6 +10,10 @@ _ROOT = Path(__file__).resolve().parent.parent
 if str(_ROOT) not in sys.path:
     sys.path.insert(0, str(_ROOT))
 
+from dotenv import load_dotenv
+
+load_dotenv()
+
 
 def _format_ping(label: str, result: dict) -> str:
     status = result.get('status', 'unknown')

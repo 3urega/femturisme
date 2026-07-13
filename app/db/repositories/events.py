@@ -33,7 +33,7 @@ WHERE ag.activa = 1
   )
   AND (%s IS NULL OR ad.data_final >= %s)
   AND (%s IS NULL OR ad.data_inici <= %s)
-GROUP BY ag.id
+GROUP BY ag.id, ac.titol, ac.param_url, ac.descripcio, ag.imatge, pg.poble, pc.comarca
 ORDER BY date_start
 LIMIT %s
 """

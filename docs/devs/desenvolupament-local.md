@@ -214,23 +214,50 @@ AGENT_MAX_TOOL_ITERATIONS=5
 
 S'usa automàticament a `pytest` via `TestingConfig` (sense xarxa externa ni cost d'API). Per provar el xat manualment, usa el provider real del [§7.1](#71-llm-en-dev-local-recomanat).
 
-### 7.3 MySQL local (Fase 3 — buscadors)
+### 7.3 MySQL (Fase 3 — buscadors)
 
-Quan existeixi `app/db/connection.py`, apunta al MySQL **del teu PC** (dump importat del client):
+Un sol conjunt de variables `MYSQL_*` actiu al `.env`. Plantilla amb dos entorns a [`.env.example`](../../.env.example):
+
+| Entorn | Quan | `MYSQL_HOST` típic |
+|--------|------|---------------------|
+| **dev** | Ara — còpia producció a **Railway** | host Railway (remot) |
+| **prod** | Staging/producció del **client** | host client (encara sense accés dev) |
+| **local** | Dump importat al PC (alternativa) | `127.0.0.1` |
+
+**Dev (Railway)** — copia les variables del panell Railway → servei MySQL:
 
 ```env
-MYSQL_HOST=127.0.0.1
+MYSQL_HOST=<host Railway>
+MYSQL_PORT=<port assignat — sovint ≠ 3306>
+MYSQL_USER=<usuari>
+MYSQL_PASSWORD=<password>
+MYSQL_DATABASE=<nom BD>
+MYSQL_CONNECT_TIMEOUT=15
+```
+
+**Prod (client)** — quan tinguin accés read-only:
+
+```env
+MYSQL_HOST=<host staging o prod client>
 MYSQL_PORT=3306
 MYSQL_USER=agent_read
-MYSQL_PASSWORD=dev-local
+MYSQL_PASSWORD=<secret client>
+MYSQL_DATABASE=femturisme
 MYSQL_CONNECT_TIMEOUT=5
 ```
 
-També vàlid amb prefix `AGENT_` (ex. `AGENT_MYSQL_HOST`). Timeouts per defecte: 5 s.
-
-Instal·lació i import: [§9](#9-mysql-en-dev-còpia-local-del-client).
+També vàlid amb prefix `AGENT_` (ex. `AGENT_MYSQL_HOST`). Timeouts per defecte: 5 s (15 s recomanat per Railway).
 
 **Important:** usuari **només lectura** (`SELECT`). L'agent no escriu al CMS.
+
+Verificació:
+
+```powershell
+python scripts/test_sql_queries.py --ping
+python -m pytest -m integration -v
+```
+
+Dump local al PC: [§9](#9-mysql-en-dev-còpia-local-del-client) (alternativa si no uses Railway).
 
 ### 7.4 PostgreSQL (Fase 5 — RAG / admin)
 
@@ -251,7 +278,7 @@ Prefix `AGENT_POSTGRES_*` alternatiu. Base per defecte segons [tecnic.md §10.2]
 |------|---------------------------|
 | Agent + xat manual | `AGENT_*` + provider real + API key client |
 | `pytest` (automàtic) | `TestingConfig` → `dummy` (no cal canviar el teu `.env`) |
-| Fase 2–3 MySQL | + `MYSQL_*` → `127.0.0.1` (dump local) |
+| Fase 2–3 MySQL | + `MYSQL_*` → **dev Railway** o dump local `127.0.0.1` |
 | Fase 4 widget PHP | Agent en `:5010`; proxy PHP a staging |
 | Fase 5 RAG | + `POSTGRES_*` (cloud) |
 | Fase 1 producte xat | **Sense** PostgreSQL obligatori |
@@ -283,9 +310,17 @@ Els tests usen `TestingConfig`: `LLM_PROVIDER=dummy`, sense xarxa externa.
 
 ---
 
-## 9. MySQL en dev: còpia local del client
+## 9. MySQL en dev: Railway o còpia local
 
-Si **no pots connectar** des del teu PC al MySQL real del client (firewall, VPN, política de xarxa), l'estratègia acordada és:
+Estratègies per treballar amb dades reals sense accés directe al MySQL de producció del client:
+
+| Estratègia | Estat actual | `.env` |
+|------------|--------------|--------|
+| **Railway** (còpia producció) | Recomanada ara | `MYSQL_HOST` = host Railway — veure [§7.3](#73-mysql-fase-3--buscadors) |
+| **Dump local** | Alternativa | `MYSQL_HOST=127.0.0.1` — import al PC |
+| **Staging client** | Prod — pendent accés | `MYSQL_HOST` remot quan obtinguin credencials |
+
+Si **no pots connectar** des del teu PC al MySQL real del client (firewall, VPN, política de xarxa), l'estratègia clàssica era:
 
 1. El client et proporciona una **còpia** de la base de dades (estructura + dades).
 2. Instal·les **MySQL natiu a Windows** (sense Docker).

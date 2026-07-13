@@ -12,11 +12,11 @@ SELECT
     eg.nom AS title,
     eg.param_url,
     eg.imatge AS image,
-    gte.code AS type_code,
-    gte.tipus_ca AS type_label,
-    pg.poble AS location,
-    pc.comarca,
-    ec.description AS description
+    ANY_VALUE(gte.code) AS type_code,
+    ANY_VALUE(gte.tipus_ca) AS type_label,
+    ANY_VALUE(pg.poble) AS location,
+    ANY_VALUE(pc.comarca) AS comarca,
+    ANY_VALUE(ec.description) AS description
 FROM establiment_general eg
 INNER JOIN establiment_continguts ec
     ON ec.id_establiment = eg.id AND ec.idioma = %s
@@ -28,7 +28,7 @@ LEFT JOIN establiment_pobles ep ON ep.id_establiment = eg.id
 LEFT JOIN poble_general pg2 ON pg2.id = ep.id_poble
 LEFT JOIN poble_comarques pc2 ON pc2.id = pg2.id_comarca
 WHERE eg.actiu = 1
-  AND (eg.data_baixa IS NULL OR eg.data_baixa = '0000-00-00')
+  AND (eg.data_baixa IS NULL OR eg.data_baixa < '1000-01-01')
   AND eg.sense_fitxa = 0
   AND (
       pg.poble LIKE %s
@@ -37,7 +37,7 @@ WHERE eg.actiu = 1
       OR pc2.comarca LIKE %s
   )
   AND (%s IS NULL OR gte.code = %s OR gte.tipus_ca LIKE %s)
-GROUP BY eg.id
+GROUP BY eg.id, eg.nom, eg.param_url, eg.imatge
 ORDER BY eg.nom
 LIMIT %s
 """

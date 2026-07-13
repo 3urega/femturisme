@@ -13,4 +13,4 @@ def test_destinations_besalu(app):
     destinations = pytest.importorskip('app.db.repositories.destinations')
     with app.app_context():
         data = destinations.search(destination='Besalú')
-    assert data['total'] >= 0
+    assert int(data['total']) >= 0

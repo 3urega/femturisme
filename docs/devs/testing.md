@@ -28,7 +28,7 @@ Veure també [desenvolupament-local.md](desenvolupament-local.md) per venv i ent
 
 ```text
 tests/
-├── conftest.py              # fixtures app, client, mock_tool_execute
+├── conftest.py              # load_dotenv + fixtures app, client, mock_tool_execute
 ├── helpers/
 │   ├── sse.py               # parse_sse_events
 │   └── env.py               # mysql_available()
@@ -36,11 +36,16 @@ tests/
 │   ├── test_chat.py         # API-01…API-04
 │   └── test_health.py       # API-05
 ├── unit/
+│   ├── test_mappers.py      # row_to_card, build_search_wrapper
+│   ├── test_prompts.py      # build_system_prompt
+│   ├── test_db_connection.py
+│   ├── test_config.py
 │   └── test_sse_parser.py
 └── integration/sql/
-    ├── test_experiences.py  # SQL-06
     ├── test_establishments.py  # SQL-01, SQL-02
-    └── ...
+    ├── test_destinations.py    # SQL-04
+    ├── test_events.py          # SQL-05
+    └── ...                     # SQL-03/06/07 batch 2
 ```
 
 ---
@@ -53,7 +58,7 @@ tests/
 | API-02 | `test_api_02_chat_simple_message_sse_done` | Hola → SSE `done` |
 | API-03 | `test_api_03_chat_catalog_tool_flow` | Rutes + mock tool → tool_call/result/done |
 | API-04 | `test_api_04_session_reset_ok` | Reset sessió → `ok: true` |
-| API-05 | `test_api_05_health_returns_200_json` | GET /health → 200, mysql/postgres not_configured |
+| API-05 | `test_api_05_health_returns_200_json` | GET /health → 200; mysql `ok` o `not_configured` |
 
 Usa `LLM_PROVIDER=dummy` via `TestingConfig`. Això **no afecta** el teu `.env` quan executes `python main.py` amb la API key del client.
 
@@ -71,23 +76,25 @@ Usa `LLM_PROVIDER=dummy` via `TestingConfig`. Això **no afecta** el teu `.env` 
 | SQL-06 | `test_experiences_olvan` | Olvan |
 | SQL-07 | `test_routes_emporda_foot` | Empordà, A peu |
 
-Marcat `@pytest.mark.integration`. Es **salten** si no hi ha `MYSQL_HOST` + `MYSQL_USER` (o prefix `AGENT_`).
+Marcat `@pytest.mark.integration`. Es **salten** si no hi ha `MYSQL_HOST` + `MYSQL_USER` (o prefix `AGENT_`). `conftest.py` carrega `.env` via `load_dotenv()` abans d'importar l'app.
 
-Quan existeixi el repository, el test s'executa contra MySQL staging.
+**Batch 1 verificat** (#11): SQL-01/02/04/05 contra MySQL Railway (còpia producció).
 
 ---
 
 ## Variables d'entorn (integració)
 
+Veure [desenvolupament-local.md](desenvolupament-local.md) §7.3 — **dev Railway** (TCP proxy) o prod client.
+
 ```env
-MYSQL_HOST=...
-MYSQL_PORT=3306
-MYSQL_USER=agent_read
+MYSQL_HOST=thomas.proxy.rlwy.net   # exemple Railway TCP proxy
+MYSQL_PORT=49223                   # port assignat per Railway
+MYSQL_USER=root
 MYSQL_PASSWORD=...
-MYSQL_DATABASE=femturisme
+MYSQL_DATABASE=railway
 ```
 
-O amb prefix `AGENT_MYSQL_*` (veure `app/config.py` quan s'implementi).
+O amb prefix `AGENT_MYSQL_*` (veure `app/config.py`).
 
 ---
 
@@ -97,7 +104,7 @@ O amb prefix `AGENT_MYSQL_*` (veure `app/config.py` quan s'implementi).
 python scripts/test_sql_queries.py --ping
 ```
 
-Retorna 0 amb missatge «not implemented» fins que existeixi `app/db/connection.py`.
+Carrega `.env` i comprova connectivitat MySQL/PostgreSQL (`ok`, `not_configured` o `error`).
 
 ---
 

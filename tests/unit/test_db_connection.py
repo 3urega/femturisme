@@ -9,7 +9,6 @@ from app.db.connection import (
     ping_mysql,
     ping_postgres,
 )
-from app.db.mappers import row_to_card
 
 
 def test_ping_mysql_not_configured():
@@ -78,29 +77,3 @@ def test_get_mysql_connection_raises_when_not_configured():
         assert False, 'expected DatabaseError'
     except DatabaseError as exc:
         assert 'not configured' in str(exc).lower()
-
-
-def test_row_to_card_establishment_shape():
-    card = row_to_card(
-        {
-            'id': 1,
-            'title': 'Hotel Test',
-            'param_url': 'hotel-test',
-            'type_code': 'on-dormir',
-            'type_label': 'Hotel',
-            'location': 'Girona',
-        },
-        'establishment',
-    )
-    assert card['title'] == 'Hotel Test'
-    assert card['source_type'] == 'establishment'
-    assert card['source_id'] == '1'
-    assert card['url'] == 'https://www.femturisme.cat/on-dormir/hotel-test'
-
-
-def test_row_to_card_invalid_content_type():
-    try:
-        row_to_card({'id': 1, 'title': 'Test'}, 'article')
-        assert False, 'expected ValueError'
-    except ValueError as exc:
-        assert 'article' in str(exc)

@@ -17,4 +17,4 @@ def test_events_emporda_weekend(app):
             date_from='2026-06-28',
             date_to='2026-06-29',
         )
-    assert data['total'] >= 0
+    assert int(data['total']) >= 0

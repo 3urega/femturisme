@@ -18,8 +18,9 @@ def test_testing_config_exposes_mysql_and_postgres(app):
     cfg = app.config
     assert 'MYSQL_HOST' in cfg
     assert 'MYSQL_PORT' in cfg
-    assert cfg['MYSQL_PORT'] == 3306
-    assert cfg['MYSQL_DATABASE'] == 'femturisme'
+    assert isinstance(cfg['MYSQL_PORT'], int)
+    assert cfg['MYSQL_PORT'] > 0
+    assert cfg['MYSQL_DATABASE']
     assert 'POSTGRES_HOST' in cfg
     assert cfg['POSTGRES_PORT'] == 5432
     assert cfg['POSTGRES_DATABASE'] == 'agent_femturisme'

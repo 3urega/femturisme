@@ -1,6 +1,6 @@
 # Checklist d'entrega — agent_femturisme
 
-**Progrés:** 22 / 90 completats · **Última actualització:** 2026-07-08
+**Progrés:** 29 / 90 completats · **Última actualització:** 2026-07-13
 
 > Els agents marquen `- [x]` quan el criteri **Detect** es compleix. Veure [index.md](index.md).
 
@@ -87,14 +87,14 @@
   *Detect:* directoris creats segons arquitectura *(2026-07-08)*
 - [x] **DEV-201** — `tests/conftest.py` + fixture Flask app  
   *Detect:* `pytest` arrenca sense errors; API-01…04 passen
-- [ ] **DEV-202** — Mapatge `search_establishments` a `sql-mapeo.md`  
-  *Detect:* SQL + casos prova SQL-01/02
+- [x] **DEV-202** — Mapatge `search_establishments` a `sql-mapeo.md`  
+  *Detect:* SQL + casos prova SQL-01/02 *(2026-07-13)*
 - [ ] **DEV-203** — Mapatge `search_articles`  
   *Detect:* SQL-03
-- [ ] **DEV-204** — Mapatge `search_destinations`  
-  *Detect:* SQL-04
-- [ ] **DEV-205** — Mapatge `search_events`  
-  *Detect:* SQL-05
+- [x] **DEV-204** — Mapatge `search_destinations`  
+  *Detect:* SQL-04 *(2026-07-13)*
+- [x] **DEV-205** — Mapatge `search_events`  
+  *Detect:* SQL-05 *(2026-07-13)*
 - [ ] **DEV-206** — Mapatge `search_experiences`  
   *Detect:* SQL-06
 - [ ] **DEV-207** — Mapatge `search_routes`  
@@ -110,14 +110,14 @@ Per cada buscador: **Repository + Tool refactor + test integració**. Sense `scr
 
 - [ ] **DEV-301** — `ExperiencesRepository` + `search_experiences` MySQL + test  
   *Detect:* `tests/integration/sql/test_experiences.py` passa; tool sense import scraper
-- [ ] **DEV-302** — `EstablishmentsRepository` + `search_establishments` (dormir+menjar)  
-  *Detect:* substitueix `search_accommodations`; test SQL-01/02
+- [x] **DEV-302** — `EstablishmentsRepository` + `search_establishments` (dormir+menjar)  
+  *Detect:* substitueix `search_accommodations`; test SQL-01/02 *(2026-07-13)*
 - [ ] **DEV-303** — `ArticlesRepository` + `search_articles`  
   *Detect:* test SQL-03
-- [ ] **DEV-304** — `DestinationsRepository` + `search_destinations`  
-  *Detect:* test SQL-04
-- [ ] **DEV-305** — `EventsRepository` + `search_events`  
-  *Detect:* test SQL-05; dates vigents
+- [x] **DEV-304** — `DestinationsRepository` + `search_destinations`  
+  *Detect:* test SQL-04 *(2026-07-13)*
+- [x] **DEV-305** — `EventsRepository` + `search_events`  
+  *Detect:* test SQL-05; dates vigents *(2026-07-13)*
 - [ ] **DEV-306** — `RoutesRepository` + `search_routes`  
   *Detect:* test SQL-07
 - [ ] **DEV-307** — Registre `ALL_TOOLS` amb 6 tools MySQL (noms objectiu)  
@@ -126,8 +126,8 @@ Per cada buscador: **Repository + Tool refactor + test integració**. Sense `scr
   *Detect:* cap import scraper a tools de catàleg; fitxer eliminat o marcat deprecated
 - [ ] **DEV-309** — Límits operatius (LIMIT 20, truncat 6 cards al model)  
   *Detect:* tecnic §6.14 implementat als repositories/servei
-- [ ] **DEV-310** — System prompt alineat amb 6 dominis + idiomes  
-  *Detect:* prompt descriu tools correctes; no menciona scraping
+- [x] **DEV-310** — System prompt alineat amb 6 dominis + idiomes  
+  *Detect:* prompt descriu tools correctes; no menciona scraping *(2026-07-13)*
 
 ---
 

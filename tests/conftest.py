@@ -4,6 +4,9 @@ from __future__ import annotations
 import json
 
 import pytest
+from dotenv import load_dotenv
+
+load_dotenv()
 
 from app import create_app
 

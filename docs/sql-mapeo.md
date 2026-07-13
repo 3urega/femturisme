@@ -107,11 +107,11 @@ SELECT
     eg.nom AS title,
     eg.param_url,
     eg.imatge AS image,
-    gte.code AS type_code,
-    gte.tipus_ca AS type_label,
-    pg.poble AS location,
-    pc.comarca,
-    ec.description AS description
+    ANY_VALUE(gte.code) AS type_code,
+    ANY_VALUE(gte.tipus_ca) AS type_label,
+    ANY_VALUE(pg.poble) AS location,
+    ANY_VALUE(pc.comarca) AS comarca,
+    ANY_VALUE(ec.description) AS description
 FROM establiment_general eg
 INNER JOIN establiment_continguts ec
     ON ec.id_establiment = eg.id AND ec.idioma = :lang
@@ -123,7 +123,7 @@ LEFT JOIN establiment_pobles ep ON ep.id_establiment = eg.id
 LEFT JOIN poble_general pg2 ON pg2.id = ep.id_poble
 LEFT JOIN poble_comarques pc2 ON pc2.id = pg2.id_comarca
 WHERE eg.actiu = 1
-  AND (eg.data_baixa IS NULL OR eg.data_baixa = '0000-00-00')
+  AND (eg.data_baixa IS NULL OR eg.data_baixa < '1000-01-01')
   AND eg.sense_fitxa = 0
   AND (
       pg.poble LIKE :destination_pattern
@@ -132,7 +132,7 @@ WHERE eg.actiu = 1
       OR pc2.comarca LIKE :destination_pattern
   )
   AND (:type_code IS NULL OR gte.code = :type_code OR gte.tipus_ca LIKE :type_pattern)
-GROUP BY eg.id
+GROUP BY eg.id, eg.nom, eg.param_url, eg.imatge
 ORDER BY eg.nom
 LIMIT 20;
 ```
@@ -153,15 +153,15 @@ LIMIT 20;
 | Camp | Valor |
 |------|-------|
 | `eg.actiu` | `= 1` |
-| `eg.data_baixa` | NULL o `'0000-00-00'` |
+| `eg.data_baixa` | NULL o data anterior a `1000-01-01` (legacy zero-date) |
 | `eg.sense_fitxa` | `= 0` |
 
 ### 1.5 Casos de prova
 
 | # | destination | type | Files min | URL provada |
 |---|-------------|------|-----------|-------------|
-| SQL-01 | Girona | hotel | ≥ 0 | ☐ |
-| SQL-02 | Pals | restaurant | ≥ 0 | ☐ |
+| SQL-01 | Girona | hotel | ≥ 0 | ☑ |
+| SQL-02 | Pals | restaurant | ≥ 0 | ☑ |
 
 ### 1.6 Pendents client
 
@@ -324,7 +324,7 @@ No hi ha `actiu` a `poble_general`. Filtrar per `poble <> ''` i `description` no
 
 | # | destination | Files min | URL provada |
 |---|-------------|-----------|-------------|
-| SQL-04 | Besalú | ≥ 0 | ☐ |
+| SQL-04 | Besalú | ≥ 0 | ☑ |
 | — | Empordà (comarca) | ≥ 0 | ☐ |
 
 ### 3.6 Pendents client
@@ -476,7 +476,7 @@ WHERE ag.activa = 1
   )
   AND (:date_from IS NULL OR ad.data_final >= :date_from)
   AND (:date_to IS NULL OR ad.data_inici <= :date_to)
-GROUP BY ag.id
+GROUP BY ag.id, ac.titol, ac.param_url, ac.descripcio, ag.imatge, pg.poble, pc.comarca
 ORDER BY date_start
 LIMIT 20;
 ```
@@ -505,7 +505,7 @@ LIMIT 20;
 
 | # | destination | date_from | date_to | Files min | URL provada |
 |---|-------------|-----------|---------|-----------|-------------|
-| SQL-05 | Empordà | cap setmana | cap setmana | ≥ 0 | ☐ |
+| SQL-05 | Empordà | cap setmana | cap setmana | ≥ 0 | ☑ |
 | — | Barcelona | 2026-06-01 | 2026-06-30 | ≥ 0 | ☐ |
 
 ### 5.6 Pendents client

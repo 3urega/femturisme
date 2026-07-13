@@ -13,7 +13,7 @@ def test_establishments_girona_hotel(app):
     establishments = pytest.importorskip('app.db.repositories.establishments')
     with app.app_context():
         data = establishments.search(destination='Girona', type='hotel')
-    assert data['total'] >= 0
+    assert int(data['total']) >= 0
     if int(data['total']) >= 1:
         assert data['results'][0]['url'].startswith('https://www.femturisme.cat/')
 
@@ -25,4 +25,4 @@ def test_establishments_pals_restaurant(app):
     establishments = pytest.importorskip('app.db.repositories.establishments')
     with app.app_context():
         data = establishments.search(destination='Pals', type='restaurant')
-    assert data['total'] >= 0
+    assert int(data['total']) >= 0

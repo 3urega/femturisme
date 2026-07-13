@@ -12,5 +12,5 @@ def test_api_05_health_returns_200_json(client):
     assert data is not None
     assert data['ok'] is True
     assert data['service'] == 'up'
-    assert data['mysql']['status'] == 'not_configured'
+    assert data['mysql']['status'] in ('not_configured', 'ok')
     assert data['postgres']['status'] == 'not_configured'

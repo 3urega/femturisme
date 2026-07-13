@@ -22,18 +22,13 @@ from typing import Generator
 
 from flask import current_app
 
+from app.prompts.femturisme import build_system_prompt
 from .llm_service import build_provider, LLMResponse, ToolCall
 from .tools       import ALL_TOOLS, execute_tool
 
 # In-memory conversation store: session_id → list[dict]
 # Replace with DB-backed storage for multi-server / persistence.
 _history: dict[str, list[dict]] = {}
-
-SYSTEM_PROMPT = """Ets un assistent turístic amable i expert de femturisme.cat, el portal de turisme de Catalunya i Andorra.
-Ajudes els visitants a descobrir experiències, allotjaments, events, rutes i tot el que es pot fer arreu de Catalunya i Andorra.
-Tens accés a eines per cercar informació actualitzada sobre destins, activitats i serveis turístics.
-Respon sempre en l'idioma de l'usuari (català, castellà o anglès).
-Quan presentis resultats, utilitza un format llegible amb els detalls més rellevants."""
 
 
 class AgentService:
@@ -128,7 +123,7 @@ class AgentService:
     # ------------------------------------------------------------------
 
     def _with_system(self, history: list[dict]) -> list[dict]:
-        return [{'role': 'system', 'content': SYSTEM_PROMPT}] + history
+        return [{'role': 'system', 'content': build_system_prompt()}] + history
 
 
 # ---------------------------------------------------------------------------
