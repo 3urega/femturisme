@@ -5,13 +5,6 @@
   "publishedAt": "2026-07-14",
   "issues": [
     {
-      "title": "Fase 6: UAT context conversacional CA-07",
-      "bodyFile": "docs/issues/uat-conversation-context.md",
-      "labels": ["fase-6", "agent", "testing"],
-      "githubNumber": 24,
-      "publishedAt": "2026-07-14"
-    },
-    {
       "title": "Fase 6: Matriu CA-01 a CA-09 (DEV-605)",
       "bodyFile": "docs/issues/ca-matrix-verification.md",
       "labels": ["fase-6", "testing", "documentation"],

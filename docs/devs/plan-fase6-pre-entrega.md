@@ -24,7 +24,7 @@ La Fase 4 (#18–#22) roman en espera fins accés PHP/staging.
 | Slug | Títol | Labels | Depèn de |
 |------|-------|--------|----------|
 | `rate-limiting-logging.md` | Fase 6: Rate limiting i logging minim (DEV-602) | fase-6, agent, ops | — | [#23](https://github.com/3urega/femturisme/issues/23) **tancat** |
-| `uat-conversation-context.md` | Fase 6: UAT context conversacional CA-07 | fase-6, agent, testing | — | [#24](https://github.com/3urega/femturisme/issues/24) |
+| `uat-conversation-context.md` | Fase 6: UAT context conversacional CA-07 | fase-6, agent, testing | — | [#24](https://github.com/3urega/femturisme/issues/24) **tancat** |
 | `ca-matrix-verification.md` | Fase 6: Matriu CA-01 a CA-09 (DEV-605) | fase-6, testing, docs | #24 | [#25](https://github.com/3urega/femturisme/issues/25) |
 | `sql-mapeo-completion.md` | Fase 6: Tancar sql-mapeo.md 6 buscadors (DEV-010) | fase-6, mysql, docs | — | [#26](https://github.com/3urega/femturisme/issues/26) |
 

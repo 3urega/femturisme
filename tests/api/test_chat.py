@@ -111,6 +111,40 @@ def test_api_chat_entitat_with_entity_id_501(client):
     assert 'error' in response.get_json()
 
 
+def test_api_multi_turn_same_session_preserves_context(client, mock_tool_execute):
+    """Multi-turn: same session_id accumulates history; turn 2 triggers catalog tool."""
+    from app.services import agent_service
+
+    session_id = 'multi-turn-ctx-001'
+
+    r1 = client.post('/api/chat', json={
+        'message': 'Vull anar al Berguedà aquest cap de setmana.',
+        'session_id': session_id,
+    })
+    assert r1.status_code == 200
+    assert 'done' in [e.get('type') for e in parse_sse_events(r1.data)]
+
+    history_after_t1 = list(agent_service._history.get(session_id, []))
+    assert len(history_after_t1) >= 2
+
+    r2 = client.post('/api/chat', json={
+        'message': 'On puc dormir allà?',
+        'session_id': session_id,
+    })
+    assert r2.status_code == 200
+    events2 = parse_sse_events(r2.data)
+    types2 = [e.get('type') for e in events2]
+    assert 'done' in types2
+    assert 'tool_call' in types2
+    tool_calls = [e for e in events2 if e.get('type') == 'tool_call']
+    assert any(e.get('tool') == 'search_establishments' for e in tool_calls)
+
+    history_after_t2 = agent_service._history.get(session_id, [])
+    assert len(history_after_t2) > len(history_after_t1)
+    first_user = history_after_t2[0].get('content', '')
+    assert 'bergued' in str(first_user).lower()
+
+
 def test_api_05_chat_rate_limit_returns_429(client, app):
     """Rate limit: excess POST /api/chat → 429 JSON."""
     from app.services.rate_limit import reset

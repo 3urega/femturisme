@@ -1,0 +1,24 @@
+UAT context CA-07 — base=http://127.0.0.1:5010
+
+[PASS] UAT-CTX-01: Berguedà → dormir allà (establishments + destination)
+  turn 1: 'Vull anar al Berguedà aquest cap de setmana.' | tools=search_events | dest={'search_events': 'Berguedà'}
+  turn 2: 'On puc dormir allà?' | tools=search_establishments | dest={'search_establishments': 'Berguedà'}
+[PASS] UAT-CTX-02: Vall d'Aran → rutes fàcils (routes + aran)
+  turn 1: "Vull passar el cap de setmana a la Vall d'Aran." | tools=(cap) | dest={}
+  turn 2: 'Hi ha rutes fàcils?' | tools=search_routes | dest={'search_routes': "Vall d'Aran"}
+[PASS] UAT-CTX-03: Besalú → dormir allà (establishments + besalu)
+  turn 1: 'Què veure a Besalú?' | tools=search_destinations | dest={'search_destinations': 'Besalú'}
+  turn 2: 'I on dormir allà?' | tools=search_establishments | dest={'search_establishments': 'Besalú'}
+[PASS] UAT-CTX-04: ES: Empordà → dormir allí (lang=es + empord)
+  turn 1: 'Quiero ir al Empordà este fin de semana.' | tools=search_events | dest={'search_events': 'Empordà'}
+  turn 2: '¿Dónde puedo dormir allí?' | tools=search_establishments | dest={'search_establishments': 'Empordà'}
+[PASS] UAT-CTX-05: Reset: després de session/reset no hereta Berguedà
+  turn 1: 'Vull anar al Berguedà.' | tools=search_destinations | dest={'search_destinations': 'Berguedà'}
+  turn 2: 'On puc dormir?' | tools=(cap) | dest={}
+
+RESULTAT: 5/5 PASS (100%) | Umbral >=80% (4/5): OK
+  [OK] UAT-CTX-01
+  [OK] UAT-CTX-02
+  [OK] UAT-CTX-03
+  [OK] UAT-CTX-04
+  [OK] UAT-CTX-05
