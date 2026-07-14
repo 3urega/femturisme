@@ -36,7 +36,7 @@ Cerrar **DEV-010**: `sql-mapeo.md` completo para los 6 buscadors, sin secciones 
 
 ## Issues relacionadas
 
-- `ca-matrix-verification.md`
+- [#25](https://github.com/3urega/femturisme/issues/25) (DEV-605, tancada) — [ca-matrix-fase1.md](../devs/ca-matrix-fase1.md)
 
 ## Verificación
 

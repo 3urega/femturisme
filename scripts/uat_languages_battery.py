@@ -8,10 +8,12 @@ import uuid
 import urllib.error
 import urllib.request
 from dataclasses import dataclass, field
+from pathlib import Path
 
 from app.services.user_language import detect_user_language, foreign_language_markers
 
 BASE = sys.argv[1] if len(sys.argv) > 1 else "http://127.0.0.1:5010"
+RESULTS_PATH = Path(__file__).resolve().parent / "uat_languages_battery_results.txt"
 
 CASES: list[dict] = [
     {
@@ -258,6 +260,14 @@ def main() -> int:
     for r in results:
         mark = "OK" if r.pass_ else "KO"
         print(f"  [{mark}] {r.case_id} ({r.lang})")
+
+    summary = f"RESULTAT: {passed}/{len(results)} PASS ({pct}%)"
+    lines = [f"UAT idiomes DEV-601 — base={BASE}", "", summary]
+    for r in results:
+        mark = "OK" if r.pass_ else "KO"
+        lines.append(f"  [{mark}] {r.case_id} ({r.lang})")
+    RESULTS_PATH.write_text("\n".join(lines) + "\n", encoding="utf-8")
+    print(f"\nResults written to {RESULTS_PATH}")
     return 0 if passed >= 6 else 1
 
 

@@ -1,0 +1,5 @@
+CA-04 smoke — PASS
+message: On puc allotjar i què fer aquest cap de setmana a Girona?
+tools: ['search_establishments', 'search_events']
+catalog_tools: ['search_establishments', 'search_events']
+done: True

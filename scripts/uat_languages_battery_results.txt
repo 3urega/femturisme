@@ -1,0 +1,11 @@
+UAT idiomes DEV-601 — base=http://127.0.0.1:5010
+
+RESULTAT: 7/8 PASS (88%)
+  [OK] UAT-LANG-CA-01 (ca)
+  [OK] UAT-LANG-CA-02 (ca)
+  [KO] UAT-LANG-ES-01 (es)
+  [OK] UAT-LANG-ES-02 (es)
+  [OK] UAT-LANG-EN-01 (en)
+  [OK] UAT-LANG-EN-02 (en)
+  [OK] UAT-LANG-FR-01 (fr)
+  [OK] UAT-LANG-FR-02 (fr)

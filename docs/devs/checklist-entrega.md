@@ -1,6 +1,6 @@
 # Checklist d'entrega — agent_femturisme
 
-**Progrés:** 45 / 90 completats · **Última actualització:** 2026-07-14
+**Progrés:** 46 / 90 completats · **Última actualització:** 2026-07-14
 
 > Els agents marquen `- [x]` quan el criteri **Detect** es compleix. Veure [index.md](index.md).
 
@@ -188,8 +188,8 @@ Per cada buscador: **Repository + Tool refactor + test integració**. Sense `scr
   *Detect:* tecnic §14.2 passen *(2026-07-14: `pytest tests/api/` 5/5)*
 - [x] **DEV-604** — UAT catàleg (12 proves, 2 per domini)  
   *Detect:* tecnic §14.3 lot Catàleg ≥80% routing *(2026-07-14: 12/12 routing 100%, script `scripts/uat_catalog_battery.py`)*
-- [ ] **DEV-605** — **CA-01…CA-09** verificats (requeriments §12)  
-  *Detect:* matriu CA amb evidència (staging)
+- [x] **DEV-605** — **CA-01…CA-09** verificats (requeriments §12)  
+  *Detect:* matriu CA amb evidència (staging) *(2026-07-14: 9/9 OK al chat Flask demo — `docs/devs/ca-matrix-fase1.md`; issue #25)*
 - [ ] **DEV-606** — Sign-off client Fase 1 staging  
   *Detect:* acceptació formal documentada
 - [ ] **DEV-607** — Desplegament producció Fase 1 (sense RAG al xat públic)  
