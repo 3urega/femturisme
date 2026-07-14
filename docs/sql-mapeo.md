@@ -33,11 +33,24 @@ Filtrar `{domini}_continguts.idioma = :lang` (`ca` per defecte; `es` / `en` sego
 
 ### Territori ampli (`Catalunya`, `Andorra`)
 
-Implementació: [`app/db/territory.py`](../app/db/territory.py) (`is_broad_territory`, `resolve_location_filter`).
+Implementació: [`app/db/territory.py`](../app/db/territory.py) (`is_broad_territory`, `resolve_geo_filter`, `resolve_location_filter`).
 
 Quan `destination` és un territori ampli (p. ex. `Catalunya`, `Cataluña`, `Catalonia`, `tot Catalunya`, `Andorra`), el filtre SQL de poble/comarca **no s'aplica** — equivalent al paràmetre `ubicacio=Catalunya` del CMS web. La consulta retorna resultats de tot el catàleg (limitats a `LIMIT 20`) i el wrapper inclou `meta.scope = "territory_wide"`.
 
 Per destinacions concretes (poble, comarca), el filtre és `pg.poble LIKE %destination% OR pc.comarca LIKE %destination%` i `meta.scope = "location"`.
+
+### Zones turístiques agregades (`Costa Brava`, …)
+
+Algunes `destination` són **zones turístiques** del CMS, no pobles ni comarques literals. El backend les resol a municipis via `generic_ubicacions` (camps `id_pobles` de les comarques component) i filtra `pg.id IN (...)`.
+
+| Zona (destination) | Comarques resoltes (v1) | Font |
+|--------------------|-------------------------|------|
+| `Costa Brava` | Alt Empordà, Baix Empordà, La Selva | `generic_ubicacions` (`alt-emporda`, `baix-emporda`, `la-selva`) |
+| `Pirineu` | Alt Urgell, Berguedà, Cerdanya, Garrotxa, La Noguera, Pallars Jussà, Pallars Sobirà, Pla d'Urgell, Ripollès, Solsonès, Urgell, Val d'Aran | `generic_ubicacions` (12 comarques) |
+
+**Tipus establiment (alias API → MySQL):** `casa-rural` / `turisme rural` → `cases-rurals` (`generic_tipus_establiment.code`).
+
+El wrapper inclou `meta.resolved_zone` i `meta.resolved_comarques` perquè l'agent expliqui l'àmbit sense llistar municipis manualment. El LLM passa `destination` tal com l'usuari diu; **no** substitueix la zona per una comarca concreta.
 
 Si `total = 0` amb filtre de ubicació, `meta.hint = "zero_results_with_location"`; si és territori ampli sense resultats, `meta.hint = "zero_results_territory_wide"`.
 

@@ -54,6 +54,21 @@ _CATEGORY_MAP = {
     'gastronomy': 'Menús',
 }
 
+_VALID_CATEGORIES = frozenset({
+    'Activitats',
+    'Allotjaments',
+    'Bellesa i relax',
+    'Cultura',
+    'Escapades',
+    'Esports i aventures',
+    'Excursions',
+    'Familiar',
+    'Gastronomia',
+    'Menús',
+    'Restaurants',
+    'Visites guiades',
+})
+
 
 def _normalize_category(value: object) -> str | None:
     if value is None:
@@ -61,7 +76,10 @@ def _normalize_category(value: object) -> str | None:
     text = str(value).strip()
     if not text:
         return None
-    return _CATEGORY_MAP.get(text.lower(), text)
+    mapped = _CATEGORY_MAP.get(text.lower(), text)
+    if mapped not in _VALID_CATEGORIES:
+        return None
+    return mapped
 
 
 def execute(tool_input: dict) -> str:

@@ -5,7 +5,7 @@ from typing import Any, Mapping
 
 from app.db.connection import get_mysql_connection
 from app.db.mappers import build_search_wrapper, rows_to_cards
-from app.db.territory import resolve_location_filter
+from app.db.territory import location_predicate, resolve_geo_filter
 
 _SEARCH_SQL = """
 SELECT
@@ -30,13 +30,7 @@ LEFT JOIN poble_general pg2 ON pg2.id = ep.id_poble
 LEFT JOIN poble_comarques pc2 ON pc2.id = pg2.id_comarca
 WHERE (eg.data_baixa IS NULL OR eg.data_baixa < '1000-01-01')
   AND eg.sense_fitxa = 0
-  AND (
-      %s IS NULL
-      OR pg.poble LIKE %s
-      OR pc.comarca LIKE %s
-      OR pg2.poble LIKE %s
-      OR pc2.comarca LIKE %s
-  )
+  AND {location_filter}
   AND (%s IS NULL OR gte.code LIKE %s OR gte.tipus_ca LIKE %s)
   AND (
       %s IS NULL
@@ -80,9 +74,15 @@ def search(
     destination = destination.strip()
     lang = (lang or 'ca').strip()
     row_limit = max(1, min(int(limit), 20))
-    destination_pattern, location_filter_applied = resolve_location_filter(
+    geo = resolve_geo_filter(
         destination,
         skip_location_filter=skip_location_filter,
+        config=config,
+    )
+    location_filter, location_params = location_predicate(
+        geo,
+        extra_poble_id_cols=('pg2.id',),
+        extra_like_pairs=(('pg2.poble', 'pc2.comarca'),),
     )
 
     type_pattern: str | None = None
@@ -96,11 +96,7 @@ def search(
 
     params = (
         lang,
-        destination_pattern,
-        destination_pattern,
-        destination_pattern,
-        destination_pattern,
-        destination_pattern,
+        *location_params,
         type_pattern,
         type_pattern,
         type_pattern,
@@ -116,7 +112,10 @@ def search(
     conn = get_mysql_connection(config)
     try:
         with conn.cursor() as cursor:
-            cursor.execute(_SEARCH_SQL, params)
+            cursor.execute(
+                _SEARCH_SQL.format(location_filter=location_filter),
+                params,
+            )
             rows = cursor.fetchall()
     finally:
         conn.close()
@@ -126,9 +125,10 @@ def search(
         destination=destination,
         results=cards,
         total=str(len(cards)),
-        location_filter_applied=location_filter_applied,
+        location_filter_applied=geo.location_filter_applied,
         retried=retried,
         type=type,
         query=query_text,
         lang=lang,
+        **geo.meta_extras(),
     )

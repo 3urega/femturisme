@@ -20,9 +20,9 @@ La integració PHP (globus, proxy, staging) **queda en espera** mentre es valida
 
 **Prioritat actual (abans de Fase 4):**
 
-1. Qualitat de l'agent — prompts, routing de tools, consistència de resultats (p. ex. DEV-309)
+1. Qualitat de l'agent — prompts, routing de tools, consistència de resultats, zones turístiques
 2. Tests d'integració MySQL i casos UAT del catàleg al xat Python
-3. Tancar punts oberts de Fase 3
+3. ~~DEV-309 truncat 6 cards~~ → **posposat Fase 9** (només cost tokens; LIMIT 20 ja actiu)
 
 **Porta d'entrada a Fase 4** — reprendre quan es donin **totes**:
 

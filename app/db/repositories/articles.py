@@ -5,6 +5,7 @@ from typing import Any, Mapping
 
 from app.db.connection import get_mysql_connection
 from app.db.mappers import build_search_wrapper, rows_to_cards
+from app.db.territory import is_broad_territory
 
 _SEARCH_SQL = """
 SELECT
@@ -60,6 +61,8 @@ def search(
     row_limit = max(1, min(int(limit), 20))
 
     destination_text = (destination or '').strip() or None
+    if destination_text and is_broad_territory(destination_text):
+        destination_text = None
     topic_text = (topic or '').strip() or None
     query_text = (query or '').strip() or None
 

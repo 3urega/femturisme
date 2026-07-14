@@ -1,6 +1,6 @@
 # Checklist d'entrega — agent_femturisme
 
-**Progrés:** 38 / 90 completats · **Última actualització:** 2026-07-13
+**Progrés:** 39 / 90 completats · **Última actualització:** 2026-07-14
 
 > Els agents marquen `- [x]` quan el criteri **Detect** es compleix. Veure [index.md](index.md).
 
@@ -125,7 +125,8 @@ Per cada buscador: **Repository + Tool refactor + test integració**. Sense `scr
 - [x] **DEV-308** — Eliminar dependència `scraper.py` del catàleg  
   *Detect:* cap import scraper a tools de catàleg; fitxer eliminat o marcat deprecated *(2026-07-13)*
 - [ ] **DEV-309** — Límits operatius (LIMIT 20, truncat 6 cards al model)  
-  *Detect:* tecnic §6.14 implementat als repositories/servei; `meta.truncated` al wrapper *(parcial 2026-07-13)*
+  *Detect:* tecnic §6.14 implementat als repositories/servei; `meta.truncated` al wrapper  
+  **Posposat fase final** *(2026-07-14):* només optimització de cost de tokens; LIMIT 20 ja actiu als repositories. Truncat a 6 cards abans del LLM → **Fase 9** (pre-entrega / prod), no bloqueja desenvolupament actual.
 - [x] **DEV-310** — System prompt alineat amb 6 dominis + idiomes  
   *Detect:* prompt descriu tools correctes; regles CA-08 i lectura de `meta`; no menciona scraping *(2026-07-13)*
 
@@ -185,8 +186,8 @@ Per cada buscador: **Repository + Tool refactor + test integració**. Sense `scr
   *Detect:* logs amb session_id, latència SQL
 - [ ] **DEV-603** — Tests API (API-01…API-04)  
   *Detect:* tecnic §14.2 passen
-- [ ] **DEV-604** — UAT catàleg (12 proves, 2 per domini)  
-  *Detect:* tecnic §14.3 lot Catàleg ≥80% routing
+- [x] **DEV-604** — UAT catàleg (12 proves, 2 per domini)  
+  *Detect:* tecnic §14.3 lot Catàleg ≥80% routing *(2026-07-14: 12/12 routing 100%, script `scripts/uat_catalog_battery.py`)*
 - [ ] **DEV-605** — **CA-01…CA-09** verificats (requeriments §12)  
   *Detect:* matriu CA amb evidència (staging)
 - [ ] **DEV-606** — Sign-off client Fase 1 staging  
@@ -235,6 +236,8 @@ Per cada buscador: **Repository + Tool refactor + test integració**. Sense `scr
 ---
 
 ## Fase 9 — Entrega final al client
+
+> **DEV-309 (truncat 6 cards):** posposat aquí — optimització de cost de tokens abans de producció; veure Fase 3 DEV-309.
 
 - [ ] **DEV-900** — Documentació d'operació lliurada (desplegament, .env, runbooks)  
   *Detect:* paquet docs per ops/client

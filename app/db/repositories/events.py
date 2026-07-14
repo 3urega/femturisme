@@ -5,7 +5,7 @@ from typing import Any, Mapping
 
 from app.db.connection import get_mysql_connection
 from app.db.mappers import build_search_wrapper, rows_to_cards
-from app.db.territory import resolve_location_filter
+from app.db.territory import location_predicate, resolve_geo_filter
 
 _SEARCH_SQL = """
 SELECT
@@ -28,7 +28,7 @@ LEFT JOIN poble_comarques pc ON pc.id = pg.id_comarca
 WHERE ag.activa = 1
   AND ag.baixa = 0
   AND ag.arxivada = 0
-  AND (%s IS NULL OR pg.poble LIKE %s OR pc.comarca LIKE %s)
+  AND {location_filter}
   AND (%s IS NULL OR ad.data_final >= %s)
   AND (%s IS NULL OR ad.data_inici <= %s)
 GROUP BY ag.id, ac.titol, ac.param_url, ac.descripcio, ag.imatge, pg.poble, pc.comarca
@@ -63,18 +63,18 @@ def search(
     destination = destination.strip()
     lang = (lang or 'ca').strip()
     row_limit = max(1, min(int(limit), 20))
-    destination_pattern, location_filter_applied = resolve_location_filter(
+    geo = resolve_geo_filter(
         destination,
         skip_location_filter=skip_location_filter,
+        config=config,
     )
+    location_filter, location_params = location_predicate(geo)
     date_from = _normalize_date(date_from)
     date_to = _normalize_date(date_to)
 
     params = (
         lang,
-        destination_pattern,
-        destination_pattern,
-        destination_pattern,
+        *location_params,
         date_from,
         date_from,
         date_to,
@@ -85,7 +85,10 @@ def search(
     conn = get_mysql_connection(config)
     try:
         with conn.cursor() as cursor:
-            cursor.execute(_SEARCH_SQL, params)
+            cursor.execute(
+                _SEARCH_SQL.format(location_filter=location_filter),
+                params,
+            )
             rows = cursor.fetchall()
     finally:
         conn.close()
@@ -95,9 +98,10 @@ def search(
         destination=destination,
         results=cards,
         total=str(len(cards)),
-        location_filter_applied=location_filter_applied,
+        location_filter_applied=geo.location_filter_applied,
         retried=retried,
         date_from=date_from,
         date_to=date_to,
         lang=lang,
+        **geo.meta_extras(),
     )

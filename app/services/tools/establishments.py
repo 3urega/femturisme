@@ -29,8 +29,8 @@ SCHEMA = {
             'type': {
                 'type': 'string',
                 'description': (
-                    'Optional filter: hotel, camping, restaurant, bar, casa-rural, '
-                    'hostal, apartament…'
+                    'Optional filter: hotel, camping, restaurant, bar, '
+                    'cases-rurals (casa rural / turisme rural), hostal, apartament…'
                 ),
             },
             'query': {
@@ -52,6 +52,26 @@ SCHEMA = {
         'required': [],
     },
 }
+
+
+_TYPE_ALIASES: dict[str, str] = {
+    'casa-rural': 'cases-rurals',
+    'casa rural': 'cases-rurals',
+    'cases rural': 'cases-rurals',
+    'cases-rural': 'cases-rurals',
+    'turisme rural': 'cases-rurals',
+    'turismo rural': 'cases-rurals',
+    'rural tourism': 'cases-rurals',
+}
+
+
+def _normalize_type(value: object) -> str | None:
+    if value is None:
+        return None
+    text = str(value).strip()
+    if not text:
+        return None
+    return _TYPE_ALIASES.get(text.lower(), text)
 
 
 def execute(tool_input: dict) -> str:
@@ -76,9 +96,7 @@ def execute(tool_input: dict) -> str:
     else:
         lang = 'ca'
 
-    acc_type = tool_input.get('type', '')
-    acc_type = str(acc_type).strip() if acc_type is not None else ''
-    acc_type = acc_type or None
+    acc_type = _normalize_type(tool_input.get('type'))
 
     search_kwargs = {
         'destination': destination,

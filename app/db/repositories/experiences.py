@@ -5,7 +5,7 @@ from typing import Any, Mapping
 
 from app.db.connection import get_mysql_connection
 from app.db.mappers import build_search_wrapper, rows_to_cards
-from app.db.territory import resolve_location_filter
+from app.db.territory import location_predicate, resolve_geo_filter
 
 _SEARCH_SQL = """
 SELECT
@@ -30,7 +30,7 @@ LEFT JOIN generic_categoria_oferta gco ON gco.id = ocat.id_categoria
 WHERE og.estat <> 'borrador'
   AND og.data_inicial <= NOW()
   AND (og.data_final IS NULL OR og.data_final < '1000-01-01' OR og.data_final >= NOW())
-  AND (%s IS NULL OR pg.poble LIKE %s OR pc.comarca LIKE %s)
+  AND {location_filter}
   AND (%s IS NULL OR gco.categoria_ca LIKE %s)
   AND (%s IS NULL OR eg.nom LIKE %s)
 GROUP BY og.id, oc.titol, oc.param_url, oc.resum, og.imatge, og.preu_oferta,
@@ -68,10 +68,12 @@ def search(
     destination = destination.strip()
     lang = (lang or 'ca').strip()
     row_limit = max(1, min(int(limit), 20))
-    destination_pattern, location_filter_applied = resolve_location_filter(
+    geo = resolve_geo_filter(
         destination,
         skip_location_filter=skip_location_filter,
+        config=config,
     )
+    location_filter, location_params = location_predicate(geo)
 
     category_text = (category or '').strip() or None
     establishment_text = (establishment or '').strip() or None
@@ -80,9 +82,7 @@ def search(
 
     params = (
         lang,
-        destination_pattern,
-        destination_pattern,
-        destination_pattern,
+        *location_params,
         category_pattern,
         category_pattern,
         establishment_pattern,
@@ -93,7 +93,10 @@ def search(
     conn = get_mysql_connection(config)
     try:
         with conn.cursor() as cursor:
-            cursor.execute(_SEARCH_SQL, params)
+            cursor.execute(
+                _SEARCH_SQL.format(location_filter=location_filter),
+                params,
+            )
             rows = cursor.fetchall()
     finally:
         conn.close()
@@ -103,9 +106,10 @@ def search(
         destination=destination,
         results=cards,
         total=str(len(cards)),
-        location_filter_applied=location_filter_applied,
+        location_filter_applied=geo.location_filter_applied,
         retried=retried,
         category=category_text,
         establishment=establishment_text,
         lang=lang,
+        **geo.meta_extras(),
     )

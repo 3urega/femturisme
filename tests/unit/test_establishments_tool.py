@@ -4,7 +4,7 @@ from __future__ import annotations
 import json
 from unittest.mock import patch
 
-from app.services.tools.establishments import SCHEMA, execute
+from app.services.tools.establishments import SCHEMA, _normalize_type, execute
 
 
 def test_schema_includes_query_parameter():
@@ -110,3 +110,25 @@ def test_execute_query_fallback_when_text_search_empty():
     assert out['meta']['hint'] == 'zero_results_text_query'
     assert out['meta']['fallback_applied'] is True
     assert len(out['fallback_results']) == 2
+
+
+def test_normalize_type_maps_casa_rural_to_cases_rurals():
+    assert _normalize_type('casa-rural') == 'cases-rurals'
+    assert _normalize_type('turisme rural') == 'cases-rurals'
+    assert _normalize_type('hotel') == 'hotel'
+
+
+def test_execute_normalizes_casa_rural_type():
+    captured: dict = {}
+
+    def fake_search(**kwargs):
+        captured.update(kwargs)
+        return {'destination': kwargs['destination'], 'total': '1', 'results': [], 'error': None}
+
+    with patch(
+        'app.services.tools.establishments.establishments.search',
+        side_effect=fake_search,
+    ):
+        execute({'destination': 'Pirineu', 'type': 'casa-rural'})
+
+    assert captured['type'] == 'cases-rurals'

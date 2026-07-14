@@ -212,3 +212,20 @@ def test_build_search_meta_truncated():
         total='50',
     )
     assert meta['truncated'] is True
+
+
+def test_build_search_wrapper_resolved_zone_in_meta_only():
+    payload = build_search_wrapper(
+        destination='Costa Brava',
+        results=[{'title': 'Oferta', 'url': 'https://www.femturisme.cat/ofertes/x'}],
+        location_filter_applied=True,
+        resolved_zone='Costa Brava',
+        resolved_comarques=['Alt Empordà', 'Baix Empordà', 'La Selva'],
+    )
+    assert payload['meta']['resolved_zone'] == 'Costa Brava'
+    assert payload['meta']['resolved_comarques'] == [
+        'Alt Empordà',
+        'Baix Empordà',
+        'La Selva',
+    ]
+    assert 'resolved_zone' not in payload

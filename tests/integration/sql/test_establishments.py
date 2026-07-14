@@ -43,3 +43,34 @@ def test_establishments_catalunya_restaurant_macarrons_query(app):
     assert int(data['total']) >= 0
     for card in data['results']:
         assert card['url'].startswith('https://www.femturisme.cat/establiments/')
+
+
+@pytest.mark.integration
+@pytest.mark.skipif(not mysql_available(), reason='MYSQL_* not configured')
+def test_establishments_girona_location_filter_not_bypassed(app):
+    """Regression: LIKE location filter must not return unrelated cities."""
+    establishments = pytest.importorskip('app.db.repositories.establishments')
+    with app.app_context():
+        data = establishments.search(destination='Girona')
+    if int(data['total']) >= 1:
+        for card in data['results']:
+            location = (card.get('location') or '').lower()
+            assert 'barcelona' not in location
+
+
+@pytest.mark.integration
+@pytest.mark.skipif(not mysql_available(), reason='MYSQL_* not configured')
+def test_establishments_pirineu_casa_rural(app):
+    """Pirineu tourism zone + rural type alias returns catalog results."""
+    from app.services.tools.establishments import execute
+    import json
+
+    with app.app_context():
+        data = json.loads(execute({
+            'destination': 'Pirineu',
+            'type': 'casa-rural',
+        }))
+    assert int(data['total']) >= 1
+    meta = data.get('meta') or {}
+    assert meta.get('resolved_zone') == 'Pirineu'
+    assert data['results'][0]['url'].startswith('https://www.femturisme.cat/establiments/')

@@ -5,7 +5,7 @@ from typing import Any, Mapping
 
 from app.db.connection import get_mysql_connection
 from app.db.mappers import build_search_wrapper, rows_to_cards
-from app.db.territory import resolve_location_filter
+from app.db.territory import location_predicate, resolve_geo_filter
 
 _SEARCH_SQL = """
 SELECT
@@ -26,7 +26,7 @@ LEFT JOIN poble_comarques pc ON pc.id = pg.id_comarca
 LEFT JOIN ruta_tematica rt ON rt.id_ruta = rg.id
 LEFT JOIN generic_tematiques gt ON gt.id = rt.id_tematica
 WHERE rg.actiu = 1
-  AND (%s IS NULL OR pg.poble LIKE %s OR pc.comarca LIKE %s)
+  AND {location_filter}
   AND (%s IS NULL OR gt.tematica_ca LIKE %s OR gt.code LIKE %s)
 GROUP BY rg.id, rc.titol, rc.param_url, rc.introduccio, rg.imatge,
          gt.tematica_ca, pg.poble, pc.comarca
@@ -62,19 +62,19 @@ def search(
     destination = destination.strip()
     lang = (lang or 'ca').strip()
     row_limit = max(1, min(int(limit), 20))
-    destination_pattern, location_filter_applied = resolve_location_filter(
+    geo = resolve_geo_filter(
         destination,
         skip_location_filter=skip_location_filter,
+        config=config,
     )
+    location_filter, location_params = location_predicate(geo)
 
     type_text = (type or '').strip() or None
     type_pattern = _optional_pattern(type_text)
 
     params = (
         lang,
-        destination_pattern,
-        destination_pattern,
-        destination_pattern,
+        *location_params,
         type_pattern,
         type_pattern,
         type_pattern,
@@ -84,7 +84,10 @@ def search(
     conn = get_mysql_connection(config)
     try:
         with conn.cursor() as cursor:
-            cursor.execute(_SEARCH_SQL, params)
+            cursor.execute(
+                _SEARCH_SQL.format(location_filter=location_filter),
+                params,
+            )
             rows = cursor.fetchall()
     finally:
         conn.close()
@@ -94,8 +97,9 @@ def search(
         destination=destination,
         results=cards,
         total=str(len(cards)),
-        location_filter_applied=location_filter_applied,
+        location_filter_applied=geo.location_filter_applied,
         retried=retried,
         type=type_text,
         lang=lang,
+        **geo.meta_extras(),
     )

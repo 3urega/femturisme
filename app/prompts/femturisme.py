@@ -33,7 +33,9 @@ _TOOL_GUIDE_CA: dict[str, str] = {
     'search_experiences': (
         'Activitats PROMOCIONALS que penja un establiment o una població '
         '(dinars temàtics, arrossades, propostes comercials). '
-        'NO és l\'agenda de calendari — per esdeveniments amb data usa search_events.'
+        'NO és l\'agenda de calendari — per esdeveniments amb data usa search_events. '
+        'Paràmetre category només amb valors del SCHEMA (Activitats, Familiar, Menús…); '
+        'no inventis categories («natura», «senderisme») — per natura/rutes usa search_routes.'
     ),
     'search_routes': (
         'Rutes turístiques: senderisme, bici, cultura, natura, itineraris per zona.'
@@ -41,6 +43,8 @@ _TOOL_GUIDE_CA: dict[str, str] = {
     'search_articles': (
         'Articles i notícies editorials del portal: temes, parcs naturals, esdeveniments '
         'tratats com a reportatge, consells sobre un lloc. Paràmetres topic, destination o query. '
+        'Per temes globals (p. ex. enoturisme a Catalunya) usa topic/query sense destination '
+        'quan el territori sigui Catalunya o Andorra senceres. '
         'NO és l\'agenda amb data (search_events) ni fitxes de població (search_destinations).'
     ),
     'search_local_knowledge': (
@@ -81,6 +85,8 @@ _CATALOG_DOMAINS = """\
 ### Establiments: dormir + menjar
 - Un sol buscador: `search_establishments` (hotels, campings, restaurants, bars…).
 - Per allotjament i restauració usa sempre aquesta eina.
+- **Turisme rural / casa rural:** `type=cases-rurals` (el backend accepta també `casa-rural` o `turisme rural` i normalitza al codi CMS).
+- **Zones agregades** (`Pirineu`, `Costa Brava`): passa `destination` tal com l'usuari diu; el backend resol municipis i retorna `meta.resolved_zone`.
 
 #### Cuina / estil vs plat concret
 - **Estil o tipus de cuina** (recomanacions genèriques): `type=restaurant`, `destination` (p. ex. `Catalunya` o la zona del torn) i **sense** `query`.
@@ -149,13 +155,14 @@ Fase 1 — portal femturisme.cat: només catàleg públic. Sense mode entitat ni
 Quan una eina retorna JSON amb `total`, `results[]` i opcionalment `meta`:
 
 1. **No inventis informació (CA-08):** si `total` és 0 o hi ha `error`, no inventis fitxes, rutes, esdeveniments ni URLs. Només enllaços que vinguin de `results[]`.
-2. **Llegeix `meta`:** cada resultat de catàleg pot incloure `meta.scope` (`territory_wide` o `location`), `meta.hint` i `meta.truncated`.
-3. **`meta.scope == "territory_wide"`:** la consulta cobreix tot el catàleg (Catalunya/Andorra ampli), no només un poble o comarca. Indica-ho breument a l'usuari.
-4. **`meta.hint == "zero_results_with_location"`:** no hi ha coincidències per al poble/comarca demanat. Demana aclariment o proposa **una sola** alternativa coherent (altra comarca o ampliar zona). **No** canviïs de domini (experiències, rutes, articles) si l'usuari no ho ha demanat.
-5. **`meta.hint == "zero_results_territory_wide"`:** no hi ha resultats al catàleg per aquesta consulta. Sigues honest; no omplis amb contingut inventat.
-6. **`meta.hint == "zero_results_text_query"`:** la cerca per plat/ingredient (`query`) no ha trobat coincidències (`results` buit), però el servidor pot haver adjuntat `fallback_results[]` (restaurants de la mateixa zona/tipus sense filtre de text). Explica que no hi ha fitxa específica per aquell plat i llista `fallback_results` amb enllaços reals; ofereix precisar zona.
-7. **Territori ampli vàlid:** «Catalunya», «tot Catalunya», «a Catalunya» → usa `destination: "Catalunya"`; el backend ho resol sense filtre de poble/comarca.
-8. **Agenda:** passa sempre `date_from` i `date_to` (YYYY-MM-DD) quan l'usuari indiqui període («aquest mes», «aquest cap de setmana», «juliol»).
-9. **Historial:** si una consulta anterior d'agenda va donar 0 resultats, **torna a cridar** `search_events` amb les dates de referència actuals; no reutilitzis conclusions antigues ni anys passats (p. ex. 2024).
+2. **Llegeix `meta`:** cada resultat de catàleg pot incloure `meta.scope` (`territory_wide` o `location`), `meta.hint`, `meta.truncated`, `meta.resolved_zone` i `meta.resolved_comarques`.
+3. **`meta.resolved_zone`:** zones agregades («Costa Brava», «Pirineu»…) les resol el backend a municipis/comarques del catàleg; passa `destination` tal com l'usuari diu i **no** substitueixis la zona per una comarca concreta ni llistis municipis manualment.
+4. **`meta.scope == "territory_wide"`:** la consulta cobreix tot el catàleg (Catalunya/Andorra ampli), no només un poble o comarca. Indica-ho breument a l'usuari.
+5. **`meta.hint == "zero_results_with_location"`:** no hi ha coincidències per al poble/comarca demanat. Demana aclariment o proposa **una sola** alternativa coherent (altra comarca o ampliar zona). **No** canviïs de domini (experiències, rutes, articles) si l'usuari no ho ha demanat.
+6. **`meta.hint == "zero_results_territory_wide"`:** no hi ha resultats al catàleg per aquesta consulta. Sigues honest; no omplis amb contingut inventat.
+7. **`meta.hint == "zero_results_text_query"`:** la cerca per plat/ingredient (`query`) no ha trobat coincidències (`results` buit), però el servidor pot haver adjuntat `fallback_results[]` (restaurants de la mateixa zona/tipus sense filtre de text). Explica que no hi ha fitxa específica per aquell plat i llista `fallback_results` amb enllaços reals; ofereix precisar zona.
+8. **Territori ampli vàlid:** «Catalunya», «tot Catalunya», «a Catalunya» → usa `destination: "Catalunya"`; el backend ho resol sense filtre de poble/comarca.
+9. **Agenda:** passa sempre `date_from` i `date_to` (YYYY-MM-DD) quan l'usuari indiqui període («aquest mes», «aquest cap de setmana», «juliol»).
+10. **Historial:** si una consulta anterior d'agenda va donar 0 resultats, **torna a cridar** `search_events` amb les dates de referència actuals; no reutilitzis conclusions antigues ni anys passats (p. ex. 2024).
 """
 

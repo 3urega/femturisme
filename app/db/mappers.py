@@ -68,6 +68,8 @@ def build_search_meta(
     results: list[dict],
     total: int | str | None = None,
     retried: bool = False,
+    resolved_zone: str | None = None,
+    resolved_comarques: list[str] | None = None,
 ) -> dict[str, Any]:
     """Build meta block so the LLM can interpret scope and empty results."""
     scope = 'location' if location_filter_applied else 'territory_wide'
@@ -87,6 +89,10 @@ def build_search_meta(
     }
     if retried:
         meta['retried'] = True
+    if resolved_zone:
+        meta['resolved_zone'] = resolved_zone
+    if resolved_comarques:
+        meta['resolved_comarques'] = resolved_comarques
     return meta
 
 
@@ -124,15 +130,28 @@ def build_search_wrapper(
         'results': results,
         'error': None,
     }
-    if location_filter_applied is not None and 'meta' not in extra:
+    wrapper_extra = dict(extra)
+    if location_filter_applied is not None and 'meta' not in wrapper_extra:
+        zone_meta = geo_meta_from_extra(wrapper_extra)
         payload['meta'] = build_search_meta(
             location_filter_applied=location_filter_applied,
             results=results,
             total=resolved_total,
             retried=retried,
+            **zone_meta,
         )
-    payload.update(extra)
+    payload.update(wrapper_extra)
     return payload
+
+
+def geo_meta_from_extra(extra: dict[str, Any]) -> dict[str, Any]:
+    """Extract resolved_zone fields from wrapper extras into meta only."""
+    zone_meta: dict[str, Any] = {}
+    if 'resolved_zone' in extra:
+        zone_meta['resolved_zone'] = extra.pop('resolved_zone')
+    if 'resolved_comarques' in extra:
+        zone_meta['resolved_comarques'] = extra.pop('resolved_comarques')
+    return zone_meta
 
 
 def _base_card() -> dict:
