@@ -1,6 +1,6 @@
 # Checklist d'entrega — agent_femturisme
 
-**Progrés:** 44 / 90 completats · **Última actualització:** 2026-07-14
+**Progrés:** 45 / 90 completats · **Última actualització:** 2026-07-14
 
 > Els agents marquen `- [x]` quan el criteri **Detect** es compleix. Veure [index.md](index.md).
 
@@ -182,8 +182,8 @@ Per cada buscador: **Repository + Tool refactor + test integració**. Sense `scr
   *Detect:* `search_entity_knowledge` no invocable des del xat públic *(2026-07-14: `CATALOG_TOOLS` al agent + prompt; `search_local_knowledge` fora del LLM)*
 - [x] **DEV-601** — Idiomes ca / es / en / fr (RF-10)  
   *Detect:* respostes coherents en proves manual UAT *(2026-07-14: detecció per torn, injecció `lang` a tools, prompt fr; UAT 7/8 — `scripts/uat_languages_battery.py`)*
-- [ ] **DEV-602** — Rate limiting + logging mínim (tecnic §12–13)  
-  *Detect:* logs amb session_id, latència SQL
+- [x] **DEV-602** — Rate limiting + logging mínim (tecnic §12–13)  
+  *Detect:* logs amb session_id, latència SQL *(2026-07-14: `rate_limit.py`, `request_logging.py`, 429 /api/chat; issue #23)*
 - [x] **DEV-603** — Tests API (API-01…API-04)  
   *Detect:* tecnic §14.2 passen *(2026-07-14: `pytest tests/api/` 5/5)*
 - [x] **DEV-604** — UAT catàleg (12 proves, 2 per domini)  

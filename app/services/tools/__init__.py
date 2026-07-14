@@ -8,10 +8,12 @@ Each tool module exposes:
 from __future__ import annotations
 
 import json
+import time
 
 from app.db.territory import is_broad_territory
 from app.services.period_hints import apply_event_period_hints
 from app.services.request_context import turn_user_message, turn_user_language
+from app.services.request_logging import log_catalog_query, safe_tool_params
 
 from .establishments   import SCHEMA as EST_SCHEMA, execute as est_execute
 from .destinations     import SCHEMA as DST_SCHEMA, execute as dst_execute
@@ -106,13 +108,40 @@ def execute_tool(name: str, tool_input: dict, *, user_message: str = '') -> str:
         _inject_catalog_lang(name, tool_input),
         resolved_message,
     )
-    raw_result = fn(normalized_input)
-    parsed = _parse_tool_result(raw_result)
+    is_catalog = name in CATALOG_TOOL_NAMES
+
+    if is_catalog:
+        started = time.perf_counter()
+        raw_result = fn(normalized_input)
+        duration_ms = (time.perf_counter() - started) * 1000
+        parsed = _parse_tool_result(raw_result)
+        log_catalog_query(
+            tool=name,
+            params=safe_tool_params(normalized_input),
+            duration_ms=duration_ms,
+            total=parsed.get('total'),
+        )
+    else:
+        raw_result = fn(normalized_input)
+        parsed = _parse_tool_result(raw_result)
+
     if _should_retry_broad_territory(name, normalized_input, parsed):
         retry_input = {
             **normalized_input,
             '_skip_location_filter': True,
             '_retried': True,
         }
-        raw_result = fn(retry_input)
+        if is_catalog:
+            retry_started = time.perf_counter()
+            raw_result = fn(retry_input)
+            retry_ms = (time.perf_counter() - retry_started) * 1000
+            retry_parsed = _parse_tool_result(raw_result)
+            log_catalog_query(
+                tool=name,
+                params=safe_tool_params(retry_input),
+                duration_ms=retry_ms,
+                total=retry_parsed.get('total'),
+            )
+        else:
+            raw_result = fn(retry_input)
     return raw_result

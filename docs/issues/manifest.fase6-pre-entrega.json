@@ -5,13 +5,6 @@
   "publishedAt": "2026-07-14",
   "issues": [
     {
-      "title": "Fase 6: Rate limiting i logging minim (DEV-602)",
-      "bodyFile": "docs/issues/rate-limiting-logging.md",
-      "labels": ["fase-6", "agent", "ops"],
-      "githubNumber": 23,
-      "publishedAt": "2026-07-14"
-    },
-    {
       "title": "Fase 6: UAT context conversacional CA-07",
       "bodyFile": "docs/issues/uat-conversation-context.md",
       "labels": ["fase-6", "agent", "testing"],

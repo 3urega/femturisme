@@ -15,6 +15,13 @@ def _env_int(key, default):
         return default
 
 
+def _env_bool(key, default=True):
+    raw = _env(key)
+    if raw is None or raw == '':
+        return default
+    return str(raw).strip().lower() in ('1', 'true', 'yes', 'on')
+
+
 class Config:
     SECRET_KEY = _env('SECRET_KEY', 'dev-secret-change-me')
 
@@ -50,6 +57,10 @@ class Config:
 
     # Ops / embeddings
     LOG_LEVEL = _env('LOG_LEVEL', 'INFO')
+    REQUEST_LOGGING_ENABLED = _env_bool('REQUEST_LOGGING_ENABLED', True)
+    RATE_LIMIT_PER_IP = _env_int('RATE_LIMIT_PER_IP', 30)
+    RATE_LIMIT_PER_SESSION = _env_int('RATE_LIMIT_PER_SESSION', 20)
+    RATE_LIMIT_WINDOW_SECONDS = _env_int('RATE_LIMIT_WINDOW_SECONDS', 60)
     EMBEDDING_MODEL = _env('EMBEDDING_MODEL', 'text-embedding-3-small')
     DOCUMENT_STORAGE_PATH = _env('DOCUMENT_STORAGE_PATH', 'data/guides')
 
@@ -67,6 +78,8 @@ class TestingConfig(Config):
     DEBUG = True
     LLM_PROVIDER = 'dummy'
     MAX_TOOL_ITERATIONS = 3
+    RATE_LIMIT_PER_IP = 9999
+    RATE_LIMIT_PER_SESSION = 9999
 
 
 config = {

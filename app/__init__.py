@@ -1,3 +1,4 @@
+import logging
 import os
 from datetime import datetime, timezone
 
@@ -11,6 +12,12 @@ def create_app(config_name=None):
     config_name = config_name or os.environ.get('FLASK_ENV', 'default')
     app.config.from_object(config[config_name])
     app.config['STARTED_AT'] = datetime.now(timezone.utc).isoformat()
+
+    log_level = getattr(config[config_name], 'LOG_LEVEL', 'INFO')
+    logging.basicConfig(
+        level=getattr(logging, str(log_level).upper(), logging.INFO),
+        format='%(asctime)s %(levelname)s %(name)s %(message)s',
+    )
 
     # Blueprints
     from .routes.main import main_bp

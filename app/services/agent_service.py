@@ -33,6 +33,7 @@ from .period_hints import (
 )
 from .language_guard import polish_reply_for_user
 from .request_context import turn_user_language, turn_user_message
+from .request_logging import log_chat_turn, log_error
 from .user_language import detect_user_language
 from .tools       import CATALOG_TOOLS, execute_tool, _inject_catalog_lang
 
@@ -70,6 +71,7 @@ class AgentService:
         turn_user_message.set(user_message)
         turn_user_language.set(user_language)
         current_user_message = user_message
+        turn_started = time.perf_counter()
 
         llm = build_provider(self.provider, current_app.config)
 
@@ -85,6 +87,14 @@ class AgentService:
                     tools=CATALOG_TOOLS,
                 )
             except Exception as exc:
+                log_error(session_id=session_id, message=str(exc), exc=exc)
+                self._log_turn_end(
+                    session_id=session_id,
+                    agent_context=agent_context,
+                    user_language=user_language,
+                    turn_started=turn_started,
+                    status='error',
+                )
                 yield {'type': 'error', 'message': str(exc)}
                 return
 
@@ -116,17 +126,50 @@ class AgentService:
                 history.append({'role': 'assistant', 'content': full_text})
                 _save_history(session_id, history)
 
+                self._log_turn_end(
+                    session_id=session_id,
+                    agent_context=agent_context,
+                    user_language=user_language,
+                    turn_started=turn_started,
+                    status='ok',
+                )
                 yield {'type': 'done', 'full_text': full_text}
                 return
 
         # Safety: max iterations reached
         msg = "He superat el màxim d'iteracions. Si us plau, reformula la pregunta."
         yield from _stream_text(msg)
+        self._log_turn_end(
+            session_id=session_id,
+            agent_context=agent_context,
+            user_language=user_language,
+            turn_started=turn_started,
+            status='max_iterations',
+        )
         yield {'type': 'done', 'full_text': msg}
 
     @staticmethod
     def clear_history(session_id: str) -> None:
         _history.pop(session_id, None)
+
+    @staticmethod
+    def _log_turn_end(
+        *,
+        session_id: str,
+        agent_context: AgentContext,
+        user_language: str,
+        turn_started: float,
+        status: str,
+    ) -> None:
+        duration_ms = (time.perf_counter() - turn_started) * 1000
+        log_chat_turn(
+            session_id=session_id,
+            duration_ms=duration_ms,
+            language=user_language,
+            operational_mode=agent_context.mode,
+            entity_id=agent_context.entity_id,
+            status=status,
+        )
 
     # ------------------------------------------------------------------
     # Helpers

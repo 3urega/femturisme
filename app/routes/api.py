@@ -8,6 +8,8 @@ from ..services.chat_context import (
     parse_chat_request,
     validate_agent_context,
 )
+from ..services.rate_limit import check_and_consume
+from ..services.request_logging import log_error
 
 api_bp = Blueprint('api', __name__)
 
@@ -36,6 +38,13 @@ def chat():
     if not session_id:
         session_id = str(uuid.uuid4())
 
+    if not check_and_consume(
+        request.remote_addr,
+        session_id,
+        current_app.config,
+    ):
+        return jsonify({'error': 'rate limit exceeded'}), 429
+
     agent = _get_agent()
 
     def generate():
@@ -48,6 +57,7 @@ def chat():
             ):
                 yield f"data: {json.dumps(event, ensure_ascii=False)}\n\n"
         except Exception as exc:
+            log_error(session_id=session_id, message=str(exc), exc=exc)
             err = {'type': 'error', 'message': str(exc)}
             yield f"data: {json.dumps(err, ensure_ascii=False)}\n\n"
             yield f"data: {json.dumps({'type': 'done'}, ensure_ascii=False)}\n\n"

@@ -109,3 +109,29 @@ def test_api_chat_entitat_with_entity_id_501(client):
     )
     assert response.status_code == 501
     assert 'error' in response.get_json()
+
+
+def test_api_05_chat_rate_limit_returns_429(client, app):
+    """Rate limit: excess POST /api/chat → 429 JSON."""
+    from app.services.rate_limit import reset
+
+    reset()
+    app.config['RATE_LIMIT_PER_IP'] = 2
+    app.config['RATE_LIMIT_PER_SESSION'] = 99
+    session_id = 'rate-limit-test-session'
+
+    assert client.post(
+        '/api/chat',
+        json={'message': 'Hola', 'session_id': session_id},
+    ).status_code == 200
+    assert client.post(
+        '/api/chat',
+        json={'message': 'Hola 2', 'session_id': session_id},
+    ).status_code == 200
+
+    response = client.post(
+        '/api/chat',
+        json={'message': 'Hola 3', 'session_id': session_id},
+    )
+    assert response.status_code == 429
+    assert response.get_json()['error'] == 'rate limit exceeded'
