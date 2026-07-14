@@ -1,0 +1,56 @@
+{
+  "repo": "3urega/femturisme",
+  "sourceDoc": "docs/devs/plan-fase5-rag-base.md",
+  "defaultLabels": ["enhancement"],
+  "publishedAt": "2026-07-14",
+  "issues": [
+    {
+      "title": "Fase 5: Schema PostgreSQL agent + pgvector local (DEV-500)",
+      "bodyFile": "docs/issues/rag-postgres-schema.md",
+      "labels": ["fase-5", "postgres", "rag", "infra"],
+      "checklistIds": ["DEV-500"],
+      "githubNumber": 27,
+      "publishedAt": "2026-07-14"
+    },
+    {
+      "title": "Fase 5: API CRUD entitats /admin/api/entities (DEV-501)",
+      "bodyFile": "docs/issues/rag-entities-api.md",
+      "labels": ["fase-5", "postgres", "rag", "api"],
+      "checklistIds": ["DEV-501"],
+      "githubNumber": 28,
+      "publishedAt": "2026-07-14"
+    },
+    {
+      "title": "Fase 5: API documents i emmagatzematge PDF (DEV-502, DEV-503)",
+      "bodyFile": "docs/issues/rag-documents-upload.md",
+      "labels": ["fase-5", "postgres", "rag", "api"],
+      "checklistIds": ["DEV-502", "DEV-503"],
+      "githubNumber": 29,
+      "publishedAt": "2026-07-14"
+    },
+    {
+      "title": "Fase 5: Pipeline indexacio PDF extract/chunk/embed (DEV-504)",
+      "bodyFile": "docs/issues/rag-indexing-pipeline.md",
+      "labels": ["fase-5", "rag", "agent"],
+      "checklistIds": ["DEV-504"],
+      "githubNumber": 33,
+      "publishedAt": "2026-07-14"
+    },
+    {
+      "title": "Fase 5: DocumentsRepository i search_entity_knowledge (DEV-505)",
+      "bodyFile": "docs/issues/rag-search-entity-knowledge.md",
+      "labels": ["fase-5", "rag", "postgres", "agent"],
+      "checklistIds": ["DEV-505"],
+      "githubNumber": 31,
+      "publishedAt": "2026-07-14"
+    },
+    {
+      "title": "Fase 5: Panell admin Flask i UAT intern RAG (DEV-507)",
+      "bodyFile": "docs/issues/rag-admin-ui-uat.md",
+      "labels": ["fase-5", "rag", "testing"],
+      "checklistIds": ["DEV-507"],
+      "githubNumber": 32,
+      "publishedAt": "2026-07-14"
+    }
+  ]
+}

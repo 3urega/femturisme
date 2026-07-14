@@ -72,6 +72,8 @@ Després de `plan-to-issues`, el document font ha d'incloure secció **GitHub is
 
 **Batch actiu:** [plan-fase6-pre-entrega.md](../devs/plan-fase6-pre-entrega.md) → [manifest.fase6-pre-entrega.json](manifest.fase6-pre-entrega.json) — **publicat** ([#23](https://github.com/3urega/femturisme/issues/23)–[#25](https://github.com/3urega/femturisme/issues/25) tancats, [#26](https://github.com/3urega/femturisme/issues/26) oberta, 2026-07-14).
 
+**Batch RAG:** [plan-fase5-rag-base.md](../devs/plan-fase5-rag-base.md) → [manifest.fase5-rag.json](manifest.fase5-rag.json) — **publicat** ([#27](https://github.com/3urega/femturisme/issues/27)–[#29](https://github.com/3urega/femturisme/issues/29), [#31](https://github.com/3urega/femturisme/issues/31)–[#33](https://github.com/3urega/femturisme/issues/33), 2026-07-14).
+
 **Batch posposat:** [plan-fase4-php-widget.md](../devs/plan-fase4-php-widget.md) → [manifest.fase4-php.json](manifest.fase4-php.json) — **publicat** ([#18](https://github.com/3urega/femturisme/issues/18)…[#22](https://github.com/3urega/femturisme/issues/22), 2026-07-13). En espera accés PHP.
 
 **Batch tancat:** [plan-fase3-batch2-mysql.md](../devs/plan-fase3-batch2-mysql.md) — **complet** ([#12](https://github.com/3urega/femturisme/issues/12)…[#17](https://github.com/3urega/femturisme/issues/17), 2026-07-13).
