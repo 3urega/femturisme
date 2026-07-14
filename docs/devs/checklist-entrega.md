@@ -1,6 +1,6 @@
 # Checklist d'entrega — agent_femturisme
 
-**Progrés:** 39 / 90 completats · **Última actualització:** 2026-07-14
+**Progrés:** 44 / 90 completats · **Última actualització:** 2026-07-14
 
 > Els agents marquen `- [x]` quan el criteri **Detect** es compleix. Veure [index.md](index.md).
 
@@ -140,10 +140,10 @@ Per cada buscador: **Repository + Tool refactor + test integració**. Sense `scr
   *Detect:* widget visible staging
 - [ ] **DEV-401** — Reverse proxy `/api/chat` i `/api/session/reset` (T-PHP-02)  
   *Detect:* same-origin; sense CORS al navegador
-- [ ] **DEV-402** — `page_context` al body del xat (T-PHP-03)  
-  *Detect:* JSON enviat segons URL
-- [ ] **DEV-403** — `agent_context` mode femturisme per defecte (T-PHP-04)  
-  *Detect:* `mode: femturisme`, `entity_id: null`
+- [x] **DEV-402** — `page_context` al body del xat (T-PHP-03)  
+  *Detect:* JSON enviat segons URL *(2026-07-14: API parseja `page_context` i injecta al prompt; issue #19)*
+- [x] **DEV-403** — `agent_context` mode femturisme per defecte (T-PHP-04)  
+  *Detect:* `mode: femturisme`, `entity_id: null` *(2026-07-14: default implícit; `mode: entitat` → 400/501; issue #19)*
 - [ ] **DEV-404** — Botó «Nova conversa» (T-PHP-05)  
   *Detect:* crida session/reset
 - [ ] **DEV-405** — Proves desktop + mòbil (T-PHP-06)  
@@ -178,14 +178,14 @@ Per cada buscador: **Repository + Tool refactor + test integració**. Sense `scr
 
 ## Fase 6 — Entrega Fase producte 1 (assistent femturisme, sense RAG públic)
 
-- [ ] **DEV-600** — Mode femturisme: només 6 tools MySQL exposades al LLM  
-  *Detect:* `search_entity_knowledge` no invocable des del xat públic
-- [ ] **DEV-601** — Idiomes ca / es / en / fr (RF-10)  
-  *Detect:* respostes coherents en proves manual UAT
+- [x] **DEV-600** — Mode femturisme: només 6 tools MySQL exposades al LLM  
+  *Detect:* `search_entity_knowledge` no invocable des del xat públic *(2026-07-14: `CATALOG_TOOLS` al agent + prompt; `search_local_knowledge` fora del LLM)*
+- [x] **DEV-601** — Idiomes ca / es / en / fr (RF-10)  
+  *Detect:* respostes coherents en proves manual UAT *(2026-07-14: detecció per torn, injecció `lang` a tools, prompt fr; UAT 7/8 — `scripts/uat_languages_battery.py`)*
 - [ ] **DEV-602** — Rate limiting + logging mínim (tecnic §12–13)  
   *Detect:* logs amb session_id, latència SQL
-- [ ] **DEV-603** — Tests API (API-01…API-04)  
-  *Detect:* tecnic §14.2 passen
+- [x] **DEV-603** — Tests API (API-01…API-04)  
+  *Detect:* tecnic §14.2 passen *(2026-07-14: `pytest tests/api/` 5/5)*
 - [x] **DEV-604** — UAT catàleg (12 proves, 2 per domini)  
   *Detect:* tecnic §14.3 lot Catàleg ≥80% routing *(2026-07-14: 12/12 routing 100%, script `scripts/uat_catalog_battery.py`)*
 - [ ] **DEV-605** — **CA-01…CA-09** verificats (requeriments §12)  

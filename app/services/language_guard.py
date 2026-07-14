@@ -3,6 +3,8 @@ from __future__ import annotations
 
 import re
 
+from app.services.user_language import detect_user_language
+
 _CA_USER_MARKERS = (
     r'\bqu[èe]\b',
     r'\bquins?\b',
@@ -70,6 +72,6 @@ def polish_catalan_reply(text: str) -> str:
 
 
 def polish_reply_for_user(user_message: str, reply: str) -> str:
-    if not is_catalan_user_message(user_message):
+    if detect_user_language(user_message) != 'ca':
         return reply
     return polish_catalan_reply(reply)

@@ -23,6 +23,7 @@ from typing import Generator
 from flask import current_app
 
 from app.prompts.femturisme import build_system_prompt
+from app.services.chat_context import AgentContext, PageContext
 from .llm_service import build_provider, LLMResponse, ToolCall
 from .period_hints import (
     apply_event_period_hints,
@@ -31,8 +32,9 @@ from .period_hints import (
     is_agenda_search_query,
 )
 from .language_guard import polish_reply_for_user
-from .request_context import turn_user_message
-from .tools       import ALL_TOOLS, execute_tool
+from .request_context import turn_user_language, turn_user_message
+from .user_language import detect_user_language
+from .tools       import CATALOG_TOOLS, execute_tool, _inject_catalog_lang
 
 # In-memory conversation store: session_id → list[dict]
 # Replace with DB-backed storage for multi-server / persistence.
@@ -49,13 +51,24 @@ class AgentService:
     # Public API
     # ------------------------------------------------------------------
 
-    def run(self, user_message: str, session_id: str) -> Generator[dict, None, None]:
+    def run(
+        self,
+        user_message: str,
+        session_id: str,
+        *,
+        page_context: PageContext | None = None,
+        agent_context: AgentContext | None = None,
+    ) -> Generator[dict, None, None]:
         """Generator that yields SSE-ready event dicts."""
+        if agent_context is None:
+            agent_context = AgentContext()
         history = _get_history(session_id)
 
         # Add user turn
         history.append({'role': 'user', 'content': user_message})
+        user_language = detect_user_language(user_message)
         turn_user_message.set(user_message)
+        turn_user_language.set(user_language)
         current_user_message = user_message
 
         llm = build_provider(self.provider, current_app.config)
@@ -63,8 +76,13 @@ class AgentService:
         for iteration in range(self.max_iterations):
             try:
                 response: LLMResponse = llm.chat(
-                    messages=self._with_system(history, current_user_message),
-                    tools=ALL_TOOLS,
+                    messages=self._with_system(
+                        history,
+                        current_user_message,
+                        page_context=page_context,
+                        agent_context=agent_context,
+                    ),
+                    tools=CATALOG_TOOLS,
                 )
             except Exception as exc:
                 yield {'type': 'error', 'message': str(exc)}
@@ -118,8 +136,17 @@ class AgentService:
         self,
         history: list[dict],
         user_message: str | None = None,
+        *,
+        page_context: PageContext | None = None,
+        agent_context: AgentContext | None = None,
     ) -> list[dict]:
-        system = build_system_prompt()
+        if agent_context is None:
+            agent_context = AgentContext()
+        system = build_system_prompt(
+            page_context=page_context,
+            agent_context=agent_context,
+            user_language=turn_user_language.get() or 'ca',
+        )
         if user_message and is_agenda_search_query(user_message):
             period = infer_event_period(user_message)
             system += (
@@ -143,7 +170,14 @@ class AgentService:
         tool_results_content = []
 
         resolved_calls = [
-            (tc, apply_event_period_hints(tc.name, tc.input, current_user_message))
+            (
+                tc,
+                apply_event_period_hints(
+                    tc.name,
+                    _inject_catalog_lang(tc.name, dict(tc.input or {})),
+                    current_user_message,
+                ),
+            )
             for tc in response.tool_calls
         ]
 
@@ -200,7 +234,7 @@ class AgentService:
         tool_id = f'forced_{uuid.uuid4().hex[:12]}'
         resolved_input = apply_event_period_hints(
             tool_name,
-            tool_input,
+            _inject_catalog_lang(tool_name, dict(tool_input or {})),
             current_user_message,
         )
 

@@ -55,7 +55,7 @@ Fins llavors, les issues #18–#22 romanen obertes sense bloquejar el desenvolup
 | `POST /api/chat` SSE | Funcional (demo Flask) |
 | `POST /api/session/reset` | Funcional |
 | `app/static/js/chat.js` | Demo full-page, sense globus |
-| `page_context` / `agent_context` | **No** implementats a API ni agent |
+| `page_context` / `agent_context` | **Implementat** *(2026-07-14, #19)* — API + prompt; widget PHP pendent (#20) |
 | Reverse proxy | Documentat a `tecnic.md` §4.8; sense guia dev dedicada |
 | Layout PHP femturisme.cat | Fora d'aquest repo |
 
@@ -80,7 +80,7 @@ Fins llavors, les issues #18–#22 romanen obertes sense bloquejar el desenvolup
 | Ordre | GitHub | Slug | Títol | Checklist |
 |-------|--------|------|-------|-----------|
 | 1 | [#18](https://github.com/3urega/femturisme/issues/18) | `widget-globus-assets.md` | Fase 4: Widget globus JS/CSS portable per PHP | DEV-400 |
-| 2 | [#19](https://github.com/3urega/femturisme/issues/19) | `api-page-agent-context.md` | Fase 4: API page_context i agent_context | DEV-402, DEV-403 |
+| 2 | [#19](https://github.com/3urega/femturisme/issues/19) | — | Fase 4: API page_context i agent_context | DEV-402, DEV-403 — **tancat 2026-07-14** |
 | 3 | [#20](https://github.com/3urega/femturisme/issues/20) | `widget-context-reset.md` | Fase 4: Widget envia context i Nova conversa | DEV-404 |
 | 4 | [#21](https://github.com/3urega/femturisme/issues/21) | `php-proxy-docs.md` | Fase 4: Docs reverse proxy SSE same-origin | DEV-401, DEV-406 |
 | 5 | [#22](https://github.com/3urega/femturisme/issues/22) | `uat-widget-staging.md` | Fase 4: UAT widget staging desktop i mobil | DEV-405 |

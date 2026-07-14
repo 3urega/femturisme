@@ -11,7 +11,7 @@ import json
 
 from app.db.territory import is_broad_territory
 from app.services.period_hints import apply_event_period_hints
-from app.services.request_context import turn_user_message
+from app.services.request_context import turn_user_message, turn_user_language
 
 from .establishments   import SCHEMA as EST_SCHEMA, execute as est_execute
 from .destinations     import SCHEMA as DST_SCHEMA, execute as dst_execute
@@ -21,14 +21,21 @@ from .experiences      import SCHEMA as EXP_SCHEMA, execute as exp_execute
 from .routes_tool      import SCHEMA as RTE_SCHEMA, execute as rte_execute
 from .local_knowledge  import SCHEMA as LOC_SCHEMA, execute as loc_execute
 
-# Ordered list used by the agent
-ALL_TOOLS: list[dict] = [
+# Six MySQL catalog searchers — exposed to the LLM in femturisme mode (DEV-600).
+CATALOG_TOOLS: list[dict] = [
     EST_SCHEMA,
     DST_SCHEMA,
     EVT_SCHEMA,
     ART_SCHEMA,
     EXP_SCHEMA,
     RTE_SCHEMA,
+]
+
+CATALOG_TOOL_NAMES = frozenset(schema['name'] for schema in CATALOG_TOOLS)
+
+# Full registry (catalog + auxiliary); executors remain available server-side.
+ALL_TOOLS: list[dict] = [
+    *CATALOG_TOOLS,
     LOC_SCHEMA,
 ]
 
@@ -80,6 +87,15 @@ def _should_retry_broad_territory(
     return is_broad_territory(destination)
 
 
+def _inject_catalog_lang(name: str, tool_input: dict) -> dict:
+    if name not in CATALOG_TOOL_NAMES:
+        return tool_input
+    lang = tool_input.get('lang')
+    if lang is None or not str(lang).strip():
+        lang = turn_user_language.get() or 'ca'
+    return {**tool_input, 'lang': str(lang).strip() or 'ca'}
+
+
 def execute_tool(name: str, tool_input: dict, *, user_message: str = '') -> str:
     fn = _EXECUTORS.get(name)
     if fn is None:
@@ -87,7 +103,7 @@ def execute_tool(name: str, tool_input: dict, *, user_message: str = '') -> str:
     resolved_message = user_message or turn_user_message.get()
     normalized_input = apply_event_period_hints(
         name,
-        tool_input,
+        _inject_catalog_lang(name, tool_input),
         resolved_message,
     )
     raw_result = fn(normalized_input)

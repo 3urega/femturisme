@@ -12,14 +12,6 @@
       "publishedAt": "2026-07-13"
     },
     {
-      "title": "Fase 4: API page_context i agent_context",
-      "bodyFile": "docs/issues/api-page-agent-context.md",
-      "labels": ["fase-4", "agent", "api"],
-      "checklistIds": ["DEV-402", "DEV-403"],
-      "githubNumber": 19,
-      "publishedAt": "2026-07-13"
-    },
-    {
       "title": "Fase 4: Widget envia context i Nova conversa",
       "bodyFile": "docs/issues/widget-context-reset.md",
       "labels": ["fase-4", "php", "widget"],

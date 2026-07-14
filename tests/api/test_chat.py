@@ -59,3 +59,53 @@ def test_api_04_session_reset_ok(client):
     response = client.post('/api/session/reset', json={'session_id': session_id})
     assert response.status_code == 200
     assert response.get_json() == {'ok': True}
+
+
+def test_api_chat_accepts_optional_context(client, mock_tool_execute):
+    """POST /api/chat with page_context and agent_context → 200 SSE done."""
+    response = client.post(
+        '/api/chat',
+        json={
+            'message': 'Què fer aquí?',
+            'session_id': 'ctx-session-001',
+            'page_context': {
+                'section': 'agenda',
+                'ubicacio': 'Empordà',
+                'municipality': 'Pals',
+            },
+            'agent_context': {
+                'mode': 'femturisme',
+                'entity_id': None,
+            },
+        },
+    )
+    assert response.status_code == 200
+    events = parse_sse_events(response.data)
+    assert 'done' in [e.get('type') for e in events]
+
+
+def test_api_chat_entitat_without_entity_id_400(client):
+    response = client.post(
+        '/api/chat',
+        json={
+            'message': 'Hola',
+            'agent_context': {'mode': 'entitat'},
+        },
+    )
+    assert response.status_code == 400
+    assert 'error' in response.get_json()
+
+
+def test_api_chat_entitat_with_entity_id_501(client):
+    response = client.post(
+        '/api/chat',
+        json={
+            'message': 'Hola',
+            'agent_context': {
+                'mode': 'entitat',
+                'entity_id': '550e8400-e29b-41d4-a716-446655440000',
+            },
+        },
+    )
+    assert response.status_code == 501
+    assert 'error' in response.get_json()

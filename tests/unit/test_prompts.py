@@ -1,14 +1,17 @@
 """Unit tests for app.prompts.femturisme — issue #10 / #11."""
 from __future__ import annotations
 
-from app.prompts.femturisme import build_system_prompt
-from app.services.tools import ALL_TOOLS
+from app.prompts.femturisme import build_page_context_section, build_system_prompt
+from app.services.chat_context import AgentContext, PageContext
+from app.services.tools import CATALOG_TOOLS
 
 
-def test_build_system_prompt_lists_registered_tools():
+def test_build_system_prompt_lists_catalog_tools_only():
     prompt = build_system_prompt()
-    for schema in ALL_TOOLS:
+    for schema in CATALOG_TOOLS:
         assert schema['name'] in prompt
+    assert 'search_local_knowledge' not in prompt
+    assert 'search_entity_knowledge' not in prompt
 
 
 def test_build_system_prompt_no_scraping_or_legacy():
@@ -84,3 +87,48 @@ def test_build_system_prompt_establishments_cuisine_vs_dish_routing():
     assert 'literal' in prompt.lower() or 'coincidències' in prompt.lower()
     assert 'macarrons' in prompt
     assert 'type=restaurant' in prompt
+
+
+def test_build_page_context_section_includes_navigation_fields():
+    section = build_page_context_section(PageContext(
+        section='agenda',
+        ubicacio='Empordà',
+        municipality='Pals',
+    ))
+    assert 'Context de pàgina' in section
+    assert 'agenda' in section
+    assert 'Empordà' in section
+    assert 'Pals' in section
+
+
+def test_build_system_prompt_with_page_context():
+    prompt = build_system_prompt(page_context=PageContext(
+        section='agenda',
+        ubicacio='Empordà',
+        municipality='Pals',
+    ))
+    assert 'Context de pàgina' in prompt
+    assert 'Empordà' in prompt
+
+
+def test_build_system_prompt_without_page_context_omits_block():
+    prompt = build_system_prompt()
+    assert 'Context de pàgina' not in prompt
+
+
+def test_build_system_prompt_femturisme_agent_context():
+    prompt = build_system_prompt(agent_context=AgentContext(mode='femturisme'))
+    assert 'Mode **femturisme**' in prompt
+
+
+def test_build_system_prompt_user_language_french():
+    prompt = build_system_prompt(user_language='fr')
+    assert 'Idioma detectat' in prompt
+    assert 'fr' in prompt
+    assert 'francès' in prompt
+
+
+def test_build_system_prompt_user_language_spanish():
+    prompt = build_system_prompt(user_language='es')
+    assert 'Idioma detectat' in prompt
+    assert 'castellà' in prompt

@@ -30,6 +30,10 @@ SCHEMA = {
                 'type': 'string',
                 'description': 'End date YYYY-MM-DD (optional)',
             },
+            'lang': {
+                'type': 'string',
+                'description': 'Content language: ca (default), es, en, or fr',
+            },
         },
         'required': ['destination'],
     },
@@ -49,6 +53,12 @@ def execute(tool_input: dict) -> str:
     date_to = str(date_to).strip() if date_to is not None else ''
     date_to = date_to or None
 
+    lang = tool_input.get('lang', 'ca')
+    if lang is not None:
+        lang = str(lang).strip() or 'ca'
+    else:
+        lang = 'ca'
+
     if not date_from and not date_to:
         today = date.today()
         date_from = today.replace(day=1).isoformat()
@@ -60,6 +70,7 @@ def execute(tool_input: dict) -> str:
             destination=destination,
             date_from=date_from,
             date_to=date_to,
+            lang=lang,
             skip_location_filter=bool(tool_input.get('_skip_location_filter')),
             retried=bool(tool_input.get('_retried')),
         )

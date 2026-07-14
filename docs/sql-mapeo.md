@@ -29,7 +29,7 @@ generic_*            → catàlegs (tipus establiment, temàtiques, categories)
 
 ### Idioma
 
-Filtrar `{domini}_continguts.idioma = :lang` (`ca` per defecte; `es` / `en` segons idioma de la pregunta de l'usuari).
+Filtrar `{domini}_continguts.idioma = :lang` (`ca` per defecte; `es` / `en` / `fr` segons idioma de la pregunta de l'usuari). L'API accepta `fr`; el contingut CMS pot ser parcial en `en` i `fr`.
 
 ### Territori ampli (`Catalunya`, `Andorra`)
 

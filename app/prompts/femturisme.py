@@ -2,7 +2,7 @@
 System prompt for femturisme.cat mode (Fase 1).
 
 Describes the 6 catalog domains, business rules, and the tools currently
-registered in ALL_TOOLS.  Tool list is generated at runtime to stay in sync
+registered in CATALOG_TOOLS.  Tool list is generated at runtime to stay in sync
 with the registry.
 """
 from __future__ import annotations
@@ -10,7 +10,9 @@ from __future__ import annotations
 import calendar
 from datetime import date
 
-from app.services.tools import ALL_TOOLS
+from app.services.chat_context import AgentContext, PageContext
+from app.services.user_language import language_label
+from app.services.tools import CATALOG_TOOLS
 
 # Catalan routing hints keyed by tool name (supplements SCHEMA descriptions).
 _TOOL_GUIDE_CA: dict[str, str] = {
@@ -46,10 +48,6 @@ _TOOL_GUIDE_CA: dict[str, str] = {
         'Per temes globals (p. ex. enoturisme a Catalunya) usa topic/query sense destination '
         'quan el territori sigui Catalunya o Andorra senceres. '
         'NO és l\'agenda amb data (search_events) ni fitxes de població (search_destinations).'
-    ),
-    'search_local_knowledge': (
-        'Informació pràctica no coberta pel catàleg (aparcament, horaris, transport, '
-        'consells locals). Últim recurs després de les eines de catàleg.'
     ),
 }
 
@@ -101,33 +99,92 @@ _CATALOG_DOMAINS = """\
 
 def _tools_section() -> str:
     lines = ['## Eines disponibles (només aquestes)', '']
-    for schema in ALL_TOOLS:
+    for schema in CATALOG_TOOLS:
         name = schema['name']
         guide = _TOOL_GUIDE_CA.get(name, schema.get('description', ''))
         lines.append(f'- `{name}`: {guide}')
     return '\n'.join(lines)
 
 
-def build_system_prompt(*, today: date | None = None) -> str:
+def build_page_context_section(page: PageContext) -> str:
+    """Return a system-prompt block for portal page context, or empty string."""
+    if not page.has_any_field():
+        return ''
+
+    lines = [
+        '## Context de pàgina',
+        "L'usuari consulta des del portal amb aquest context de navegació:",
+    ]
+    if page.section:
+        lines.append(f'- Secció: {page.section}')
+    if page.ubicacio:
+        lines.append(f'- Ubicació: {page.ubicacio}')
+    if page.municipality:
+        lines.append(f'- Municipi: {page.municipality}')
+    lines.append(
+        "Usa aquest context per resoldre preguntes ambigües («aquí», «aquesta zona», "
+        '«què fer aquí») sense demanar aclariment redundant quan el context ja ho indica.'
+    )
+    return '\n'.join(lines)
+
+
+def _agent_context_section(agent: AgentContext) -> str:
+    if agent.mode != 'femturisme':
+        return ''
+    return (
+        '## Context operatiu\n'
+        'Mode **femturisme** (catàleg públic del portal). `entity_id` no aplica en aquest torn.'
+    )
+
+
+def _language_section(user_language: str) -> str:
+    lang = (user_language or 'ca').strip() or 'ca'
+    label = language_label(lang)
+    return f"""\
+## Idioma
+**Idioma detectat d'aquest missatge: {lang} ({label}).**
+Respon **sempre** en aquest idioma: català, castellà, anglès o francès.
+- Escriu de forma nativa en cada idioma; **no barregis** idiomes a la mateixa resposta.
+- En crides a eines de catàleg, passa `lang` amb el mateix codi (`{lang}`) per obtenir contingut en l'idioma disponible al CMS.
+- Si les fitxes del catàleg venen en un altre idioma, explica-ho breument però mantén la resposta final en {label}.
+- Si l'usuari escriu en **català**, usa formes catalanes correctes:
+  - «digues-m'ho» (mai «dime-ho» ni «dime»)
+  - «tens», «vols», «pots», «vine», «fes-m'ho saber»
+  - Imperatiu amable: «Si vols…, digues-m'ho» / «Si et ve de gust…, digues-m'ho»
+- Si l'usuari escriu en **castellà**, usa castellà natural («dime», «tienes», «quieres»).
+- Si l'usuari escriu en **anglès**, respon en anglès natural.
+- Si l'usuari escriu en **francès**, respon en francès natural."""
+
+
+def build_system_prompt(
+    *,
+    today: date | None = None,
+    page_context: PageContext | None = None,
+    agent_context: AgentContext | None = None,
+    user_language: str = 'ca',
+) -> str:
     """Return the system prompt for femturisme.cat mode (Fase 1)."""
+    if agent_context is None:
+        agent_context = AgentContext()
     reference = today or date.today()
     month_start = reference.replace(day=1).isoformat()
     month_end = reference.replace(
         day=calendar.monthrange(reference.year, reference.month)[1],
     ).isoformat()
     tools_block = _tools_section()
+    page_block = build_page_context_section(page_context) if page_context else ''
+    agent_block = _agent_context_section(agent_context)
+    extra_blocks = '\n\n'.join(
+        block for block in (page_block, agent_block) if block
+    )
+    extra_section = f'\n\n{extra_blocks}' if extra_blocks else ''
+    language_block = _language_section(user_language)
+
     return f"""\
 Ets un assistent turístic amable i expert de femturisme.cat, el portal de turisme de Catalunya i Andorra.
 Ajudes els visitants a planificar viatges, descobrir destinacions, trobar establiments, consultar l'agenda, llegir notícies i explorar rutes i experiències.
 
-## Idioma
-Respon **sempre** en l'idioma de l'usuari: català, castellà o anglès.
-- Escriu de forma nativa en cada idioma; **no barregis** castellà dins respostes en català.
-- Si l'usuari escriu en **català**, usa formes catalanes correctes:
-  - «digues-m'ho» (mai «dime-ho» ni «dime»)
-  - «tens», «vols», «pots», «vine», «fes-m'ho saber»
-  - Imperatiu amable: «Si vols…, digues-m'ho» / «Si et ve de gust…, digues-m'ho»
-- Si l'usuari escriu en **castellà**, usa castellà natural («dime», «tienes», «quieres»).
+{language_block}
 
 ## Data de referència
 Avui és **{reference.isoformat()}** (calendari del servidor).
@@ -139,13 +196,13 @@ Avui és **{reference.isoformat()}** (calendari del servidor).
 - Tens accés a eines de cerca sobre el catàleg de femturisme.cat.
 - Invoca **només** les eines llistades a continuació; no inventis noms d'eines.
 - Per preguntes compostes («on dormir i què fer a Girona»), pots usar diverses eines en seqüència.
-- Prioritza les eines de catàleg MySQL abans que `search_local_knowledge`.
 - Quan presentis resultats del catàleg, inclou enllaços a femturisme.cat quan n'hi hagi.
 - Format llegible: llistes, detalls rellevants (nom, ubicació, dates si n'hi ha, enllaç).
 
 {_CATALOG_DOMAINS}
 
 {tools_block}
+{extra_section}
 
 ## Mode operatiu
 Fase 1 — portal femturisme.cat: només catàleg públic. Sense mode entitat ni RAG de guies PDF en producció pública.

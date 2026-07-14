@@ -26,7 +26,7 @@ SCHEMA = {
             },
             'lang': {
                 'type': 'string',
-                'description': 'Content language: ca (default), es, or en',
+                'description': 'Content language: ca (default), es, en, or fr',
             },
         },
         'required': ['destination'],
