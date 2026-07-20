@@ -13,7 +13,7 @@ from app.services.document_storage import (
     DocumentStorageError,
     InvalidPdfError,
     build_storage_path,
-    delete_document_dir,
+    purge_document_storage,
     save_original,
     validate_pdf,
 )
@@ -94,8 +94,20 @@ def update_entity(entity_id):
 @admin_bp.route('/entities/<uuid:entity_id>', methods=['DELETE'])
 @require_admin_token
 def delete_entity(entity_id):
+    config = _pipeline_config()
     try:
-        deleted = entities_repo.delete(entity_id)
+        documents = documents_repo.list_all(entity_id=entity_id, config=config)
+    except DatabaseError as exc:
+        return _json_error(str(exc), 500)
+
+    try:
+        for document in documents:
+            purge_document_storage(document['doc_id'], config=config)
+    except DocumentStorageError as exc:
+        return _json_error(str(exc), 500)
+
+    try:
+        deleted = entities_repo.delete(entity_id, config=config)
     except DatabaseError as exc:
         return _json_error(str(exc), 500)
     if not deleted:
@@ -124,6 +136,8 @@ def upload_document():
         return _json_error(str(exc), 500)
     if entity is None:
         return _json_error('entity not found', 404)
+    if entity.get('is_active') is False:
+        return _json_error('entity is not active', 400)
 
     file_data = upload.read()
     try:
@@ -153,7 +167,7 @@ def upload_document():
             except DatabaseError:
                 pass
             try:
-                delete_document_dir(doc_id)
+                purge_document_storage(doc_id)
             except DocumentStorageError:
                 pass
         return _json_error(str(exc), 500)
@@ -206,7 +220,7 @@ def delete_document(doc_id):
         return _json_error('document not found', 404)
 
     try:
-        delete_document_dir(doc_id)
+        purge_document_storage(doc_id)
     except DocumentStorageError as exc:
         return _json_error(str(exc), 500)
 

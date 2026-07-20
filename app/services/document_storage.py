@@ -90,3 +90,8 @@ def delete_document_dir(doc_id: str | uuid.UUID, *, config: Mapping[str, Any] | 
         shutil.rmtree(directory)
     except OSError as exc:
         raise DocumentStorageError(str(exc)) from exc
+
+
+def purge_document_storage(doc_id: str | uuid.UUID, *, config: Mapping[str, Any] | None = None) -> None:
+    """Remove stored original PDF for a document (local disc; S3 in issue #35)."""
+    delete_document_dir(doc_id, config=config)

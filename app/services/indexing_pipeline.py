@@ -5,8 +5,9 @@ import logging
 import threading
 import time
 import uuid
+from contextlib import contextmanager
 from datetime import datetime, timezone
-from typing import Any, Callable, Mapping
+from typing import Any, Callable, Iterator, Mapping
 
 from app.config import Config
 from app.db.repositories import document_chunks as chunks_repo
@@ -34,6 +35,26 @@ _INDEXING_CONFIG_KEYS = (
 
 class IndexingPipelineError(Exception):
     """Raised when indexing cannot proceed."""
+
+
+_INDEXING_GUARD = threading.Lock()
+_DOC_LOCKS: dict[str, threading.Lock] = {}
+
+
+@contextmanager
+def _doc_indexing_lock(doc_id: str | uuid.UUID) -> Iterator[bool]:
+    doc_key = str(doc_id)
+    with _INDEXING_GUARD:
+        lock = _DOC_LOCKS.setdefault(doc_key, threading.Lock())
+    acquired = lock.acquire(blocking=False)
+    if not acquired:
+        logger.warning('indexing already in progress for doc_id=%s', doc_key)
+        yield False
+        return
+    try:
+        yield True
+    finally:
+        lock.release()
 
 
 def _resolve_config(config: Mapping[str, Any] | None) -> dict[str, Any]:
@@ -90,6 +111,19 @@ def run(
     embedder: Callable[[list[str], str | None], list[list[float]]] | None = None,
 ) -> None:
     """Run the full indexing pipeline for one document."""
+    with _doc_indexing_lock(doc_id) as acquired:
+        if not acquired:
+            return
+        _run_indexing(doc_id, reindex=reindex, config=config, embedder=embedder)
+
+
+def _run_indexing(
+    doc_id: str | uuid.UUID,
+    *,
+    reindex: bool = False,
+    config: Mapping[str, Any] | None = None,
+    embedder: Callable[[list[str], str | None], list[list[float]]] | None = None,
+) -> None:
     cfg = _resolve_config(config)
     doc_id_str = str(doc_id)
     started_total = time.perf_counter()
@@ -228,6 +262,13 @@ def schedule_indexing(
     embedder: Callable[[list[str], str | None], list[list[float]]] | None = None,
 ) -> None:
     """Run indexing in a background daemon thread."""
+    doc_key = str(doc_id)
+    with _INDEXING_GUARD:
+        lock = _DOC_LOCKS.setdefault(doc_key, threading.Lock())
+        if lock.locked():
+            logger.warning('skip concurrent schedule_indexing for doc_id=%s', doc_key)
+            return
+
     cfg = _resolve_config(config)
 
     def _target() -> None:

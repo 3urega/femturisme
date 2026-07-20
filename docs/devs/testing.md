@@ -36,6 +36,12 @@ python -m pytest tests/integration/rag/test_search_entity_knowledge.py -v -m int
 python -m pytest tests/integration/rag/test_rag_admin_lifecycle.py -v -m integration
 python scripts/uat_rag_battery.py http://127.0.0.1:5010
 
+# Hardening Fase 5 (issue #34): auth admin, reindex HTTP, lock, CLI ingest
+python -m pytest tests/api/test_admin_auth.py -v -m integration
+python -m pytest tests/integration/rag/test_reindex_http.py -v -m integration
+python -m pytest tests/unit/test_indexing_lock.py -v
+python scripts/ingest_pdf.py --list
+
 # Tot excepte integració amb cobertura
 python -m pytest -v --cov=app --cov-report=term-missing
 ```
@@ -57,6 +63,7 @@ tests/
 │   ├── test_health.py       # API-05
 │   ├── test_admin_entities.py  # DEV-501: CRUD /admin/api/entities
 │   ├── test_admin_documents.py # DEV-502/503: upload/list/delete documents
+│   ├── test_admin_auth.py        # issue #34: Bearer + cookie admin
 │   └── test_admin_ui_routes.py # DEV-507: HTML /admin/guides*
 ├── fixtures/
 │   └── sample-guide.pdf     # PDF mínim per tests upload

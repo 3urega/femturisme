@@ -2,6 +2,7 @@
 from __future__ import annotations
 
 import uuid
+import uuid
 from pathlib import Path
 
 import pytest
@@ -127,3 +128,56 @@ def test_search_skips_non_indexed_documents(
     )
     assert response.status_code == 400
     assert 'not indexed' in response.get_json()['error']
+
+
+def test_search_filters_by_category(client, pipeline_config, created_entity_ids):
+    entity = _create_entity(client, created_entity_ids)
+    entity_id = entity['entity_id']
+    pdf_bytes = SAMPLE_PDF.read_bytes()
+
+    patrimoni_id = uuid.uuid4()
+    documents_repo.create(
+        doc_id=patrimoni_id,
+        entity_id=entity_id,
+        title='Guia patrimoni',
+        category='patrimoni',
+        source_filename='sample-guide.pdf',
+        storage_path=f"{pipeline_config['DOCUMENT_STORAGE_PATH']}/{patrimoni_id}/original.pdf",
+        config=pipeline_config,
+    )
+    save_original(patrimoni_id, pdf_bytes, config=pipeline_config)
+    run(patrimoni_id, config=pipeline_config, embedder=fake_embed)
+
+    natura_id = uuid.uuid4()
+    documents_repo.create(
+        doc_id=natura_id,
+        entity_id=entity_id,
+        title='Guia natura',
+        category='natura',
+        source_filename='sample-guide.pdf',
+        storage_path=f"{pipeline_config['DOCUMENT_STORAGE_PATH']}/{natura_id}/original.pdf",
+        config=pipeline_config,
+    )
+    save_original(natura_id, pdf_bytes, config=pipeline_config)
+    run(natura_id, config=pipeline_config, embedder=fake_embed)
+
+    patrimoni_hits = documents_repo.search(
+        query='on aparcar',
+        entity_id=entity_id,
+        category='patrimoni',
+        config=pipeline_config,
+        embedder=fake_embed,
+    )
+    assert patrimoni_hits['total'] >= 1
+    assert all(hit['doc_id'] == str(patrimoni_id) for hit in patrimoni_hits['results'])
+
+    natura_hits = documents_repo.search(
+        query='on aparcar',
+        entity_id=entity_id,
+        category='natura',
+        config=pipeline_config,
+        embedder=fake_embed,
+    )
+    assert natura_hits['total'] >= 1
+    assert all(hit['doc_id'] == str(natura_id) for hit in natura_hits['results'])
+

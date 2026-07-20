@@ -423,7 +423,7 @@ Els PDFs **no es pugen des de femturisme.cat** ni des del widget de xat. El xat 
 |----------|-------------|
 | **Des d'on es puja?** | **Panell d'administració** al servei Python de l'agent: `https://<host-agent>/admin/guides` (xarxa interna, VPN o accés restringit per IP + login). |
 | **Qui el fa servir?** | Personal femturisme / equip tècnic autoritzat (no usuaris finals del web). |
-| **Alternativa per a devs** | CLI: `python scripts/ingest_pdf.py --file … --municipality …` (mateix pipeline que la UI). |
+| **Alternativa per a devs** | CLI: `python scripts/ingest_pdf.py --file … --entity-id UUID --title …` (mateix pipeline que la UI). |
 | **On es guarda el PDF original?** | Disc del servidor agent: `data/guides/{doc_id}/original.pdf` (o bucket S3-compatible si s'acorda amb ops). |
 | **On es guarda l'estat?** | **BD pròpia de l'agent** (PostgreSQL recomanat si s'usa pgvector; no la MySQL read-only de femturisme). |
 
@@ -446,7 +446,7 @@ Sí: el servei Python tindrà un **frontend petit i intern**, separat del web p�
 | Pantalla | Ruta | Funció |
 |----------|------|--------|
 | Llista de guies | `GET /admin/guides` | Taula amb tots els PDFs i status |
-| Pujar guia | `GET /admin/guides/upload` | Formulari: fitxer + municipi + títol |
+| Pujar guia | `GET /admin/guides/upload` | Formulari: fitxer + entitat (`entity_id`) + títol |
 | Detall document | `GET /admin/guides/{doc_id}` | Comptadors, error, botons Reindexar / Provar cerca |
 
 El **widget de xat** que veu el visitant continua sent JS servit des del Python (o copiat al PHP a la Fase 4) i incrustat a femturisme.cat — és un altre frontend amb un altre propòsit.
@@ -454,9 +454,9 @@ El **widget de xat** que veu el visitant continua sent JS servit des del Python 
 ```
 ┌─────────────────────────────────────────────────────────────────────┐
 │ Equip femturisme (navegador intern / VPN)                           │
-│  Panell /admin/guides  →  pujar PDF + municipi + títol              │
+│  Panell /admin/guides  →  pujar PDF + entity_id + títol              │
 └───────────────────────────────┬─────────────────────────────────────┘
-                                │ POST /admin/api/guides/upload
+                                │ POST /admin/api/documents/upload
                                 ▼
 ┌─────────────────────────────────────────────────────────────────────┐
 │ Servei agent Python                                                 │
@@ -478,7 +478,7 @@ El **widget de xat** que veu el visitant continua sent JS servit des del Python 
 
 | Pas | Què passa | On es veu |
 |-----|-----------|-----------|
-| **1. Pujada** | L'operador selecciona fitxer PDF, municipi i títol; el backend genera `doc_id` (UUID). | Panell admin: fila nova amb status `pending`. |
+| **1. Pujada** | L'operador selecciona fitxer PDF, entitat (`entity_id`) i títol; el backend genera `doc_id` (UUID). | Panell admin: fila nova amb status `pending`. |
 | **2. Extracció** | `pymupdf` / `pdfplumber` llegeix text per pàgina; es compta `pages_count`. | Status → `extracting`. |
 | **3. Chunking** | Es divideix en fragments de 500–1000 tokens amb overlap 10–15%; es crea `chunks_count`. | Status → `chunking`. |
 | **4. Embeddings** | Cada chunk es passa al model d'embedding (batch); es desa vector + metadades al vector store. | Status → `embedding`; comptador `embedded_chunks_count` puja. |
@@ -493,8 +493,8 @@ Tres llocs complementaris:
 
 | On mirar | Què mostra |
 |----------|------------|
-| **Panell `/admin/guides`** | Llista de tots els documents: títol, municipi, nom fitxer, data pujada, **status**, pàgines, chunks, model embedding. |
-| **API `GET /admin/api/guides`** | Mateix llistat en JSON (per scripts o monitorització). |
+| **Panell `/admin/guides`** | Llista de tots els documents: títol, entitat, nom fitxer, data pujada, **status**, pàgines, chunks, model embedding. |
+| **API `GET /admin/api/documents`** | Mateix llistat en JSON (per scripts o monitorització). |
 | **CLI `python scripts/ingest_pdf.py --list`** | Llistat ràpid des de terminal (dev/staging). |
 
 **Taula de registre** `guide_documents` (BD agent):
@@ -503,7 +503,7 @@ Tres llocs complementaris:
 |------|---------|-----|
 | `doc_id` | `a1b2-…` | Identificador únic |
 | `title` | `Guia turística Berga 2024` | Nom visible al panell |
-| `municipality` | `Berga` | Filtre RAG per municipi |
+| `entity_id` | `uuid…` | Entitat RAG (abans «municipi» al prototip) |
 | `source_filename` | `guia_berga.pdf` | Nom original del fitxer |
 | `storage_path` | `data/guides/a1b2…/original.pdf` | On està el PDF |
 | `status` | `indexed` | Estat del pipeline (vegeu taula següent) |

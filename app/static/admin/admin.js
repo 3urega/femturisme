@@ -9,11 +9,29 @@ const AdminGuides = (() => {
     return sessionStorage.getItem(TOKEN_KEY) || '';
   }
 
+  function syncTokenCookie(token) {
+    if (token) {
+      document.cookie = `admin_api_token=${encodeURIComponent(token)}; Path=/admin; SameSite=Strict`;
+    } else {
+      document.cookie = 'admin_api_token=; Path=/admin; Max-Age=0; SameSite=Strict';
+    }
+  }
+
   function setToken(value) {
-    if (value) {
-      sessionStorage.setItem(TOKEN_KEY, value);
+    const trimmed = String(value || '').trim();
+    if (trimmed) {
+      sessionStorage.setItem(TOKEN_KEY, trimmed);
+      syncTokenCookie(trimmed);
     } else {
       sessionStorage.removeItem(TOKEN_KEY);
+      syncTokenCookie('');
+    }
+  }
+
+  function ensureTokenCookie() {
+    const token = getToken();
+    if (token) {
+      syncTokenCookie(token);
     }
   }
 
@@ -75,6 +93,7 @@ const AdminGuides = (() => {
   }
 
   function bindTokenButton() {
+    ensureTokenCookie();
     const btn = document.getElementById('admin-token-btn');
     if (!btn) return;
     btn.addEventListener('click', () => {

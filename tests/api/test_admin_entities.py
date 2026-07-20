@@ -88,3 +88,32 @@ def test_admin_rejects_invalid_entity_type(client):
     )
     assert response.status_code == 400
     assert 'entity_type' in response.get_json()['error']
+
+
+def test_admin_update_entity(client, created_entity_ids):
+    created = _create_entity(client)
+    entity_id = created['entity_id']
+    created_entity_ids.append(entity_id)
+
+    response = client.put(
+        f'/admin/api/entities/{entity_id}',
+        json={
+            'name': 'Updated museum name',
+            'territory': 'Ripollès',
+        },
+    )
+    assert response.status_code == 200, response.get_json()
+    body = response.get_json()
+    assert body['name'] == 'Updated museum name'
+    assert body['territory'] == 'Ripollès'
+
+    other = _create_entity(client, slug_suffix='other-slug')
+    created_entity_ids.append(other['entity_id'])
+
+    conflict = client.put(
+        f'/admin/api/entities/{entity_id}',
+        json={'slug': other['slug']},
+    )
+    assert conflict.status_code == 409
+    assert 'slug' in conflict.get_json()['error'].lower()
+
