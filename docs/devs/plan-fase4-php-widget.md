@@ -102,6 +102,7 @@ python main.py
 
 ## Referències
 
+- **[Guia equip PHP — globus de xat](php-widget-globus.md)** ← document per reprendre Fase 4
 - [tecnic.md](../client/tecnic.md) §4.7–4.9, §15.4
 - [funcional.md](../client/funcional.md) — modes operatius
 - [dominio-femturisme-ca.md](../client/dominio-femturisme-ca.md)

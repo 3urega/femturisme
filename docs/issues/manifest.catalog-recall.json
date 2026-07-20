@@ -1,0 +1,47 @@
+{
+  "repo": "3urega/femturisme",
+  "sourceDoc": "docs/devs/plan-catalog-recall.md",
+  "defaultLabels": ["enhancement", "agent", "mysql"],
+  "issues": [
+    {
+      "title": "Catàleg: search_events amb query i dates intel·ligents (Patum)",
+      "bodyFile": "docs/issues/events-keyword-query.md",
+      "labels": ["fase-3", "mysql", "catalog"],
+      "checklistIds": [],
+      "githubNumber": 36,
+      "publishedAt": "2026-07-20"
+    },
+    {
+      "title": "Agent: routing per keyword multi-tool (generic, no whitelist)",
+      "bodyFile": "docs/issues/agent-theme-routing.md",
+      "labels": ["agent", "llm", "catalog"],
+      "checklistIds": [],
+      "githubNumber": 37,
+      "publishedAt": "2026-07-20"
+    },
+    {
+      "title": "Agent: fallback keyword quan catàleg retorna total=0",
+      "bodyFile": "docs/issues/agent-zero-results-fallback.md",
+      "labels": ["agent", "catalog"],
+      "checklistIds": [],
+      "githubNumber": 38,
+      "publishedAt": "2026-07-20"
+    },
+    {
+      "title": "Prompt: consultes temàtiques i festivals (Patum)",
+      "bodyFile": "docs/issues/prompt-theme-queries.md",
+      "labels": ["agent", "docs"],
+      "checklistIds": [],
+      "githubNumber": 39,
+      "publishedAt": "2026-07-20"
+    },
+    {
+      "title": "UAT recall catàleg: golden queries diverses ≥80%",
+      "bodyFile": "docs/issues/uat-catalog-recall-battery.md",
+      "labels": ["testing", "catalog"],
+      "checklistIds": ["DEV-604"],
+      "githubNumber": 40,
+      "publishedAt": "2026-07-20"
+    }
+  ]
+}
