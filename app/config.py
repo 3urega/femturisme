@@ -70,6 +70,14 @@ class Config:
     EMBEDDING_MODEL = _env('EMBEDDING_MODEL', 'text-embedding-3-small')
     DOCUMENT_STORAGE_PATH = _env('DOCUMENT_STORAGE_PATH', 'data/guides')
 
+    # Document storage: local filesystem (default) or Supabase S3-compatible
+    STORAGE_BACKEND = _env('STORAGE_BACKEND', 'local').strip().lower()
+    S3_ENDPOINT = _env('S3_ENDPOINT', '')
+    S3_REGION = _env('S3_REGION', 'eu-central-1')
+    S3_BUCKET = _env('S3_BUCKET', 'guides')
+    S3_ACCESS_KEY_ID = _env('S3_ACCESS_KEY_ID', '')
+    S3_SECRET_ACCESS_KEY = _env('S3_SECRET_ACCESS_KEY', '')
+
     # Admin API (RAG entities/documents) — empty token = open in dev (tecnic §12.1)
     ADMIN_API_TOKEN = _env('ADMIN_API_TOKEN', '')
 
@@ -89,6 +97,10 @@ class TestingConfig(Config):
     MAX_TOOL_ITERATIONS = 3
     RATE_LIMIT_PER_IP = 9999
     RATE_LIMIT_PER_SESSION = 9999
+    STORAGE_BACKEND = 'local'
+    S3_ENDPOINT = ''
+    S3_ACCESS_KEY_ID = ''
+    S3_SECRET_ACCESS_KEY = ''
 
 
 config = {

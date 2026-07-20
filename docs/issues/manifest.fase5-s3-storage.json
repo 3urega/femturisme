@@ -1,0 +1,15 @@
+{
+  "repo": "3urega/femturisme",
+  "sourceDoc": "docs/issues/rag-supabase-s3-storage.md",
+  "defaultLabels": ["enhancement"],
+  "issues": [
+    {
+      "title": "Fase 5: Emmagatzematge PDF Supabase Storage S3 (STORAGE_BACKEND=s3)",
+      "bodyFile": "docs/issues/rag-supabase-s3-storage.md",
+      "labels": ["fase-5", "rag", "infra", "supabase"],
+      "checklistIds": [],
+      "githubNumber": 35,
+      "publishedAt": "2026-07-20"
+    }
+  ]
+}

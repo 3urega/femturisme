@@ -2,7 +2,7 @@
 
 **Data:** 2026-07-20  
 **Abast:** batch tancat (#27–#33, issues DEV-500…507 Python)  
-**Issue derivada:** [#34](https://github.com/3urega/femturisme/issues/34) — [rag-fase5-hardening.md](../issues/rag-fase5-hardening.md)
+**Issue derivada:** [#34](https://github.com/3urega/femturisme/issues/34) hardening · [#35](https://github.com/3urega/femturisme/issues/35) Supabase S3 storage
 
 ---
 

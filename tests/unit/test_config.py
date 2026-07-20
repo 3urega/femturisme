@@ -29,6 +29,9 @@ def test_testing_config_exposes_mysql_and_postgres(app):
     assert cfg['LOG_LEVEL'] == 'INFO'
     assert cfg['EMBEDDING_MODEL'] == 'text-embedding-3-small'
     assert cfg['DOCUMENT_STORAGE_PATH'] == 'data/guides'
+    assert cfg.get('STORAGE_BACKEND', 'local') == 'local'
+    assert 'S3_ENDPOINT' in cfg
+    assert cfg.get('S3_BUCKET') == 'guides'
 
 
 def test_env_prefers_agent_prefix(monkeypatch):

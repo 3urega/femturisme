@@ -53,7 +53,7 @@ Manifest: [manifest.fase5-rag.json](../issues/manifest.fase5-rag.json)
 
 ## Post-batch (auditoria 2026-07-20)
 
-Auditoria: [auditoria-fase5-rag.md](auditoria-fase5-rag.md). Issue de hardening (CLI ingest, seguretat admin, neteja storage, tests §14.4 pendents): [#34](https://github.com/3urega/femturisme/issues/34).
+Auditoria: [auditoria-fase5-rag.md](auditoria-fase5-rag.md). Issue de hardening (CLI ingest, seguretat admin, neteja storage, tests §14.4 pendents): [#34](https://github.com/3urega/femturisme/issues/34). Emmagatzematge S3 Supabase: manifest [manifest.fase5-s3-storage.json](../issues/manifest.fase5-s3-storage.json).
 
 ---
 

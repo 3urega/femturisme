@@ -1,4 +1,8 @@
-"""Filesystem storage for uploaded guide PDFs (DEV-503)."""
+"""Filesystem storage for uploaded guide PDFs (DEV-503).
+
+Backend: local disc via DOCUMENT_STORAGE_PATH (default).
+Planned: Supabase S3 when STORAGE_BACKEND=s3 — see issue #35.
+"""
 from __future__ import annotations
 
 import shutil
