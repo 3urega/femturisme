@@ -42,6 +42,10 @@ python -m pytest tests/integration/rag/test_reindex_http.py -v -m integration
 python -m pytest tests/unit/test_indexing_lock.py -v
 python scripts/ingest_pdf.py --list
 
+# Storage S3 Supabase (issue #35)
+python -m pytest tests/unit/test_document_storage.py -v
+python -m pytest tests/integration/rag/test_s3_storage.py -v -m s3
+
 # Tot excepte integració amb cobertura
 python -m pytest -v --cov=app --cov-report=term-missing
 ```
@@ -72,6 +76,7 @@ tests/
 │   ├── test_prompts.py      # build_system_prompt
 │   ├── test_db_connection.py
 │   ├── test_config.py
+│   ├── test_document_storage.py  # issue #35: local + mock S3 backends
 │   ├── test_sse_parser.py
 │   └── test_chunking.py     # DEV-504: token chunking
 └── integration/

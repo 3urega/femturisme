@@ -13,7 +13,7 @@ from app.config import Config
 from app.db.repositories import document_chunks as chunks_repo
 from app.db.repositories import documents as documents_repo
 from app.services.chunking import chunk_pages
-from app.services.document_storage import original_file_path
+from app.services.document_storage import materialize_original
 from app.services.embedding_service import EmbeddingService
 from app.services.pdf_extractor import PdfExtractionError, extract_pages
 
@@ -27,7 +27,13 @@ _INDEXING_CONFIG_KEYS = (
     'POSTGRES_DATABASE',
     'POSTGRES_CONNECT_TIMEOUT',
     'POSTGRES_SSLMODE',
+    'STORAGE_BACKEND',
     'DOCUMENT_STORAGE_PATH',
+    'S3_ENDPOINT',
+    'S3_REGION',
+    'S3_BUCKET',
+    'S3_ACCESS_KEY_ID',
+    'S3_SECRET_ACCESS_KEY',
     'OPENAI_API_KEY',
     'EMBEDDING_MODEL',
 )
@@ -141,117 +147,117 @@ def _run_indexing(
         document = documents_repo.get_raw_by_id(doc_id, config=cfg)
         _log_step(doc_id=doc_id_str, step='reindex_reset', started=step_started)
 
-    pdf_path = original_file_path(doc_id, config=cfg)
-    if not pdf_path.is_file():
-        message = f'PDF file not found: {pdf_path}'
-        _mark_failed(doc_id, message, config=cfg)
-        raise IndexingPipelineError(message)
+    with materialize_original(doc_id, config=cfg) as pdf_path:
+        if pdf_path is None:
+            message = f'PDF file not found for doc_id={doc_id_str}'
+            _mark_failed(doc_id, message, config=cfg)
+            raise IndexingPipelineError(message)
 
-    try:
-        step_started = time.perf_counter()
-        documents_repo.update_indexing_state(
-            doc_id,
-            'extracting',
-            clear_error=True,
-            config=cfg,
-        )
-        pages = extract_pages(pdf_path)
-        if not pages:
-            raise IndexingPipelineError('PDF contains no extractable text')
-        _log_step(
-            doc_id=doc_id_str,
-            step='extracting',
-            started=step_started,
-            chunks_ok=len(pages),
-        )
-
-        step_started = time.perf_counter()
-        documents_repo.update_indexing_state(doc_id, 'chunking', config=cfg)
-        chunks = chunk_pages(pages)
-        if not chunks:
-            raise IndexingPipelineError('chunking produced no fragments')
-        _log_step(
-            doc_id=doc_id_str,
-            step='chunking',
-            started=step_started,
-            chunks_ok=len(chunks),
-        )
-
-        step_started = time.perf_counter()
-        documents_repo.update_indexing_state(
-            doc_id,
-            'embedding',
-            pages_count=len(pages),
-            chunks_count=len(chunks),
-            embedded_chunks_count=0,
-            config=cfg,
-        )
-        embedding_model = str(cfg.get('EMBEDDING_MODEL') or Config.EMBEDDING_MODEL)
-        service = EmbeddingService(config=cfg, embedder=embedder)
-        embeddings = service.embed_texts([chunk.content for chunk in chunks], embedding_model)
-        _log_step(
-            doc_id=doc_id_str,
-            step='embedding',
-            started=step_started,
-            chunks_ok=len(embeddings),
-        )
-
-        indexed_at = datetime.now(timezone.utc)
-        metadata_base = {
-            'doc_title': document.get('title'),
-            'source_file': document.get('source_filename'),
-            'embedding_model': embedding_model,
-            'indexed_at': indexed_at.isoformat(),
-        }
-
-        step_started = time.perf_counter()
-        inserted = chunks_repo.insert_batch(
-            doc_id=doc_id,
-            entity_id=document['entity_id'],
-            category=document.get('category'),
-            chunks=chunks,
-            embeddings=embeddings,
-            metadata_base=metadata_base,
-            config=cfg,
-        )
-        if inserted != len(chunks):
-            raise IndexingPipelineError(
-                f'expected to insert {len(chunks)} chunks, inserted {inserted}'
+        try:
+            step_started = time.perf_counter()
+            documents_repo.update_indexing_state(
+                doc_id,
+                'extracting',
+                clear_error=True,
+                config=cfg,
+            )
+            pages = extract_pages(pdf_path)
+            if not pages:
+                raise IndexingPipelineError('PDF contains no extractable text')
+            _log_step(
+                doc_id=doc_id_str,
+                step='extracting',
+                started=step_started,
+                chunks_ok=len(pages),
             )
 
-        documents_repo.update_indexing_state(
-            doc_id,
-            'indexed',
-            pages_count=len(pages),
-            chunks_count=len(chunks),
-            embedded_chunks_count=len(embeddings),
-            embedding_model=embedding_model,
-            indexed_at=indexed_at,
-            clear_error=True,
-            config=cfg,
-        )
-        _log_step(
-            doc_id=doc_id_str,
-            step='indexed',
-            started=step_started,
-            chunks_ok=inserted,
-        )
-        _log_step(
-            doc_id=doc_id_str,
-            step='complete',
-            started=started_total,
-            chunks_ok=inserted,
-        )
-    except (PdfExtractionError, IndexingPipelineError, Exception) as exc:
-        _mark_failed(doc_id, str(exc), config=cfg)
-        _log_step(
-            doc_id=doc_id_str,
-            step='failed',
-            started=started_total,
-            chunks_ko=1,
-            extra={'error': str(exc)[:500]},
-        )
-        raise
+            step_started = time.perf_counter()
+            documents_repo.update_indexing_state(doc_id, 'chunking', config=cfg)
+            chunks = chunk_pages(pages)
+            if not chunks:
+                raise IndexingPipelineError('chunking produced no fragments')
+            _log_step(
+                doc_id=doc_id_str,
+                step='chunking',
+                started=step_started,
+                chunks_ok=len(chunks),
+            )
+
+            step_started = time.perf_counter()
+            documents_repo.update_indexing_state(
+                doc_id,
+                'embedding',
+                pages_count=len(pages),
+                chunks_count=len(chunks),
+                embedded_chunks_count=0,
+                config=cfg,
+            )
+            embedding_model = str(cfg.get('EMBEDDING_MODEL') or Config.EMBEDDING_MODEL)
+            service = EmbeddingService(config=cfg, embedder=embedder)
+            embeddings = service.embed_texts([chunk.content for chunk in chunks], embedding_model)
+            _log_step(
+                doc_id=doc_id_str,
+                step='embedding',
+                started=step_started,
+                chunks_ok=len(embeddings),
+            )
+
+            indexed_at = datetime.now(timezone.utc)
+            metadata_base = {
+                'doc_title': document.get('title'),
+                'source_file': document.get('source_filename'),
+                'embedding_model': embedding_model,
+                'indexed_at': indexed_at.isoformat(),
+            }
+
+            step_started = time.perf_counter()
+            inserted = chunks_repo.insert_batch(
+                doc_id=doc_id,
+                entity_id=document['entity_id'],
+                category=document.get('category'),
+                chunks=chunks,
+                embeddings=embeddings,
+                metadata_base=metadata_base,
+                config=cfg,
+            )
+            if inserted != len(chunks):
+                raise IndexingPipelineError(
+                    f'expected to insert {len(chunks)} chunks, inserted {inserted}'
+                )
+
+            documents_repo.update_indexing_state(
+                doc_id,
+                'indexed',
+                pages_count=len(pages),
+                chunks_count=len(chunks),
+                embedded_chunks_count=len(embeddings),
+                embedding_model=embedding_model,
+                indexed_at=indexed_at,
+                clear_error=True,
+                config=cfg,
+            )
+            _log_step(
+                doc_id=doc_id_str,
+                step='indexed',
+                started=step_started,
+                chunks_ok=inserted,
+            )
+            _log_step(
+                doc_id=doc_id_str,
+                step='complete',
+                started=started_total,
+                chunks_ok=inserted,
+            )
+        except (PdfExtractionError, IndexingPipelineError, Exception) as exc:
+            _mark_failed(doc_id, str(exc), config=cfg)
+            _log_step(
+                doc_id=doc_id_str,
+                step='failed',
+                started=started_total,
+                chunks_ko=1,
+                extra={'error': str(exc)[:500]},
+            )
+            raise
 
 
 def schedule_indexing(

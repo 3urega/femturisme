@@ -171,6 +171,30 @@ Invoke-RestMethod -Uri http://127.0.0.1:5010/api/session/reset -Method POST -Con
 
 Per al stream SSE, usa el widget a `/` o `curl.exe -N` (veure [agente.md](../agente.md)).
 
+### Emmagatzematge PDFs (RAG Fase 5)
+
+Per defecte en dev local: **`STORAGE_BACKEND=local`** → fitxers a `data/guides/{doc_id}/original.pdf`.
+
+Per Supabase Storage (mateix projecte que `POSTGRES_*`):
+
+1. Dashboard Supabase → **Storage** → crear bucket privat **`guides`**.
+2. **Settings → S3 access keys** → generar clau (no commitar).
+3. Al `.env` local (gitignore):
+
+```env
+STORAGE_BACKEND=s3
+S3_ENDPOINT=https://<project-ref>.storage.supabase.co/storage/v1/s3
+S3_REGION=eu-central-1
+S3_BUCKET=guides
+S3_ACCESS_KEY_ID=...
+S3_SECRET_ACCESS_KEY=...
+```
+
+4. Verificar: pujar PDF des de `/admin/guides/upload` i comprovar l'objecte al dashboard Storage.
+5. Tests opt-in: `python -m pytest tests/integration/rag/test_s3_storage.py -v -m s3`
+
+Veure [runbook-rag-admin.md](runbook-rag-admin.md) i [tecnic.md §7.3](../client/tecnic.md).
+
 ---
 
 ## 6. Ports: dev vs Docker

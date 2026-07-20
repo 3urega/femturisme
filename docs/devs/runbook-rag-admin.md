@@ -72,10 +72,12 @@ Requereix `POSTGRES_*` al `.env` i, per indexar, clau OpenAI o embedder configur
 
 ## Esborrat d'entitats i documents
 
-- **DELETE document:** esborra registre BD, chunks (CASCADE) i directori local `data/guides/{doc_id}/`.
-- **DELETE entitat:** esborra tots els documents de l'entitat (CASCADE BD) i purga el storage local de cada PDF abans de l'entitat.
+- **DELETE document:** esborra registre BD, chunks (CASCADE) i original al backend actiu (disc local o objecte S3).
+- **DELETE entitat:** esborra tots els documents de l'entitat (CASCADE BD) i purga el storage de cada PDF abans de l'entitat.
 
 Upload a entitat amb `is_active=false` retorna **400**.
+
+Amb `STORAGE_BACKEND=s3`, comprovar al dashboard Supabase Storage que l'objecte `{doc_id}/original.pdf` desapareix després del delete.
 
 ---
 

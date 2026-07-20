@@ -743,18 +743,21 @@ La gestió s'integra al backend de femturisme (ADR-010). Funcionalitats mínimes
 | Llistar documents | Documents per entitat amb estat d'indexació. |
 | Consultar estat | pending, extracting, chunking, embedding, indexed, failed. |
 | Eliminar document | Elimina fitxer, metadades i vectors. |
-| Reindexar | Reexecuta el pipeline sobre l'original al disc. |
+| Reindexar | Reexecuta el pipeline sobre l'original (disc o S3). |
 | Smoke-test | Prova cerca search_entity_knowledge sobre el document. |
 
 ### 7.3 Emmagatzematge del fitxer
 
-El PDF original no es guarda dins PostgreSQL ni MySQL. Es desa al disc del servidor agent:
+El PDF original no es guarda dins PostgreSQL ni MySQL. Es desa via **`STORAGE_BACKEND`**:
 
-```text
-data/guides/{doc_id}/original.pdf
-```
+| Backend | On | `guide_documents.storage_path` |
+|---------|-----|--------------------------------|
+| `local` (default dev/CI) | Disc agent: `data/guides/{doc_id}/original.pdf` | Mateixa ruta lògica |
+| `s3` (staging/prod Supabase) | Bucket S3-compatible (`S3_BUCKET`, clau `{doc_id}/original.pdf`) | `s3://{bucket}/{doc_id}/original.pdf` |
 
-A PostgreSQL es desen metadades, text fragmentat i vectors. Mantenir el PDF original permet reindexar quan canviï el model d'embedding o el chunking.
+Variables: `STORAGE_BACKEND`, `DOCUMENT_STORAGE_PATH`, `S3_ENDPOINT`, `S3_REGION`, `S3_BUCKET`, `S3_ACCESS_KEY_ID`, `S3_SECRET_ACCESS_KEY` (veure `.env.example`).
+
+A PostgreSQL es desen metadades, text fragmentat i vectors. Mantenir el PDF original permet reindexar quan canviï el model d'embedding o el chunking. El pipeline descarrega temporalment des de S3 abans d'extreure text (PyMuPDF).
 
 ### 7.4 Pipeline d'indexació
 
