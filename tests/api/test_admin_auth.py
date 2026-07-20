@@ -40,9 +40,11 @@ def test_admin_guides_requires_auth(admin_token_app):
 
 def test_admin_guides_accepts_cookie(admin_token_app):
     client = admin_token_app.test_client()
-    response = client.get(
-        '/admin/guides',
-        headers={'Cookie': f'{ADMIN_TOKEN_COOKIE}={TEST_TOKEN}'},
+    client.set_cookie(
+        key=ADMIN_TOKEN_COOKIE,
+        value=TEST_TOKEN,
+        path='/admin',
     )
+    response = client.get('/admin/guides')
     assert response.status_code == 200
     assert b'Guies PDF' in response.data

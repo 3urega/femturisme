@@ -42,18 +42,25 @@ def fake_embedding_service(monkeypatch):
     )
 
 
-def _poll_until_indexed(doc_id, *, pipeline_config, timeout=POLL_TIMEOUT_SECONDS) -> dict:
+def _poll_after_reindex(
+    doc_id,
+    *,
+    pipeline_config,
+    min_version: int,
+    timeout=POLL_TIMEOUT_SECONDS,
+) -> dict:
     deadline = time.time() + timeout
     while time.time() < deadline:
         document = documents_repo.get_by_id(doc_id, config=pipeline_config)
         assert document is not None
         status = document.get('status')
-        if status == 'indexed':
+        version = int(document.get('version') or 0)
+        if status == 'indexed' and version >= min_version:
             return document
-        if status == 'failed':
+        if status == 'failed' and version >= min_version:
             pytest.fail(document.get('error_message') or 'indexing failed')
         time.sleep(POLL_INTERVAL_SECONDS)
-    pytest.fail(f'timed out waiting for indexed status for doc_id={doc_id}')
+    pytest.fail(f'timed out waiting for reindex doc_id={doc_id}')
 
 
 def test_reindex_http_increments_version(
@@ -72,7 +79,11 @@ def test_reindex_http_increments_version(
     response = client.post(f'/admin/api/documents/{doc_id}/reindex')
     assert response.status_code == 202
 
-    second = _poll_until_indexed(doc_id, pipeline_config=pipeline_config)
+    second = _poll_after_reindex(
+        doc_id,
+        pipeline_config=pipeline_config,
+        min_version=version_before + 1,
+    )
     assert second['version'] == version_before + 1
 
 
@@ -90,12 +101,17 @@ def test_failed_document_reindex_via_http(
 
     failed = documents_repo.get_by_id(doc_id, config=pipeline_config)
     assert failed['status'] == 'failed'
+    version_before = int(failed['version'])
 
     save_original(doc_id, SAMPLE_PDF.read_bytes(), config=pipeline_config)
 
     response = client.post(f'/admin/api/documents/{doc_id}/reindex')
     assert response.status_code == 202
 
-    indexed = _poll_until_indexed(doc_id, pipeline_config=pipeline_config)
+    indexed = _poll_after_reindex(
+        doc_id,
+        pipeline_config=pipeline_config,
+        min_version=version_before + 1,
+    )
     assert indexed['status'] == 'indexed'
     assert indexed['chunks_count'] > 0

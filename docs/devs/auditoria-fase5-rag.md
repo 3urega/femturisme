@@ -2,7 +2,7 @@
 
 **Data:** 2026-07-20  
 **Abast:** batch tancat (#27–#33, issues DEV-500…507 Python)  
-**Issue derivada:** [#34](https://github.com/3urega/femturisme/issues/34) hardening · [#35](https://github.com/3urega/femturisme/issues/35) Supabase S3 storage
+**Issue derivada:** [#34](https://github.com/3urega/femturisme/issues/34) hardening **(tancada 2026-07-20)** · [#35](https://github.com/3urega/femturisme/issues/35) Supabase S3 storage
 
 ---
 
@@ -83,6 +83,4 @@ No hi ha senyals d’implementació «a mitges» al pipeline (#33). Els riscos a
 
 ## Recomanació
 
-Un sol issue de **hardening post-Fase 5** (Python/ops), sense barrejar DEV-506 PHP:
-
-Veure [rag-fase5-hardening.md](../issues/rag-fase5-hardening.md).
+Issue **#34** (hardening post-Fase 5) implementada i tancada. Runbook operatiu: [runbook-rag-admin.md](runbook-rag-admin.md).
