@@ -145,6 +145,108 @@ def get_by_id(doc_id: str | uuid.UUID, *, config: Mapping[str, Any] | None = Non
         conn.close()
 
 
+def get_raw_by_id(doc_id: str | uuid.UUID, *, config: Mapping[str, Any] | None = None) -> dict | None:
+    """Return raw guide_documents row for internal pipeline use."""
+    conn = get_postgres_connection(config)
+    try:
+        with conn.cursor(cursor_factory=RealDictCursor) as cursor:
+            cursor.execute(
+                'SELECT * FROM guide_documents WHERE doc_id = %s',
+                (str(doc_id),),
+            )
+            row = cursor.fetchone()
+        return dict(row) if row else None
+    finally:
+        conn.close()
+
+
+def update_indexing_state(
+    doc_id: str | uuid.UUID,
+    status: str,
+    *,
+    error_message: str | None = None,
+    pages_count: int | None = None,
+    chunks_count: int | None = None,
+    embedded_chunks_count: int | None = None,
+    embedding_model: str | None = None,
+    indexed_at: Any = None,
+    clear_error: bool = False,
+    config: Mapping[str, Any] | None = None,
+) -> dict | None:
+    """Update pipeline status and counters for a document."""
+    updates: dict[str, Any] = {'status': status}
+    if clear_error:
+        updates['error_message'] = None
+    elif error_message is not None:
+        updates['error_message'] = str(error_message)[:500]
+    if pages_count is not None:
+        updates['pages_count'] = int(pages_count)
+    if chunks_count is not None:
+        updates['chunks_count'] = int(chunks_count)
+    if embedded_chunks_count is not None:
+        updates['embedded_chunks_count'] = int(embedded_chunks_count)
+    if embedding_model is not None:
+        updates['embedding_model'] = embedding_model
+    if indexed_at is not None:
+        updates['indexed_at'] = indexed_at
+
+    set_parts = [f'{key} = %s' for key in updates]
+    params = list(updates.values()) + [str(doc_id)]
+
+    conn = get_postgres_connection(config)
+    try:
+        with conn.cursor(cursor_factory=RealDictCursor) as cursor:
+            cursor.execute(
+                f"""
+                UPDATE guide_documents
+                SET {', '.join(set_parts)}
+                WHERE doc_id = %s
+                RETURNING *
+                """,
+                params,
+            )
+            row = cursor.fetchone()
+        conn.commit()
+        return _row_to_document(dict(row) if row else None)
+    except Exception:
+        conn.rollback()
+        raise
+    finally:
+        conn.close()
+
+
+def prepare_reindex(doc_id: str | uuid.UUID, *, config: Mapping[str, Any] | None = None) -> dict | None:
+    """Reset document counters and bump version before reindexing."""
+    conn = get_postgres_connection(config)
+    try:
+        with conn.cursor(cursor_factory=RealDictCursor) as cursor:
+            cursor.execute(
+                """
+                UPDATE guide_documents
+                SET
+                    version = version + 1,
+                    status = 'pending',
+                    error_message = NULL,
+                    pages_count = 0,
+                    chunks_count = 0,
+                    embedded_chunks_count = 0,
+                    embedding_model = NULL,
+                    indexed_at = NULL
+                WHERE doc_id = %s
+                RETURNING *
+                """,
+                (str(doc_id),),
+            )
+            row = cursor.fetchone()
+        conn.commit()
+        return _row_to_document(dict(row) if row else None)
+    except Exception:
+        conn.rollback()
+        raise
+    finally:
+        conn.close()
+
+
 def delete(doc_id: str | uuid.UUID, *, config: Mapping[str, Any] | None = None) -> bool:
     """Delete document by UUID. Returns True if a row was removed."""
     conn = get_postgres_connection(config)

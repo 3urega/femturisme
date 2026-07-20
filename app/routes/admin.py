@@ -3,7 +3,7 @@ from __future__ import annotations
 
 import uuid
 
-from flask import Blueprint, jsonify, request
+from flask import Blueprint, current_app, jsonify, request
 
 from app.db.connection import DatabaseError
 from app.db.repositories import documents as documents_repo
@@ -17,12 +17,17 @@ from app.services.document_storage import (
     save_original,
     validate_pdf,
 )
+from app.services.indexing_pipeline import schedule_indexing
 
 admin_bp = Blueprint('admin', __name__)
 
 
 def _json_error(message: str, status: int):
     return jsonify({'error': message}), status
+
+
+def _pipeline_config() -> dict:
+    return dict(current_app.config)
 
 
 @admin_bp.route('/entities', methods=['POST'])
@@ -152,6 +157,8 @@ def upload_document():
                 pass
         return _json_error(str(exc), 500)
 
+    schedule_indexing(doc_id, config=_pipeline_config())
+
     return jsonify(document), 201
 
 
@@ -203,3 +210,17 @@ def delete_document(doc_id):
         return _json_error(str(exc), 500)
 
     return jsonify({'ok': True})
+
+
+@admin_bp.route('/documents/<uuid:doc_id>/reindex', methods=['POST'])
+@require_admin_token
+def reindex_document(doc_id):
+    try:
+        document = documents_repo.get_by_id(doc_id)
+    except DatabaseError as exc:
+        return _json_error(str(exc), 500)
+    if document is None:
+        return _json_error('document not found', 404)
+
+    schedule_indexing(doc_id, reindex=True, config=_pipeline_config())
+    return jsonify({'ok': True, 'doc_id': str(doc_id), 'status': 'extracting'}), 202
