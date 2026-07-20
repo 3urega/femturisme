@@ -225,6 +225,40 @@ Panel admin manual (VS2 issue #32): `http://127.0.0.1:5010/admin/guides` — tok
 
 ---
 
+## UAT catàleg (DEV-604) — routing per domini
+
+```powershell
+python main.py
+python scripts/uat_catalog_battery.py http://127.0.0.1:5010
+```
+
+12 casos (2 per domini): valida **routing** de tool esperada. Molts casos accepten `min_total: 0`. Umbral: ≥80% routing. Resultats opcionals: `scripts/uat_catalog_battery_results.txt`.
+
+---
+
+## UAT recall catàleg (issue #40)
+
+Bateria complementària a DEV-604: valida **recall temàtic** (`total ≥ 1`), URL de la primera card a femturisme.cat i coincidència amb **keywords** del cas. Golden case obligatori: Patum (cas reportat vs [cercador?q=patum](https://femturisme.cat/cercador?q=patum)).
+
+**Requisits:**
+
+- Servidor Flask en marxa (`python main.py`)
+- `MYSQL_*` o `AGENT_MYSQL_*` configurat (MySQL staging amb dades reals)
+- LLM real (no `LLM_PROVIDER=dummy` del mode testing)
+
+**Skip sense MySQL:** si no hi ha credencials MySQL, el script imprimeix `SKIP` i surt amb **exit code 0** (no bloqueja CI sense staging).
+
+```powershell
+python main.py
+python scripts/uat_recall_battery.py http://127.0.0.1:5010
+```
+
+5 casos (`UAT-REC-01`…`05`): Patum, fira medieval Pals, castellers Barcelona, Parc Natural del Cadí, enoturisme Catalunya. Umbral: **≥80% PASS** sobre casos executats (recall + url + keywords). Resultats opcionals: `scripts/uat_recall_battery_results.txt`.
+
+**Nota:** Sant Jordi es pot afegir com a cas estacional (`skip_unless_months: [4]`) en una iteració futura si cal cobertura d'agenda per Sant Jordi.
+
+---
+
 ## Tests API (tecnic §14.2)
 
 | ID | Fitxer | Descripció |

@@ -42,6 +42,7 @@ Font criteris: [requeriments.md](../client/requeriments.md) §12.
 | Script | Resultat | DEV / issue |
 |--------|----------|-------------|
 | [`scripts/uat_catalog_battery.py`](../../scripts/uat_catalog_battery.py) | [`uat_catalog_battery_results.txt`](../../scripts/uat_catalog_battery_results.txt) | DEV-604 |
+| [`scripts/uat_recall_battery.py`](../../scripts/uat_recall_battery.py) | [`uat_recall_battery_results.txt`](../../scripts/uat_recall_battery_results.txt) | #40 recall temàtic |
 | [`scripts/uat_languages_battery.py`](../../scripts/uat_languages_battery.py) | [`uat_languages_battery_results.txt`](../../scripts/uat_languages_battery_results.txt) | DEV-601 |
 | [`scripts/uat_context_battery.py`](../../scripts/uat_context_battery.py) | [`uat_context_battery_results.txt`](../../scripts/uat_context_battery_results.txt) | #24 / CA-07 |
 | [`scripts/uat_ca04_multi_source.py`](../../scripts/uat_ca04_multi_source.py) | [`uat_ca04_multi_source_results.txt`](../../scripts/uat_ca04_multi_source_results.txt) | CA-04 |
@@ -53,6 +54,7 @@ Font criteris: [requeriments.md](../client/requeriments.md) §12.
 ```powershell
 powershell -File scripts/restart-server.ps1
 python scripts/uat_catalog_battery.py
+python scripts/uat_recall_battery.py
 python scripts/uat_languages_battery.py
 python scripts/uat_context_battery.py
 python scripts/uat_ca04_multi_source.py

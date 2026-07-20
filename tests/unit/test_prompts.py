@@ -132,3 +132,30 @@ def test_build_system_prompt_user_language_spanish():
     prompt = build_system_prompt(user_language='es')
     assert 'Idioma detectat' in prompt
     assert 'castellà' in prompt
+
+
+def test_build_system_prompt_thematic_queries_section():
+    prompt = build_system_prompt()
+    assert 'Consultes temàtiques' in prompt
+    assert 'no ho sé' in prompt.lower() or 'no responguis' in prompt.lower()
+    assert 'sense haver' in prompt.lower() or 'sense consultar' in prompt.lower()
+    assert 'search_articles' in prompt
+    assert 'search_events' in prompt
+    assert 'query' in prompt
+    assert 'topic' in prompt
+
+
+def test_build_system_prompt_thematic_examples_diverse():
+    prompt = build_system_prompt()
+    assert 'Patum' in prompt
+    assert 'castellers' in prompt
+    assert 'mercat medieval' in prompt
+
+
+def test_build_system_prompt_thematic_intent_routing():
+    prompt = build_system_prompt()
+    assert 'Explicació' in prompt or 'explicació' in prompt
+    assert 'search_articles' in prompt
+    assert 'Quan és' in prompt or 'calendari' in prompt.lower()
+    assert 'date_from' in prompt
+    assert 'date_to' in prompt

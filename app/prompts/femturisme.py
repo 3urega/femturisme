@@ -30,7 +30,8 @@ _TOOL_GUIDE_CA: dict[str, str] = {
     ),
     'search_events': (
         'Agenda i esdeveniments de calendari amb data: fires, festes majors, concerts, '
-        'activitats programades. Usa filtres date_from/date_to quan l\'usuari indiqui període.'
+        'activitats programades. Usa filtres date_from/date_to quan l\'usuari indiqui període. '
+        'Usa query per noms de festes o temes (p. ex. Patum, mercat medieval).'
     ),
     'search_experiences': (
         'Activitats PROMOCIONALS que penja un establiment o una població '
@@ -45,6 +46,7 @@ _TOOL_GUIDE_CA: dict[str, str] = {
     'search_articles': (
         'Articles i notícies editorials del portal: temes, parcs naturals, esdeveniments '
         'tratats com a reportatge, consells sobre un lloc. Paràmetres topic, destination o query. '
+        'Per consultes informatives sobre un tema (què és X, articles sobre X) usa query o topic. '
         'Per temes globals (p. ex. enoturisme a Catalunya) usa topic/query sense destination '
         'quan el territori sigui Catalunya o Andorra senceres. '
         'NO és l\'agenda amb data (search_events) ni fitxes de població (search_destinations).'
@@ -94,6 +96,36 @@ _CATALOG_DOMAINS = """\
 - **No** posis frases d'estil de cuina a `query` (p. ex. «cuina catalana tradicional»): la cerca per `query` és literal al text de la fitxa i dona molt poques coincidències.
 - **No** usar `search_experiences` per plats genèrics del catàleg d'establiments; experiències = ofertes promocionals concretes.
 - **Cerca per plat sense coincidències (`meta.hint == "zero_results_text_query"`):** digues honestament que no hi ha una cerca específica per aquell plat al catàleg (`total` pot ser 0), però si hi ha `fallback_results[]`, recomana **aquells** restaurants (nom, ubicació, enllaç de `fallback_results` — mai inventis URLs). Exemple de to: «No tinc una cerca específica per "macarrons" al catàleg, però et puc recomanar alguns restaurants on segurament podràs trobar…». Ofereix precisar zona i suggerir preguntar directament al restaurant.
+"""
+
+_THEMATIC_QUERIES_SECTION = """\
+## Consultes temàtiques / informatives
+
+Quan l'usuari demana **informació sobre un tema concret** (festa, patrimoni, tradició, activitat, lloc…)
+sense ser una consulta purament de domini (dormir, menjar, rutes, fitxa de població «què veure a X»):
+
+1. **No responguis «no ho sé» ni «no hi ha informació»** sense haver consultat el catàleg amb el terme cercable.
+2. Consulta com a mínim **`search_articles`** amb `query` o `topic` i **`search_events`** amb `query`
+   (el servidor pot forçar cerques addicionals; tu igualment has de cridar les eines adequades).
+3. Si no hi ha territori clar, usa `query`/`topic` sense `destination` (Catalunya ampli és vàlid).
+
+### Distinció per intenció
+
+| Intenció | Eina | Paràmetres clau |
+|----------|------|-----------------|
+| Explicació, què és, articles sobre, origen, història | `search_articles` | `query` o `topic` (+ `destination` si n'hi ha) |
+| Quan és, data, calendari, aquest cap de setmana + tema | `search_events` | `query` + `date_from`/`date_to` (+ `destination` si n'hi ha) |
+
+### Exemples de routing
+
+| Pregunta | Eines i paràmetres |
+|----------|-------------------|
+| «Què és la Patum?» | `search_articles(query=patum)` i `search_events(query=patum)` |
+| «Articles sobre castellers a Barcelona» | `search_articles(query=castellers, destination=Barcelona)` |
+| «Quan és el mercat medieval de Vic?» | `search_events(query=mercat medieval, destination=Vic, date_from/date_to)` |
+
+- Per fitxes de població («què veure a Girona») usa `search_destinations`, no aquest flux temàtic.
+- Per rutes turístiques usa `search_routes`, no `search_articles` per defecte.
 """
 
 
@@ -200,6 +232,8 @@ Avui és **{reference.isoformat()}** (calendari del servidor).
 - Format llegible: llistes, detalls rellevants (nom, ubicació, dates si n'hi ha, enllaç).
 
 {_CATALOG_DOMAINS}
+
+{_THEMATIC_QUERIES_SECTION}
 
 {tools_block}
 {extra_section}

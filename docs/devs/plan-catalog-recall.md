@@ -4,7 +4,7 @@
 
 **Objectiu:** que l'agent trobi el mateix contingut rellevant que el visitant esperaria del cercador, dins l'arquitectura **6 tools MySQL** (sense text-to-SQL ni scraping).
 
-**Estat:** **en curs** — [#36](https://github.com/3urega/femturisme/issues/36)–[#38](https://github.com/3urega/femturisme/issues/38) tancats *(2026-07-20)*; obertes [#39](https://github.com/3urega/femturisme/issues/39)–[#40](https://github.com/3urega/femturisme/issues/40).
+**Estat:** **completat** — [#36](https://github.com/3urega/femturisme/issues/36)–[#40](https://github.com/3urega/femturisme/issues/40) tancats *(2026-07-20)*.
 
 ---
 
@@ -54,8 +54,8 @@ Agent avui:    LLM → 1 tool
 | 1 | ~~`events-keyword-query.md`~~ | Catàleg: search_events amb query i dates intel·ligents | [#36](https://github.com/3urega/femturisme/issues/36) **implementat** *(2026-07-20)* |
 | 2 | ~~`agent-theme-routing.md`~~ | Agent: routing per keyword multi-tool (genèric) | [#37](https://github.com/3urega/femturisme/issues/37) **implementat** *(2026-07-20)* |
 | 3 | ~~`agent-zero-results-fallback.md`~~ | Agent: fallback keyword quan total=0 | [#38](https://github.com/3urega/femturisme/issues/38) **implementat** *(2026-07-20)* |
-| 4 | `prompt-theme-queries.md` | Prompt: guia consultes temàtiques i festivals | [#39](https://github.com/3urega/femturisme/issues/39) |
-| 5 | `uat-catalog-recall-battery.md` | UAT recall: golden queries diverses ≥80% | [#40](https://github.com/3urega/femturisme/issues/40) |
+| 4 | ~~`prompt-theme-queries.md`~~ | Prompt: guia consultes temàtiques i festivals | [#39](https://github.com/3urega/femturisme/issues/39) **implementat** *(2026-07-20)* |
+| 5 | ~~`uat-catalog-recall-battery.md`~~ | UAT recall: golden queries diverses ≥80% | [#40](https://github.com/3urega/femturisme/issues/40) **implementat** *(2026-07-20)* |
 
 Manifest: [manifest.catalog-recall.json](../issues/manifest.catalog-recall.json)
 

@@ -1,0 +1,33 @@
+UAT recall catàleg (#40) — base=http://127.0.0.1:5010
+
+[1/5] UAT-REC-01 (patum): Què és la Patum?
+  -> FAIL | tools=search_articles | totals=search_articles=10 | url=https://www.femturisme.cat/noticies/descobreix-els-correfocs-la-festa-que-encen-els-carrers
+  title=Descobreix els Correfocs: la festa que encén els carrers
+  keywords: cap coincidència amb ['patum']
+
+[2/5] UAT-REC-02 (fira_pals): Quan és la Fira medieval de Pals?
+  -> FAIL | tools=search_events | totals=search_events=6 | url=https://www.femturisme.cat/agenda/pessebre-vivent-de-pals
+  title=Pessebre Vivent de Pals
+  keywords: cap coincidència amb ['fira', 'medieval']
+
+[3/5] UAT-REC-03 (castellers): Articles sobre castellers a Barcelona
+  -> FAIL | tools=search_articles | totals=search_articles=0 | url=—
+  recall: max total 0 < min_total 1
+
+[4/5] UAT-REC-04 (parc_cadi): Articles sobre el Parc Natural del Cadí
+  -> FAIL | tools=search_articles | totals=search_articles=0 | url=—
+  recall: max total 0 < min_total 1
+
+[5/5] UAT-REC-05 (enoturisme): Notícies sobre enoturisme a Catalunya
+  -> FAIL | tools=search_articles | totals=search_articles=3 | url=https://www.femturisme.cat/noticies/escapat-a-lanoia-castells-natura-i-experiencies-per-a-tothom
+  title=Escapa't a l'Anoia: castells, natura i experiències per a tothom
+  keywords: cap coincidència amb ['enoturisme']
+
+============================================================
+RESULTAT: 0/5 PASS | umbral >= 80% -> KO (0%)
+============================================================
+  [KO] UAT-REC-01 (patum) -> totals=search_articles=10
+  [KO] UAT-REC-02 (fira_pals) -> totals=search_events=6
+  [KO] UAT-REC-03 (castellers) -> totals=search_articles=0
+  [KO] UAT-REC-04 (parc_cadi) -> totals=search_articles=0
+  [KO] UAT-REC-05 (enoturisme) -> totals=search_articles=3
