@@ -1,0 +1,36 @@
+{% extends 'admin/base.html' %}
+
+{% block title %}Documents indexats{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h1 class="h3 mb-0">Guies PDF</h1>
+    <a class="btn btn-primary" href="{{ url_for('admin_ui.guides_upload') }}">Pujar guia</a>
+</div>
+
+<div class="table-responsive">
+    <table class="table table-hover align-middle">
+        <thead>
+            <tr>
+                <th>Títol</th>
+                <th>Entitat</th>
+                <th>Estat</th>
+                <th>Chunks</th>
+                <th>Actualitzat</th>
+                <th></th>
+            </tr>
+        </thead>
+        <tbody id="guides-table-body">
+            <tr><td colspan="6" class="text-muted">Carregant…</td></tr>
+        </tbody>
+    </table>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+    AdminGuides.initListPage();
+});
+</script>
+{% endblock %}

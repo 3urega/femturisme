@@ -1,0 +1,38 @@
+.admin-body {
+    background: #f6f7f9;
+    min-height: 100vh;
+}
+
+.admin-header a {
+    font-size: 0.95rem;
+}
+
+.admin-form {
+    max-width: 640px;
+}
+
+.status-badge-pending,
+.status-badge-extracting,
+.status-badge-chunking,
+.status-badge-embedding {
+    background-color: #ffc107;
+    color: #212529;
+}
+
+.status-badge-indexed {
+    background-color: #198754;
+}
+
+.status-badge-failed {
+    background-color: #dc3545;
+}
+
+.smoke-hit {
+    border-left: 3px solid #0d6efd;
+    padding-left: 0.75rem;
+    margin-bottom: 1rem;
+}
+
+.smoke-hit:last-child {
+    margin-bottom: 0;
+}

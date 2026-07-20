@@ -1,0 +1,15 @@
+{
+  "repo": "3urega/femturisme",
+  "sourceDoc": "docs/devs/auditoria-fase5-rag.md",
+  "defaultLabels": ["enhancement"],
+  "issues": [
+    {
+      "title": "Fase 5 hardening: seguretat admin, CLI ingest, storage i tests §14.4",
+      "bodyFile": "docs/issues/rag-fase5-hardening.md",
+      "labels": ["fase-5", "rag", "ops", "testing"],
+      "checklistIds": [],
+      "githubNumber": 34,
+      "publishedAt": "2026-07-20"
+    }
+  ]
+}

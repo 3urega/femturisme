@@ -45,9 +45,15 @@ La Fase 4 (widget PHP) i **DEV-506** (gestor documental al CMS PHP) romanen **fo
 | `rag-documents-upload.md` | Fase 5: API documents i emmagatzematge PDF (DEV-502, DEV-503) | fase-5, postgres, rag, api | DEV-502, DEV-503 | DEV-501 | [#29](https://github.com/3urega/femturisme/issues/29) **tancat** *(2026-07-20)* |
 | `rag-indexing-pipeline.md` | Fase 5: Pipeline indexació PDF extract/chunk/embed (DEV-504) | fase-5, rag, agent | DEV-504 | DEV-503 | [#33](https://github.com/3urega/femturisme/issues/33) **tancat** *(2026-07-20)* |
 | `rag-search-entity-knowledge.md` | Fase 5: DocumentsRepository i search_entity_knowledge (DEV-505) | fase-5, rag, postgres, agent | DEV-505 | DEV-504 | [#31](https://github.com/3urega/femturisme/issues/31) **tancat** *(2026-07-20)* |
-| `rag-admin-ui-uat.md` | Fase 5: Panell admin Flask i UAT intern RAG (DEV-507) | fase-5, rag, testing | DEV-507 | DEV-505 | [#32](https://github.com/3urega/femturisme/issues/32) |
+| `rag-admin-ui-uat.md` | Fase 5: Panell admin Flask i UAT intern RAG (DEV-507) | fase-5, rag, testing | DEV-507 | DEV-505 | [#32](https://github.com/3urega/femturisme/issues/32) **tancat** *(2026-07-20)* |
 
 Manifest: [manifest.fase5-rag.json](../issues/manifest.fase5-rag.json)
+
+---
+
+## Post-batch (auditoria 2026-07-20)
+
+Auditoria: [auditoria-fase5-rag.md](auditoria-fase5-rag.md). Issue de hardening (CLI ingest, seguretat admin, neteja storage, tests §14.4 pendents): [#34](https://github.com/3urega/femturisme/issues/34).
 
 ---
 

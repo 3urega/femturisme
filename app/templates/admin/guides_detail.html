@@ -1,0 +1,69 @@
+{% extends 'admin/base.html' %}
+
+{% block title %}Detall document{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-start mb-4 gap-3">
+    <div>
+        <h1 class="h3 mb-1" id="doc-title">Carregant…</h1>
+        <p class="text-muted mb-0"><code id="doc-id">{{ doc_id }}</code></p>
+    </div>
+    <a class="btn btn-outline-secondary" href="{{ url_for('admin_ui.guides_list') }}">Tornar al llistat</a>
+</div>
+
+<div class="row g-4">
+    <div class="col-lg-7">
+        <div class="card shadow-sm">
+            <div class="card-body">
+                <div class="d-flex align-items-center gap-2 mb-3">
+                    <span id="doc-status" class="badge bg-secondary">…</span>
+                    <span class="text-muted small" id="doc-version"></span>
+                </div>
+                <dl class="row mb-0">
+                    <dt class="col-sm-4">Entitat</dt>
+                    <dd class="col-sm-8"><code id="doc-entity-id"></code></dd>
+                    <dt class="col-sm-4">Fitxer</dt>
+                    <dd class="col-sm-8" id="doc-filename"></dd>
+                    <dt class="col-sm-4">Pàgines</dt>
+                    <dd class="col-sm-8" id="doc-pages"></dd>
+                    <dt class="col-sm-4">Chunks</dt>
+                    <dd class="col-sm-8" id="doc-chunks"></dd>
+                    <dt class="col-sm-4">Embeddings</dt>
+                    <dd class="col-sm-8" id="doc-embedded"></dd>
+                    <dt class="col-sm-4">Indexat</dt>
+                    <dd class="col-sm-8" id="doc-indexed-at"></dd>
+                </dl>
+                <div id="doc-error" class="alert alert-danger mt-3 d-none"></div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-lg-5">
+        <div class="card shadow-sm mb-4">
+            <div class="card-body">
+                <h2 class="h5">Accions</h2>
+                <button type="button" class="btn btn-outline-primary" id="reindex-btn">Reindexar</button>
+            </div>
+        </div>
+
+        <div class="card shadow-sm">
+            <div class="card-body">
+                <h2 class="h5">Provar cerca</h2>
+                <div class="input-group mb-3">
+                    <input type="text" id="smoke-query" class="form-control" placeholder="on aparcar" value="on aparcar">
+                    <button type="button" class="btn btn-primary" id="smoke-btn">Cercar</button>
+                </div>
+                <div id="smoke-results"></div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+    AdminGuides.initDetailPage('{{ doc_id }}');
+});
+</script>
+{% endblock %}

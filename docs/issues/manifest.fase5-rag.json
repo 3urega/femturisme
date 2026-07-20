@@ -3,14 +3,5 @@
   "sourceDoc": "docs/devs/plan-fase5-rag-base.md",
   "defaultLabels": ["enhancement"],
   "publishedAt": "2026-07-14",
-  "issues": [
-    {
-      "title": "Fase 5: Panell admin Flask i UAT intern RAG (DEV-507)",
-      "bodyFile": "docs/issues/rag-admin-ui-uat.md",
-      "labels": ["fase-5", "rag", "testing"],
-      "checklistIds": ["DEV-507"],
-      "githubNumber": 32,
-      "publishedAt": "2026-07-14"
-    }
-  ]
+  "issues": []
 }

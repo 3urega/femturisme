@@ -14,3 +14,6 @@ site.zip
 
 # PDFs pujats via admin API (DEV-503)
 /data/guides/
+
+# UAT script output (DEV-507)
+uat_rag_battery_results.txt

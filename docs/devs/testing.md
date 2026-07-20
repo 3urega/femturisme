@@ -32,6 +32,10 @@ python -m pytest tests/integration/rag/test_indexing_pipeline.py -v -m integrati
 # Cerca semàntica RAG (DEV-505; requereix POSTGRES_* + pymupdf)
 python -m pytest tests/integration/rag/test_search_entity_knowledge.py -v -m integration
 
+# UAT admin RAG (DEV-507; requereix POSTGRES_* + servidor en marxa per al script)
+python -m pytest tests/integration/rag/test_rag_admin_lifecycle.py -v -m integration
+python scripts/uat_rag_battery.py http://127.0.0.1:5010
+
 # Tot excepte integració amb cobertura
 python -m pytest -v --cov=app --cov-report=term-missing
 ```
@@ -52,7 +56,8 @@ tests/
 │   ├── test_chat.py         # API-01…API-04
 │   ├── test_health.py       # API-05
 │   ├── test_admin_entities.py  # DEV-501: CRUD /admin/api/entities
-│   └── test_admin_documents.py # DEV-502/503: upload/list/delete documents
+│   ├── test_admin_documents.py # DEV-502/503: upload/list/delete documents
+│   └── test_admin_ui_routes.py # DEV-507: HTML /admin/guides*
 ├── fixtures/
 │   └── sample-guide.pdf     # PDF mínim per tests upload
 ├── unit/
@@ -74,7 +79,8 @@ tests/
     │   └── test_schema.py          # DEV-500: vector ext, tables, enums
     └── rag/
         ├── test_indexing_pipeline.py       # DEV-504: extract/chunk/embed pipeline
-        └── test_search_entity_knowledge.py # DEV-505: semantic search + smoke-test
+        ├── test_search_entity_knowledge.py # DEV-505: semantic search + smoke-test
+        └── test_rag_admin_lifecycle.py     # DEV-507: delete cascades, failed search
 ```
 
 ---
@@ -183,6 +189,27 @@ curl -s -X POST http://127.0.0.1:5010/admin/api/documents/<doc_id>/smoke-test \
   -H "Content-Type: application/json" \
   -d '{"query":"on aparcar"}'
 ```
+
+---
+
+## Tests UAT admin RAG (DEV-507)
+
+| Test | Descripció |
+|------|------------|
+| `test_delete_document_removes_chunks` | DELETE document → chunks eliminats |
+| `test_delete_entity_cascades_documents` | DELETE entitat → documents CASCADE |
+| `test_failed_document_excluded_from_search` | Doc `failed` → search `total=0` |
+
+Script end-to-end (servidor Flask en marxa, `OPENAI_API_KEY` per indexació via upload):
+
+```powershell
+python main.py
+python scripts/uat_rag_battery.py http://127.0.0.1:5010
+```
+
+Casos: UAT-RAG-01…06 (crear entitat, upload+indexed, smoke-test, reindex, delete doc, delete entity). Umbral: ≥5 PASS i ≥80%. Resultats opcionals: `uat_rag_battery_results.txt` (gitignore).
+
+Panel admin manual (VS2 issue #32): `http://127.0.0.1:5010/admin/guides` — token admin a `sessionStorage` si `ADMIN_API_TOKEN` està configurat.
 
 ---
 

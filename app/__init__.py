@@ -23,9 +23,11 @@ def create_app(config_name=None):
     from .routes.main import main_bp
     from .routes.api import api_bp
     from .routes.admin import admin_bp
+    from .routes.admin_ui import admin_ui_bp
 
     app.register_blueprint(main_bp)
     app.register_blueprint(api_bp, url_prefix='/api')
     app.register_blueprint(admin_bp, url_prefix='/admin/api')
+    app.register_blueprint(admin_ui_bp, url_prefix='/admin')
 
     return app

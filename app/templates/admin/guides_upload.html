@@ -1,0 +1,38 @@
+{% extends 'admin/base.html' %}
+
+{% block title %}Pujar guia{% endblock %}
+
+{% block content %}
+<h1 class="h3 mb-4">Pujar guia PDF</h1>
+
+<form id="upload-form" class="admin-form card p-4 shadow-sm">
+    <div class="mb-3">
+        <label for="entity_id" class="form-label">Entitat</label>
+        <select id="entity_id" name="entity_id" class="form-select" required>
+            <option value="">Carregant entitats…</option>
+        </select>
+        <div class="form-text">Crea entitats via API <code>/admin/api/entities</code> si cal.</div>
+    </div>
+    <div class="mb-3">
+        <label for="title" class="form-label">Títol</label>
+        <input type="text" id="title" name="title" class="form-control" required maxlength="255">
+    </div>
+    <div class="mb-3">
+        <label for="category" class="form-label">Categoria (opcional)</label>
+        <input type="text" id="category" name="category" class="form-control" maxlength="100">
+    </div>
+    <div class="mb-3">
+        <label for="file" class="form-label">Fitxer PDF</label>
+        <input type="file" id="file" name="file" class="form-control" accept="application/pdf,.pdf" required>
+    </div>
+    <button type="submit" class="btn btn-primary">Pujar i indexar</button>
+</form>
+{% endblock %}
+
+{% block scripts %}
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+    AdminGuides.initUploadPage();
+});
+</script>
+{% endblock %}
