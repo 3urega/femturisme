@@ -17,6 +17,7 @@ from app.services.document_storage import (
     save_original,
     validate_pdf,
 )
+from app.services.embedding_service import EmbeddingError
 from app.services.indexing_pipeline import schedule_indexing
 
 admin_bp = Blueprint('admin', __name__)
@@ -224,3 +225,47 @@ def reindex_document(doc_id):
 
     schedule_indexing(doc_id, reindex=True, config=_pipeline_config())
     return jsonify({'ok': True, 'doc_id': str(doc_id), 'status': 'extracting'}), 202
+
+
+@admin_bp.route('/documents/<uuid:doc_id>/smoke-test', methods=['POST'])
+@require_admin_token
+def smoke_test_document(doc_id):
+    data = request.get_json(silent=True) or {}
+    query = str(data.get('query') or '').strip()
+    if not query:
+        return _json_error('query is required', 400)
+
+    try:
+        document = documents_repo.get_by_id(doc_id)
+    except DatabaseError as exc:
+        return _json_error(str(exc), 500)
+    if document is None:
+        return _json_error('document not found', 404)
+    if document.get('status') != 'indexed':
+        return _json_error('document is not indexed', 400)
+
+    limit = data.get('limit', 5)
+    try:
+        resolved_limit = int(limit) if limit is not None else 5
+    except (TypeError, ValueError):
+        resolved_limit = 5
+    resolved_limit = max(1, min(resolved_limit, 20))
+
+    try:
+        result = documents_repo.search(
+            query=query,
+            entity_id=document['entity_id'],
+            doc_id=doc_id,
+            limit=resolved_limit,
+            config=_pipeline_config(),
+        )
+    except documents_repo.SearchValidationError as exc:
+        return _json_error(str(exc), 400)
+    except documents_repo.EntityNotFoundError as exc:
+        return _json_error(str(exc), 404)
+    except EmbeddingError as exc:
+        return _json_error(str(exc), 500)
+    except DatabaseError as exc:
+        return _json_error(str(exc), 500)
+
+    return jsonify(result)

@@ -29,6 +29,9 @@ python -m pytest tests/api/test_admin_documents.py -v -m integration
 # Pipeline indexació RAG (DEV-504; requereix POSTGRES_* + pymupdf)
 python -m pytest tests/integration/rag/test_indexing_pipeline.py -v -m integration
 
+# Cerca semàntica RAG (DEV-505; requereix POSTGRES_* + pymupdf)
+python -m pytest tests/integration/rag/test_search_entity_knowledge.py -v -m integration
+
 # Tot excepte integració amb cobertura
 python -m pytest -v --cov=app --cov-report=term-missing
 ```
@@ -70,7 +73,8 @@ tests/
     ├── postgres/
     │   └── test_schema.py          # DEV-500: vector ext, tables, enums
     └── rag/
-        └── test_indexing_pipeline.py  # DEV-504: extract/chunk/embed pipeline
+        ├── test_indexing_pipeline.py       # DEV-504: extract/chunk/embed pipeline
+        └── test_search_entity_knowledge.py # DEV-505: semantic search + smoke-test
 ```
 
 ---
@@ -156,6 +160,28 @@ Smoke manual:
 ```bash
 python -c "from app.services.indexing_pipeline import run; run('<doc_id>')"
 curl -s -X POST http://127.0.0.1:5010/admin/api/documents/<doc_id>/reindex
+```
+
+---
+
+## Tests cerca semàntica RAG (DEV-505)
+
+| Test | Descripció |
+|------|------------|
+| `test_search_returns_chunks_for_indexed_entity` | `DocumentsRepository.search()` retorna chunks amb `content`/`metadata` |
+| `test_search_filters_by_entity_id` | Entitat sense documents → `total=0` |
+| `test_smoke_test_endpoint_returns_results` | `POST .../smoke-test` sobre doc `indexed` → 200 |
+| `test_search_skips_non_indexed_documents` | Doc `pending` → search 0 resultats; smoke-test 400 |
+
+Marcat `@pytest.mark.integration`. Mock d'embeddings obligatori (mateix patró que DEV-504).
+
+Smoke manual:
+
+```bash
+curl -s -X POST http://127.0.0.1:5010/admin/api/documents/<doc_id>/smoke-test \
+  -H "Authorization: Bearer $ADMIN_API_TOKEN" \
+  -H "Content-Type: application/json" \
+  -d '{"query":"on aparcar"}'
 ```
 
 ---

@@ -8,16 +8,8 @@ from typing import Any, Mapping
 from psycopg2.extras import execute_values
 
 from app.db.connection import get_postgres_connection
+from app.db.vector_utils import vector_literal
 from app.services.chunking import ChunkDraft
-from app.services.embedding_service import EMBEDDING_DIMENSION
-
-
-def _vector_literal(values: list[float]) -> str:
-    if len(values) != EMBEDDING_DIMENSION:
-        raise ValueError(
-            f'expected embedding dimension {EMBEDDING_DIMENSION}, got {len(values)}'
-        )
-    return '[' + ','.join(f'{value:.8f}' for value in values) + ']'
 
 
 def delete_by_doc_id(doc_id: str | uuid.UUID, *, config: Mapping[str, Any] | None = None) -> int:
@@ -80,7 +72,7 @@ def insert_batch(
             chunk.page,
             chunk.content,
             category,
-            _vector_literal(embedding),
+            vector_literal(embedding),
             json.dumps(metadata),
         ))
 

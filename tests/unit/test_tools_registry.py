@@ -15,7 +15,7 @@ CATALOG_TOOL_NAMES_SET = frozenset({
     'search_routes',
 })
 
-AUX_TOOL_NAMES = frozenset({'search_local_knowledge'})
+AUX_TOOL_NAMES = frozenset({'search_entity_knowledge'})
 
 EXPECTED_TOOL_NAMES = CATALOG_TOOL_NAMES_SET | AUX_TOOL_NAMES
 
@@ -32,7 +32,7 @@ def test_femturisme_llm_tools_exclude_auxiliary_knowledge():
     assert 'search_entity_knowledge' not in names
 
 
-def test_all_tools_lists_six_catalog_plus_local_knowledge():
+def test_all_tools_lists_six_catalog_plus_entity_knowledge():
     names = {schema['name'] for schema in ALL_TOOLS}
     assert names == EXPECTED_TOOL_NAMES
     assert len(ALL_TOOLS) == 7
@@ -62,7 +62,7 @@ def test_execute_tool_resolves_catalog_tools_without_unknown_error():
         'search_articles': {},
         'search_experiences': {'destination': ''},
         'search_routes': {'destination': ''},
-        'search_local_knowledge': {'query': 'test'},
+        'search_entity_knowledge': {'query': 'test', 'entity_id': '550e8400-e29b-41d4-a716-446655440000'},
     }
     for name, tool_input in cases.items():
         out = json.loads(execute_tool(name, tool_input))

@@ -21,7 +21,7 @@ from .events           import SCHEMA as EVT_SCHEMA, execute as evt_execute
 from .articles         import SCHEMA as ART_SCHEMA, execute as art_execute
 from .experiences      import SCHEMA as EXP_SCHEMA, execute as exp_execute
 from .routes_tool      import SCHEMA as RTE_SCHEMA, execute as rte_execute
-from .local_knowledge  import SCHEMA as LOC_SCHEMA, execute as loc_execute
+from .entity_knowledge import SCHEMA as ENT_SCHEMA, execute as ent_execute
 
 # Six MySQL catalog searchers — exposed to the LLM in femturisme mode (DEV-600).
 CATALOG_TOOLS: list[dict] = [
@@ -38,7 +38,7 @@ CATALOG_TOOL_NAMES = frozenset(schema['name'] for schema in CATALOG_TOOLS)
 # Full registry (catalog + auxiliary); executors remain available server-side.
 ALL_TOOLS: list[dict] = [
     *CATALOG_TOOLS,
-    LOC_SCHEMA,
+    ENT_SCHEMA,
 ]
 
 _EXECUTORS: dict[str, callable] = {
@@ -48,7 +48,7 @@ _EXECUTORS: dict[str, callable] = {
     ART_SCHEMA['name']: art_execute,
     EXP_SCHEMA['name']: exp_execute,
     RTE_SCHEMA['name']: rte_execute,
-    LOC_SCHEMA['name']: loc_execute,
+    ENT_SCHEMA['name']: ent_execute,
 }
 
 _GEO_CATALOG_TOOLS = frozenset({
