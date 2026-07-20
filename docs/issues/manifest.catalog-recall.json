@@ -4,14 +4,6 @@
   "defaultLabels": ["enhancement", "agent", "mysql"],
   "issues": [
     {
-      "title": "Agent: routing per keyword multi-tool (generic, no whitelist)",
-      "bodyFile": "docs/issues/agent-theme-routing.md",
-      "labels": ["agent", "llm", "catalog"],
-      "checklistIds": [],
-      "githubNumber": 37,
-      "publishedAt": "2026-07-20"
-    },
-    {
       "title": "Agent: fallback keyword quan catàleg retorna total=0",
       "bodyFile": "docs/issues/agent-zero-results-fallback.md",
       "labels": ["agent", "catalog"],

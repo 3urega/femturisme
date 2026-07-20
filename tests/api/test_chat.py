@@ -169,3 +169,63 @@ def test_api_05_chat_rate_limit_returns_429(client, app):
     )
     assert response.status_code == 429
     assert response.get_json()['error'] == 'rate limit exceeded'
+
+
+def test_forced_keyword_patum(client, capture_tool_calls, llm_end_turn):
+    """Issue #37: thematic query forces articles + events with query=patum."""
+    response = client.post(
+        '/api/chat',
+        json={'message': 'Què és la Patum?', 'session_id': 'forced-kw-patum'},
+    )
+    assert response.status_code == 200
+    events = parse_sse_events(response.data)
+    types = [e.get('type') for e in events]
+    assert 'tool_call' in types
+    assert 'done' in types
+
+    tool_names = [name for name, _ in capture_tool_calls]
+    assert 'search_articles' in tool_names
+    assert 'search_events' in tool_names
+    for name, tool_input in capture_tool_calls:
+        assert tool_input.get('query') == 'patum'
+
+
+def test_forced_keyword_castellers(client, capture_tool_calls, llm_end_turn):
+    """Issue #37: articles about castellers → search_articles with keyword."""
+    response = client.post(
+        '/api/chat',
+        json={
+            'message': 'Articles sobre castellers a Barcelona',
+            'session_id': 'forced-kw-castellers',
+        },
+    )
+    assert response.status_code == 200
+    assert 'done' in [e.get('type') for e in parse_sse_events(response.data)]
+
+    articles_calls = [
+        inp for name, inp in capture_tool_calls if name == 'search_articles'
+    ]
+    assert articles_calls
+    assert articles_calls[0].get('query') == 'castellers'
+    assert articles_calls[0].get('destination') == 'Barcelona'
+
+
+def test_forced_keyword_fira_medieval(client, capture_tool_calls, llm_end_turn):
+    """Issue #37: when agenda force does not apply, fan-out with event query."""
+    response = client.post(
+        '/api/chat',
+        json={
+            'message': 'Quan és la Fira medieval de Pals?',
+            'session_id': 'forced-kw-fira',
+        },
+    )
+    assert response.status_code == 200
+    assert 'done' in [e.get('type') for e in parse_sse_events(response.data)]
+
+    events_calls = [
+        inp for name, inp in capture_tool_calls if name == 'search_events'
+    ]
+    assert events_calls
+    query = events_calls[0].get('query', '')
+    assert 'fira' in query
+    assert 'medieval' in query
