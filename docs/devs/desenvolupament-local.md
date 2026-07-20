@@ -274,9 +274,20 @@ Prefix `AGENT_POSTGRES_*` alternatiu. Base per defecte segons [tecnic.md §10.2]
 
 **Primera vegada (DEV-500):**
 
-1. Crea projecte cloud amb pgvector habilitat.
+1. Crea projecte cloud amb pgvector habilitat (Supabase: Database → Extensions → **vector**).
 2. Afegeix les variables al `.env`.
-3. Aplica el schema:
+3. **Supabase des de Windows:** si el host directe `db.<project>.supabase.co:5432` falla (firewall), usa el **pooler Session mode**:
+
+```env
+POSTGRES_HOST=aws-0-eu-central-1.pooler.supabase.com
+POSTGRES_PORT=6543
+POSTGRES_USER=postgres.<project-ref>
+POSTGRES_SSLMODE=require
+```
+
+(`sslmode=require` s'aplica automàticament si el host conté `supabase.co`.)
+
+4. Aplica el schema:
 
 ```powershell
 python scripts/apply_postgres_schema.py

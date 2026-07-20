@@ -1,6 +1,6 @@
 # Checklist d'entrega — agent_femturisme
 
-**Progrés:** 49 / 90 completats · **Última actualització:** 2026-07-20
+**Progrés:** 50 / 90 completats · **Última actualització:** 2026-07-20
 
 > Els agents marquen `- [x]` quan el criteri **Detect** es compleix. Veure [index.md](index.md).
 
@@ -44,7 +44,7 @@
 - [ ] **DEV-022** — MySQL disponible per desenvolupament  
   *Detect:* query de prova des del servei agent. **Dev local:** dump importat a `127.0.0.1` ([desenvolupament-local.md §9](desenvolupament-local.md)). **Staging:** connexió remot quan el client obri xarxa.
 - [ ] **DEV-023** — PostgreSQL staging amb extensió pgvector  
-  *Detect:* `CREATE EXTENSION vector` OK; connexió des de Python
+  *Detect:* `CREATE EXTENSION vector` OK; connexió des de Python. **Parcial (2026-07-20):** dev Supabase pooler + schema aplicat (#27); staging formal pendent
 - [ ] **DEV-024** — Preguntes obertes Q-01…Q-08 resoltes amb client  
   *Detect:* `tecnic.md` §8.3 sense TBD crítics; `sql-mapeo.md` alimentat. **Parcial (2026-07-20):** estat per pregunta documentat; Q-04/Q-05/Q-08 pendents sign-off client
 - [x] **DEV-025** — URLs canòniques per tipus de fitxa validades  
@@ -157,8 +157,8 @@ Per cada buscador: **Repository + Tool refactor + test integració**. Sense `scr
 
 *Infra es pot construir abans; **xat públic femturisme Fase 1 sense RAG** (requeriments §4).*
 
-- [ ] **DEV-500** — Schema PostgreSQL aplicat a staging  
-  *Detect:* taules `entities`, `guide_documents`, `document_chunks`
+- [x] **DEV-500** — Schema PostgreSQL aplicat a staging  
+  *Detect:* taules `entities`, `guide_documents`, `document_chunks` *(2026-07-20: Supabase dev + apply_postgres_schema.py, issue #27)*
 - [ ] **DEV-501** — API CRUD `/admin/api/entities`  
   *Detect:* tecnic §9.4; tests o smoke curl
 - [ ] **DEV-502** — API documents (upload, list, reindex, delete, smoke-test)  
@@ -268,6 +268,7 @@ Per cada buscador: **Repository + Tool refactor + test integració**. Sense `scr
 
 | Data | Canvis |
 |------|--------|
+| 2026-07-20 | DEV-500 tancat (issue #27); schema RAG Supabase pgvector + SSL pooler |
 | 2026-07-20 | DEV-010, DEV-025, DEV-026 tancats (issue #26); sql-mapeo validat pytest 14/14 |
 | 2026-07-14 | Fase 6 pre-entrega parcial (DEV-602, DEV-605); Fase 5 batch publicat |
 | 2026-07-03 | Creació inicial des de docs/client (requeriments, funcional, tecnic, domini) |

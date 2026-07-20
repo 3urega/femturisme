@@ -58,6 +58,8 @@ class Config:
     POSTGRES_PASSWORD = _env('POSTGRES_PASSWORD', '')
     POSTGRES_DATABASE = _env('POSTGRES_DATABASE', 'agent_femturisme')
     POSTGRES_CONNECT_TIMEOUT = _env_int('POSTGRES_CONNECT_TIMEOUT', 5)
+    # disable | allow | prefer | require | verify-ca | verify-full
+    POSTGRES_SSLMODE = _env('POSTGRES_SSLMODE', '')
 
     # Ops / embeddings
     LOG_LEVEL = _env('LOG_LEVEL', 'INFO')

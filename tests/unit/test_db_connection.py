@@ -77,3 +77,21 @@ def test_get_mysql_connection_raises_when_not_configured():
         assert False, 'expected DatabaseError'
     except DatabaseError as exc:
         assert 'not configured' in str(exc).lower()
+
+
+@patch('psycopg2.connect')
+def test_postgres_connect_uses_ssl_for_supabase(mock_connect):
+    from app.db.connection import get_postgres_connection
+
+    mock_connect.return_value = MagicMock()
+    cfg = {
+        'POSTGRES_HOST': 'db.example.supabase.co',
+        'POSTGRES_PORT': 5432,
+        'POSTGRES_USER': 'postgres',
+        'POSTGRES_PASSWORD': 'secret',
+        'POSTGRES_DATABASE': 'postgres',
+        'POSTGRES_CONNECT_TIMEOUT': 5,
+    }
+    get_postgres_connection(cfg)
+    _, kwargs = mock_connect.call_args
+    assert kwargs['sslmode'] == 'require'

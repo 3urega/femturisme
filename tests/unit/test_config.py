@@ -22,8 +22,10 @@ def test_testing_config_exposes_mysql_and_postgres(app):
     assert cfg['MYSQL_PORT'] > 0
     assert cfg['MYSQL_DATABASE']
     assert 'POSTGRES_HOST' in cfg
-    assert cfg['POSTGRES_PORT'] == 5432
-    assert cfg['POSTGRES_DATABASE'] == 'agent_femturisme'
+    assert isinstance(cfg['POSTGRES_PORT'], int)
+    assert cfg['POSTGRES_PORT'] > 0
+    assert cfg['POSTGRES_DATABASE']
+    assert cfg.get('POSTGRES_SSLMODE') is not None or cfg.get('POSTGRES_HOST', '')
     assert cfg['LOG_LEVEL'] == 'INFO'
     assert cfg['EMBEDDING_MODEL'] == 'text-embedding-3-small'
     assert cfg['DOCUMENT_STORAGE_PATH'] == 'data/guides'

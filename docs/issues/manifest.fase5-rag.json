@@ -5,14 +5,6 @@
   "publishedAt": "2026-07-14",
   "issues": [
     {
-      "title": "Fase 5: Schema PostgreSQL agent + pgvector local (DEV-500)",
-      "bodyFile": "docs/issues/rag-postgres-schema.md",
-      "labels": ["fase-5", "postgres", "rag", "infra"],
-      "checklistIds": ["DEV-500"],
-      "githubNumber": 27,
-      "publishedAt": "2026-07-14"
-    },
-    {
       "title": "Fase 5: API CRUD entitats /admin/api/entities (DEV-501)",
       "bodyFile": "docs/issues/rag-entities-api.md",
       "labels": ["fase-5", "postgres", "rag", "api"],

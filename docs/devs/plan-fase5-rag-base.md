@@ -40,7 +40,7 @@ La Fase 4 (widget PHP) i **DEV-506** (gestor documental al CMS PHP) romanen **fo
 
 | Slug | Títol | Labels | DEV | Depèn de |
 |------|-------|--------|-----|----------|
-| `rag-postgres-schema.md` | Fase 5: Schema PostgreSQL agent + pgvector local (DEV-500) | fase-5, postgres, rag, infra | DEV-500 | — | [#27](https://github.com/3urega/femturisme/issues/27) |
+| `rag-postgres-schema.md` | Fase 5: Schema PostgreSQL agent + pgvector local (DEV-500) | fase-5, postgres, rag, infra | DEV-500 | — | [#27](https://github.com/3urega/femturisme/issues/27) **tancat** *(2026-07-20)* |
 | `rag-entities-api.md` | Fase 5: API CRUD entitats /admin/api/entities (DEV-501) | fase-5, postgres, rag, api | DEV-501 | DEV-500 | [#28](https://github.com/3urega/femturisme/issues/28) |
 | `rag-documents-upload.md` | Fase 5: API documents i emmagatzematge PDF (DEV-502, DEV-503) | fase-5, postgres, rag, api | DEV-502, DEV-503 | DEV-501 | [#29](https://github.com/3urega/femturisme/issues/29) |
 | `rag-indexing-pipeline.md` | Fase 5: Pipeline indexació PDF extract/chunk/embed (DEV-504) | fase-5, rag, agent | DEV-504 | DEV-503 | [#33](https://github.com/3urega/femturisme/issues/33) |

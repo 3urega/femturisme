@@ -23,7 +23,37 @@ _CONFIG_KEYS = (
     'POSTGRES_PASSWORD',
     'POSTGRES_DATABASE',
     'POSTGRES_CONNECT_TIMEOUT',
+    'POSTGRES_SSLMODE',
 )
+
+
+def _resolve_postgres_sslmode(cfg: Mapping[str, Any]) -> str | None:
+    """Return psycopg2 sslmode or None for local/dev without TLS."""
+    explicit = str(cfg.get('POSTGRES_SSLMODE', '') or '').strip()
+    if explicit:
+        if explicit.lower() in ('disable', '0', 'false', 'off'):
+            return None
+        return explicit
+
+    host = str(cfg.get('POSTGRES_HOST', '') or '').lower()
+    if any(marker in host for marker in ('supabase.co', 'neon.tech', 'render.com')):
+        return 'require'
+    return None
+
+
+def _postgres_connect_kwargs(cfg: Mapping[str, Any]) -> dict[str, Any]:
+    kwargs: dict[str, Any] = {
+        'host': cfg['POSTGRES_HOST'],
+        'port': int(cfg.get('POSTGRES_PORT', 5432)),
+        'user': cfg.get('POSTGRES_USER', ''),
+        'password': cfg.get('POSTGRES_PASSWORD', ''),
+        'dbname': cfg.get('POSTGRES_DATABASE', 'agent_femturisme'),
+        'connect_timeout': int(cfg.get('POSTGRES_CONNECT_TIMEOUT', 5)),
+    }
+    sslmode = _resolve_postgres_sslmode(cfg)
+    if sslmode:
+        kwargs['sslmode'] = sslmode
+    return kwargs
 
 
 def _resolve_config(config: Mapping[str, Any] | None) -> dict[str, Any]:
@@ -78,14 +108,7 @@ def get_postgres_connection(config: Mapping[str, Any] | None = None):
         raise DatabaseError('PostgreSQL is not configured (POSTGRES_HOST is empty)')
 
     try:
-        return psycopg2.connect(
-            host=cfg['POSTGRES_HOST'],
-            port=int(cfg.get('POSTGRES_PORT', 5432)),
-            user=cfg.get('POSTGRES_USER', ''),
-            password=cfg.get('POSTGRES_PASSWORD', ''),
-            dbname=cfg.get('POSTGRES_DATABASE', 'agent_femturisme'),
-            connect_timeout=int(cfg.get('POSTGRES_CONNECT_TIMEOUT', 5)),
-        )
+        return psycopg2.connect(**_postgres_connect_kwargs(cfg))
     except Exception as exc:
         raise DatabaseError(str(exc)) from exc
 

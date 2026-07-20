@@ -68,13 +68,15 @@ tests/
 | `test_enum_types_exist` | ENUMs `entity_type`, `guide_document_status` |
 | `test_embedding_column_is_vector_1536` | Columna `embedding` és `vector(1536)` |
 
-Marcat `@pytest.mark.integration`. Es **salten** sense `POSTGRES_HOST` + `POSTGRES_USER`. Cal executar abans `python scripts/apply_postgres_schema.py` contra instància cloud amb pgvector.
+Marcat `@pytest.mark.integration`. Es **salten** sense `POSTGRES_HOST` + `POSTGRES_USER`. Cal executar abans `python scripts/apply_postgres_schema.py` contra instància cloud amb pgvector. Supabase: usa pooler `:6543` si el port directe `:5432` està bloquejat (veure [desenvolupament-local.md](desenvolupament-local.md) §7.4).
 
 ```env
-POSTGRES_HOST=db.example.neon.tech
-POSTGRES_USER=...
+POSTGRES_HOST=aws-0-eu-central-1.pooler.supabase.com
+POSTGRES_PORT=6543
+POSTGRES_USER=postgres.<project-ref>
 POSTGRES_PASSWORD=...
-POSTGRES_DATABASE=agent_femturisme
+POSTGRES_DATABASE=postgres
+# POSTGRES_SSLMODE=require  # auto per hosts supabase.co / neon.tech
 ```
 
 ---
