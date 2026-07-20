@@ -53,7 +53,7 @@ Manifest: [manifest.fase5-rag.json](../issues/manifest.fase5-rag.json)
 
 ## Post-batch (auditoria 2026-07-20)
 
-Auditoria: [auditoria-fase5-rag.md](auditoria-fase5-rag.md). Hardening #34 tancada — [runbook-rag-admin.md](runbook-rag-admin.md). Emmagatzematge S3 Supabase: manifest [manifest.fase5-s3-storage.json](../issues/manifest.fase5-s3-storage.json).
+Auditoria: [auditoria-fase5-rag.md](auditoria-fase5-rag.md). Hardening #34 tancada — [runbook-rag-admin.md](runbook-rag-admin.md). Storage S3 #35 tancada — `STORAGE_BACKEND=s3` + boto3.
 
 ---
 

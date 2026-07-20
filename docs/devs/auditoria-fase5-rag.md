@@ -2,7 +2,7 @@
 
 **Data:** 2026-07-20  
 **Abast:** batch tancat (#27–#33, issues DEV-500…507 Python)  
-**Issue derivada:** [#34](https://github.com/3urega/femturisme/issues/34) hardening **(tancada 2026-07-20)** · [#35](https://github.com/3urega/femturisme/issues/35) Supabase S3 storage
+**Issue derivada:** [#34](https://github.com/3urega/femturisme/issues/34) hardening **(tancada 2026-07-20)** · [#35](https://github.com/3urega/femturisme/issues/35) Supabase S3 storage **(tancada 2026-07-20)**
 
 ---
 
@@ -23,7 +23,7 @@ No hi ha senyals d’implementació «a mitges» al pipeline (#33). Els riscos a
 | Schema PostgreSQL | `docs/schema-agent-postgres.sql`, `tests/integration/postgres/test_schema.py` |
 | Repositories | `entities.py`, `documents.py` (+ `search`), `document_chunks.py` |
 | Pipeline | `indexing_pipeline.py`, `pdf_extractor.py`, `chunking.py`, `embedding_service.py` |
-| Storage PDF | `document_storage.py` → `data/guides/{doc_id}/original.pdf` |
+| Storage PDF | `document_storage.py` + backends `local` / `s3` (Supabase) |
 | Admin API | `app/routes/admin.py` — CRUD entitats/documents, reindex, smoke-test |
 | Tool RAG | `entity_knowledge.py` a `ALL_TOOLS`, no a `CATALOG_TOOLS` |
 | Admin UI | `admin_ui.py` + 3 pantalles `/admin/guides*` |

@@ -72,10 +72,10 @@ def test_s3_build_storage_path():
     assert backend.build_storage_path(doc_id) == f's3://guides/{doc_id}/original.pdf'
 
 
-@patch('app.services.storage_backends.s3.boto3')
-def test_s3_save_put_object(mock_boto3):
+@patch('boto3.client')
+def test_s3_save_put_object(mock_client_factory):
     client = MagicMock()
-    mock_boto3.client.return_value = client
+    mock_client_factory.return_value = client
 
     doc_id = uuid.uuid4()
     config = {
@@ -94,17 +94,17 @@ def test_s3_save_put_object(mock_boto3):
     assert kwargs['Bucket'] == 'guides'
     assert kwargs['Key'] == f'{doc_id}/original.pdf'
     assert kwargs['Body'] == SAMPLE_PDF
-    mock_boto3.client.assert_called_once()
-    call_kwargs = mock_boto3.client.call_args.kwargs
+    mock_client_factory.assert_called_once()
+    call_kwargs = mock_client_factory.call_args.kwargs
     assert call_kwargs['endpoint_url'] == config['S3_ENDPOINT']
     assert call_kwargs['config'].s3['addressing_style'] == 'path'
 
 
-@patch('app.services.storage_backends.s3.boto3')
-def test_s3_purge_delete_object(mock_boto3):
+@patch('boto3.client')
+def test_s3_purge_delete_object(mock_client_factory):
     client = MagicMock()
     client.head_object.return_value = {}
-    mock_boto3.client.return_value = client
+    mock_client_factory.return_value = client
 
     doc_id = uuid.uuid4()
     backend = S3StorageBackend(
@@ -124,14 +124,14 @@ def test_s3_purge_delete_object(mock_boto3):
     )
 
 
-@patch('app.services.storage_backends.s3.boto3')
-def test_s3_materialize_writes_tempfile(mock_boto3):
+@patch('boto3.client')
+def test_s3_materialize_writes_tempfile(mock_client_factory):
     client = MagicMock()
     body = MagicMock()
     body.read.return_value = SAMPLE_PDF
     client.get_object.return_value = {'Body': body}
     client.head_object.return_value = {}
-    mock_boto3.client.return_value = client
+    mock_client_factory.return_value = client
 
     doc_id = uuid.uuid4()
     backend = S3StorageBackend(

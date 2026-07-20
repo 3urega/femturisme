@@ -8,6 +8,9 @@ from pathlib import Path
 from typing import Any, Iterator, Mapping
 
 from app.services.storage_backends.base import DocumentStorageError, StorageBackend
+
+
+class LocalStorageBackend(StorageBackend):
     def __init__(self, config: Mapping[str, Any] | None = None) -> None:
         root = 'data/guides'
         if config is not None:
