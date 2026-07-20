@@ -11,3 +11,6 @@ site.zip
 /data/mysql/
 *.dump.sql
 *.dump.sql.gz
+
+# PDFs pujats via admin API (DEV-503)
+/data/guides/

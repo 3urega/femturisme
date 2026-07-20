@@ -23,6 +23,9 @@ python -m pytest tests/integration/postgres/test_schema.py -v -m integration
 # API admin entitats (DEV-501; requereix POSTGRES_*)
 python -m pytest tests/api/test_admin_entities.py -v -m integration
 
+# API admin documents (DEV-502/503; requereix POSTGRES_*)
+python -m pytest tests/api/test_admin_documents.py -v -m integration
+
 # Tot excepte integració amb cobertura
 python -m pytest -v --cov=app --cov-report=term-missing
 ```
@@ -42,7 +45,10 @@ tests/
 ├── api/
 │   ├── test_chat.py         # API-01…API-04
 │   ├── test_health.py       # API-05
-│   └── test_admin_entities.py  # DEV-501: CRUD /admin/api/entities
+│   ├── test_admin_entities.py  # DEV-501: CRUD /admin/api/entities
+│   └── test_admin_documents.py # DEV-502/503: upload/list/delete documents
+├── fixtures/
+│   └── sample-guide.pdf     # PDF mínim per tests upload
 ├── unit/
 │   ├── test_mappers.py      # row_to_card, build_search_wrapper
 │   ├── test_prompts.py      # build_system_prompt
@@ -102,6 +108,29 @@ Smoke manual:
 curl -s -X POST http://127.0.0.1:5010/admin/api/entities \
   -H "Content-Type: application/json" \
   -d "{\"name\":\"Museu prova\",\"entity_type\":\"museu\"}"
+```
+
+---
+
+## Tests API admin documents (DEV-502, DEV-503)
+
+| Test | Descripció |
+|------|------------|
+| `test_admin_upload_creates_pending_document_and_file` | POST multipart → 201, `status=pending`, fitxer a storage |
+| `test_admin_list_and_get_document` | GET list (filtre `entity_id`) i GET detail |
+| `test_admin_delete_document_removes_row_and_file` | DELETE 200; GET 404; directori eliminat |
+| `test_admin_upload_rejects_missing_entity` | `entity_id` inexistent → 404 |
+| `test_admin_upload_rejects_non_pdf` | fitxer no PDF → 400 |
+
+Marcat `@pytest.mark.integration`. Els tests usen `tmp_path` com a `DOCUMENT_STORAGE_PATH` (no escriuen a `data/guides/` del repo). Cal una entitat creada prèviament via `/admin/api/entities`.
+
+Smoke manual:
+
+```bash
+curl -s -X POST http://127.0.0.1:5010/admin/api/documents/upload \
+  -F "file=@tests/fixtures/sample-guide.pdf" \
+  -F "entity_id=<uuid>" \
+  -F "title=Guia prova"
 ```
 
 ---

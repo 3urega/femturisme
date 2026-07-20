@@ -447,3 +447,31 @@ def entity_row_to_json(row: dict) -> dict:
         'created_at': created_at.isoformat() if isinstance(created_at, datetime) else created_at,
         'updated_at': updated_at.isoformat() if isinstance(updated_at, datetime) else updated_at,
     }
+
+
+def document_row_to_json(row: dict) -> dict:
+    """Map a PostgreSQL guide_documents row to admin API JSON (tecnic §9.5)."""
+    doc_id = row.get('doc_id')
+    entity_id = row.get('entity_id')
+    indexed_at = row.get('indexed_at')
+    created_at = row.get('created_at')
+    updated_at = row.get('updated_at')
+    return {
+        'doc_id': str(doc_id) if doc_id is not None else None,
+        'entity_id': str(entity_id) if entity_id is not None else None,
+        'title': row.get('title'),
+        'category': row.get('category'),
+        'source_filename': row.get('source_filename'),
+        'storage_path': row.get('storage_path'),
+        'mime_type': row.get('mime_type'),
+        'status': row.get('status'),
+        'error_message': row.get('error_message'),
+        'pages_count': int(row.get('pages_count') or 0),
+        'chunks_count': int(row.get('chunks_count') or 0),
+        'embedded_chunks_count': int(row.get('embedded_chunks_count') or 0),
+        'embedding_model': row.get('embedding_model'),
+        'version': int(row.get('version') or 1),
+        'indexed_at': indexed_at.isoformat() if isinstance(indexed_at, datetime) else indexed_at,
+        'created_at': created_at.isoformat() if isinstance(created_at, datetime) else created_at,
+        'updated_at': updated_at.isoformat() if isinstance(updated_at, datetime) else updated_at,
+    }
