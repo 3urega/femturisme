@@ -5,14 +5,6 @@
   "publishedAt": "2026-07-14",
   "issues": [
     {
-      "title": "Fase 5: Pipeline indexacio PDF extract/chunk/embed (DEV-504)",
-      "bodyFile": "docs/issues/rag-indexing-pipeline.md",
-      "labels": ["fase-5", "rag", "agent"],
-      "checklistIds": ["DEV-504"],
-      "githubNumber": 33,
-      "publishedAt": "2026-07-14"
-    },
-    {
       "title": "Fase 5: DocumentsRepository i search_entity_knowledge (DEV-505)",
       "bodyFile": "docs/issues/rag-search-entity-knowledge.md",
       "labels": ["fase-5", "rag", "postgres", "agent"],

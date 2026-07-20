@@ -26,6 +26,9 @@ python -m pytest tests/api/test_admin_entities.py -v -m integration
 # API admin documents (DEV-502/503; requereix POSTGRES_*)
 python -m pytest tests/api/test_admin_documents.py -v -m integration
 
+# Pipeline indexació RAG (DEV-504; requereix POSTGRES_* + pymupdf)
+python -m pytest tests/integration/rag/test_indexing_pipeline.py -v -m integration
+
 # Tot excepte integració amb cobertura
 python -m pytest -v --cov=app --cov-report=term-missing
 ```
@@ -54,7 +57,8 @@ tests/
 │   ├── test_prompts.py      # build_system_prompt
 │   ├── test_db_connection.py
 │   ├── test_config.py
-│   └── test_sse_parser.py
+│   ├── test_sse_parser.py
+│   └── test_chunking.py     # DEV-504: token chunking
 └── integration/
     ├── sql/
     │   ├── test_establishments.py  # SQL-01, SQL-02
@@ -63,8 +67,10 @@ tests/
     │   ├── test_articles.py        # SQL-03
     │   ├── test_experiences.py     # SQL-06
     │   └── test_routes.py          # SQL-07
-    └── postgres/
-        └── test_schema.py          # DEV-500: vector ext, tables, enums
+    ├── postgres/
+    │   └── test_schema.py          # DEV-500: vector ext, tables, enums
+    └── rag/
+        └── test_indexing_pipeline.py  # DEV-504: extract/chunk/embed pipeline
 ```
 
 ---
@@ -131,6 +137,25 @@ curl -s -X POST http://127.0.0.1:5010/admin/api/documents/upload \
   -F "file=@tests/fixtures/sample-guide.pdf" \
   -F "entity_id=<uuid>" \
   -F "title=Guia prova"
+```
+
+---
+
+## Tests pipeline indexació RAG (DEV-504)
+
+| Test | Descripció |
+|------|------------|
+| `test_pipeline_indexes_sample_pdf` | PDF fixture → `run()` amb mock embeddings → `status=indexed`, chunks a BD |
+| `test_pipeline_fails_on_empty_pdf` | PDF sense text → `status=failed` + `error_message` |
+| `test_reindex_replaces_chunks_and_increments_version` | Reindex incrementa `version` i reemplaça chunks |
+
+Marcat `@pytest.mark.integration`. Mock d'embeddings obligatori (no cal `OPENAI_API_KEY`). Requereix `pymupdf` i `tiktoken` (`pip install -r requirements.txt`).
+
+Smoke manual:
+
+```bash
+python -c "from app.services.indexing_pipeline import run; run('<doc_id>')"
+curl -s -X POST http://127.0.0.1:5010/admin/api/documents/<doc_id>/reindex
 ```
 
 ---

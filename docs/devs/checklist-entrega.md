@@ -1,6 +1,6 @@
 # Checklist d'entrega — agent_femturisme
 
-**Progrés:** 53 / 90 completats · **Última actualització:** 2026-07-20
+**Progrés:** 54 / 90 completats · **Última actualització:** 2026-07-20
 
 > Els agents marquen `- [x]` quan el criteri **Detect** es compleix. Veure [index.md](index.md).
 
@@ -165,8 +165,8 @@ Per cada buscador: **Repository + Tool refactor + test integració**. Sense `scr
   *Detect:* tecnic §9.5–9.6 *(2026-07-20: upload/list/detail/delete admin + 5 tests; reindex/smoke-test → issue #33)*
 - [x] **DEV-503** — Emmagatzematge PDF `data/guides/{doc_id}/original.pdf`  
   *Detect:* pujada + fitxer a disc *(2026-07-20: document_storage.py + issue #29)*
-- [ ] **DEV-504** — Pipeline indexació (extract → chunk → embed → indexed)  
-  *Detect:* estats BD pending…indexed; failed amb error_message
+- [x] **DEV-504** — Pipeline indexació (extract → chunk → embed → indexed)  
+  *Detect:* estats BD pending…indexed; failed amb error_message *(2026-07-20: indexing_pipeline + reindex endpoint + 3 tests integration, issue #33)*
 - [ ] **DEV-505** — `DocumentsRepository` + `search_entity_knowledge`  
   *Detect:* tool registrada; cerca per `entity_id`
 - [ ] **DEV-506** — Gestor entitats + documental UI backend PHP (RF-13)  
