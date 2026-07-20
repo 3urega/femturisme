@@ -70,7 +70,7 @@ Després de publicar: afegir `"githubNumber": 42` i `"publishedAt": "YYYY-MM-DD"
 
 Després de `plan-to-issues`, el document font ha d'incloure secció **GitHub issues (draft)** amb taula de slugs (sense URLs de GitHub fins publicar).
 
-**Batch actiu:** [plan-fase6-pre-entrega.md](../devs/plan-fase6-pre-entrega.md) → [manifest.fase6-pre-entrega.json](manifest.fase6-pre-entrega.json) — **publicat** ([#23](https://github.com/3urega/femturisme/issues/23)–[#25](https://github.com/3urega/femturisme/issues/25) tancats, [#26](https://github.com/3urega/femturisme/issues/26) oberta, 2026-07-14).
+**Batch tancat:** [plan-fase6-pre-entrega.md](../devs/plan-fase6-pre-entrega.md) — **complet** ([#23](https://github.com/3urega/femturisme/issues/23)–[#26](https://github.com/3urega/femturisme/issues/26), 2026-07-20).
 
 **Batch RAG:** [plan-fase5-rag-base.md](../devs/plan-fase5-rag-base.md) → [manifest.fase5-rag.json](manifest.fase5-rag.json) — **publicat** ([#27](https://github.com/3urega/femturisme/issues/27)–[#29](https://github.com/3urega/femturisme/issues/29), [#31](https://github.com/3urega/femturisme/issues/31)–[#33](https://github.com/3urega/femturisme/issues/33), 2026-07-14).
 

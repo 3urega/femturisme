@@ -1,5 +1,9 @@
 import os
 
+from dotenv import load_dotenv
+
+load_dotenv()
+
 
 def _env(key, default=None):
     return os.environ.get(f'AGENT_{key}', os.environ.get(key, default))

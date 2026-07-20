@@ -441,8 +441,8 @@ Cerca d'establiments turístics per zona i tipus: allotjament, restauració i al
 |------|-------|
 | Repository | EstablishmentsRepository |
 | Font de dades | MySQL |
-| Taules MySQL | TBD - hipòtesi: taula establiments + relació tipus + ubicació |
-| URL fitxa | TBD segons tipus: /on-dormir/{slug}, /on-menjar/{slug}, /que-fer/{slug} |
+| Taules MySQL | `establiment_general`, `establiment_continguts`, `establiment_tipus`, `generic_tipus_establiment`, `establiment_pobles`, `poble_*` — veure [sql-mapeo.md §1](../sql-mapeo.md) |
+| URL fitxa | `https://www.femturisme.cat/establiments/{param_url}` (prefix fix; veure [sql-mapeo.md §URLs](../sql-mapeo.md)) |
 
 #### Paràmetres
 
@@ -476,8 +476,8 @@ Consulta d'articles o notícies sobre poblacions, esdeveniments, parcs naturals 
 |------|-------|
 | Repository | ArticlesRepository |
 | Font de dades | MySQL |
-| Taules MySQL | TBD - articles, notícies o equivalent legacy |
-| URL fitxa | TBD |
+| Taules MySQL | `noticia_general`, `noticia_continguts`, `noticia_pobles`, `poble_*` — veure [sql-mapeo.md §2](../sql-mapeo.md) |
+| URL fitxa | `https://www.femturisme.cat/noticies/{param_url}` (hipòtesi dev validada; confirmació client pendent) |
 
 #### Paràmetres
 
@@ -512,8 +512,8 @@ Consulta d'informació sobre pobles, municipis, comarques i llocs per visitar.
 |------|-------|
 | Repository | DestinationsRepository |
 | Font de dades | MySQL |
-| Taules MySQL | TBD - taules de poblacions/municipis + camps descriptius |
-| URL fitxa | TBD |
+| Taules MySQL | `poble_general`, `poble_continguts`, `poble_comarques`, `generic_ubicacions` — veure [sql-mapeo.md §3](../sql-mapeo.md) |
+| URL fitxa | `https://www.femturisme.cat/pobles/{param_url}` |
 
 #### Paràmetres
 
@@ -547,8 +547,8 @@ Consulta d'itineraris turístics per zona i modalitat.
 |------|-------|
 | Repository | RoutesRepository |
 | Font de dades | MySQL |
-| Taules MySQL | TBD - confirmar amb schema |
-| URL fitxa | https://www.femturisme.cat/rutes/{slug} |
+| Taules MySQL | `ruta_general`, `ruta_continguts`, `ruta_pobles`, `ruta_tematica`, `generic_tematiques`, `poble_*` — veure [sql-mapeo.md §4](../sql-mapeo.md) |
+| URL fitxa | `https://www.femturisme.cat/rutes/{param_url}` |
 
 #### Paràmetres
 
@@ -582,8 +582,8 @@ Consulta d'esdeveniments de calendari: fires, concerts, festes i activitats prog
 |------|-------|
 | Repository | EventsRepository |
 | Font de dades | MySQL |
-| Taules MySQL | TBD - confirmar regles de vigència/publicació |
-| URL fitxa | https://www.femturisme.cat/agenda/{slug} |
+| Taules MySQL | `agenda_general`, `agenda_continguts`, `agenda_dates`, `agenda_pobles`, `poble_*` — veure [sql-mapeo.md §5](../sql-mapeo.md) |
+| URL fitxa | `https://www.femturisme.cat/agenda/{param_url}` |
 
 #### Paràmetres
 
@@ -618,8 +618,8 @@ Consulta d'activitats promocionals lligades a un establiment o una població. No
 |------|-------|
 | Repository | ExperiencesRepository |
 | Font de dades | MySQL |
-| Taules MySQL | TBD - relació amb establiments i/o poblacions |
-| URL fitxa | TBD |
+| Taules MySQL | `oferta_general`, `oferta_continguts`, `oferta_categories`, `generic_categoria_oferta`, `establiment_*`, `poble_*` — veure [sql-mapeo.md §6](../sql-mapeo.md) |
+| URL fitxa | `https://www.femturisme.cat/ofertes/{param_url}` (hipòtesi dev validada; confirmació client pendent) |
 
 #### Paràmetres
 
@@ -832,16 +832,18 @@ No duplicar l'esquema aquí; actualitzar postgre_schema.md en canvis de model.
 
 ### 8.3 Preguntes obertes de schema MySQL
 
-| ID | Pregunta |
-|----|----------|
-| Q-01 | Nom exacte de la taula d'establiments i com es distingeix tipus dormir vs menjar. |
-| Q-02 | On viuen articles/notícies i quins camps retornar. |
-| Q-03 | Taules de poblacions/on anar i relació amb comarques. |
-| Q-04 | Taula i relacions d'experiències vs agenda. |
-| Q-05 | URL canònica per experiències i articles. |
-| Q-06 | Regles publicat, dates vigents i idioma per entitat. |
-| Q-07 | Límits de JOINs legacy per a cada buscador. |
-| Q-08 | On emmagatzemar entity_id (UUID) a les fitxes del catàleg MySQL i quins tipus de contingut el suporten (Fase producte 2). |
+Font: [schema.sql](../schema.sql), [sql-mapeo.md](../sql-mapeo.md) (validat 2026-07-20, issue #26).
+
+| ID | Pregunta | Resposta / decisió dev | Estat | Owner |
+|----|----------|------------------------|-------|-------|
+| Q-01 | Nom exacte de la taula d'establiments i com es distingeix tipus dormir vs menjar | `establiment_general`; tipus via `establiment_tipus` → `generic_tipus_establiment` | Resolt dev | Client — relació `eg.tipus` |
+| Q-02 | On viuen articles/notícies i quins camps retornar | `noticia_general` + `noticia_continguts` | Resolt dev | — |
+| Q-03 | Taules de poblacions/on anar i relació amb comarques | `poble_general`, `poble_continguts`, `poble_comarques`, `generic_ubicacions` | Resolt dev | Client — visibilitat contracte |
+| Q-04 | Taula i relacions d'experiències vs agenda | Agenda = `agenda_*`; experiències = `oferta_*` | Hipòtesi dev | Client — confirmació formal |
+| Q-05 | URL canònica per tipus de fitxa | 6 patrons documentats a sql-mapeo §URLs; implementats a `mappers.py` | Parcial | Client — sign-off URLs articles/ofertes |
+| Q-06 | Regles publicat, dates vigents i idioma per entitat | Documentades sql-mapeo §1.4–6.4; provades amb pytest | Parcial | Client — casos edge (periòdics, `es_oferta`) |
+| Q-07 | Límits de JOINs legacy per a cada buscador | Màx. 6–8 JOINs; sense taules admin | Documentat | — |
+| Q-08 | On emmagatzemar entity_id (UUID) a fitxes MySQL | No al schema actual | Obert | Fase 7 (DEV-700) |
 
 ### 8.4 Enllaç MySQL ↔ entitat (RF-15)
 

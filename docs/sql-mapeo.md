@@ -4,7 +4,7 @@ Document de **Fase 2**. Omplir abans d'implementar repositoris a Fase 3.
 
 **Domini:** [dominio-femturisme-ca.md](client/dominio-femturisme-ca.md)  
 **Schema:** [schema.sql](schema.sql) (MariaDB 10.3.39, export client 2026-07-07)  
-**Estat:** ☑ esborrany schema · ☐ SQL provada amb dump · ☐ revisat client
+**Estat:** ☑ esborrany schema · ☑ SQL provada amb dump *(2026-07-20, Railway dev; `pytest tests/integration/sql/` 14/14)* · ☐ revisat client
 
 ---
 
@@ -56,20 +56,23 @@ Si `total = 0` amb filtre de ubicació, `meta.hint = "zero_results_with_location
 
 ### Estat de validació
 
-Totes les queries d'aquest document són **borrador validat contra schema** — marcar ☑ «SQL provada» només després d'executar-les contra un dump local amb dades.
+Totes les queries d'aquest document estan **provades contra MySQL amb dades** (entorn dev Railway, 2026-07-20). Implementació: `app/db/repositories/*.py`; tests: `tests/integration/sql/` (SQL-01…07).
 
 ### Hipòtesis obertes (pendents client / dump)
 
-| ID | Hipòtesi | Estat |
-|----|----------|-------|
-| Q-04 | `search_experiences` = taules `oferta_*` (no agenda) | Hipòtesi schema — confirmar amb client |
-| Q-05 | URL establiments: `/establiments/{param_url}` | Confirmat web 2026-07-13 |
-| Q-05 | URL articles: `/noticies/{param_url}` | Hipòtesi — confirmar |
-| Q-05 | URL poblacions: `/pobles/{param_url}` | Confirmat web 2026-07-13 |
-| Q-05 | URL experiències: `/ofertes/{param_url}` | Hipòtesi — confirmar |
-| Q-08 | Camp `entity_id` (UUID) a fitxes MySQL | **Obert** — no apareix al schema |
+| ID | Hipòtesi | Estat | Owner |
+|----|----------|-------|-------|
+| Q-04 | `search_experiences` = taules `oferta_*` (no agenda) | Hipòtesi dev validada amb dump | Client — confirmació formal |
+| Q-05 | URL establiments: `/establiments/{param_url}` | Confirmat web + codi 2026-07-13 | — |
+| Q-05 | URL articles: `/noticies/{param_url}` | Hipòtesi dev validada (mapper + tests) | Client — confirmació formal |
+| Q-05 | URL poblacions: `/pobles/{param_url}` | Confirmat web + codi 2026-07-13 | — |
+| Q-05 | URL rutes: `/rutes/{param_url}` | Confirmat codi + tests | — |
+| Q-05 | URL agenda: `/agenda/{param_url}` | Confirmat codi + tests | — |
+| Q-05 | URL experiències: `/ofertes/{param_url}` | Hipòtesi dev validada (mapper + tests) | Client — confirmació formal |
+| Q-08 | Camp `entity_id` (UUID) a fitxes MySQL | **Obert** — no apareix al schema | Fase 7 (DEV-700) |
+| CDN | Prefix URL absolut per `image` | No crític v1 | Client |
 
-Detall respostes parcials: [dominio-femturisme-ca.md §7](client/dominio-femturisme-ca.md).
+Detall respostes parcials: [dominio-femturisme-ca.md §7](client/dominio-femturisme-ca.md) · [tecnic.md §8.3](client/tecnic.md).
 
 ---
 
@@ -77,12 +80,12 @@ Detall respostes parcials: [dominio-femturisme-ca.md §7](client/dominio-femturi
 
 | # | Tool | Repository | Taules principals | SQL provada | Casos prova |
 |---|------|------------|-------------------|-------------|-------------|
-| 1 | `search_establishments` | `EstablishmentsRepository` | `establiment_*`, `generic_tipus_establiment`, `poble_*` | ☐ | ☐ |
-| 2 | `search_articles` | `ArticlesRepository` | `noticia_*`, `poble_general` | ☑ | ☐ |
-| 3 | `search_destinations` | `DestinationsRepository` | `poble_*`, `poble_comarques`, `generic_ubicacions` | ☐ | ☐ |
-| 4 | `search_routes` | `RoutesRepository` | `ruta_*`, `generic_tematiques`, `poble_*` | ☑ | ☐ |
-| 5 | `search_events` | `EventsRepository` | `agenda_*`, `poble_*` | ☐ | ☐ |
-| 6 | `search_experiences` | `ExperiencesRepository` | `oferta_*`, `establiment_*`, `poble_*` | ☑ | ☐ |
+| 1 | `search_establishments` | `EstablishmentsRepository` | `establiment_*`, `generic_tipus_establiment`, `poble_*` | ☑ | ☑ |
+| 2 | `search_articles` | `ArticlesRepository` | `noticia_*`, `poble_general` | ☑ | ☑ |
+| 3 | `search_destinations` | `DestinationsRepository` | `poble_*`, `poble_comarques`, `generic_ubicacions` | ☑ | ☑ |
+| 4 | `search_routes` | `RoutesRepository` | `ruta_*`, `generic_tematiques`, `poble_*` | ☑ | ☑ |
+| 5 | `search_events` | `EventsRepository` | `agenda_*`, `poble_*` | ☑ | ☑ |
+| 6 | `search_experiences` | `ExperiencesRepository` | `oferta_*`, `establiment_*`, `poble_*` | ☑ | ☑ |
 
 **Nota migració:** el prototip antic usava `search_accommodations` i `search_experiences` (scraping `/ofertes`). Veure [dominio-femturisme-ca.md §6](client/dominio-femturisme-ca.md).
 
@@ -91,6 +94,21 @@ Detall respostes parcials: [dominio-femturisme-ca.md §7](client/dominio-femturi
 ## Format JSON comú (sortida)
 
 Veure [tecnic.md §6.13](client/tecnic.md) — card + wrapper amb `results[]`, camps `title`, `url`, `image`, `description`, `date` (si escau), `location`, `type`.
+
+### URLs canòniques (v1)
+
+Font implementació: [`app/db/mappers.py`](../app/db/mappers.py) (`CATALOG_BASE_URL` + builders per domini).
+
+| Tool | Patró URL fitxa |
+|------|-----------------|
+| `search_establishments` | `https://www.femturisme.cat/establiments/{param_url}` |
+| `search_articles` | `https://www.femturisme.cat/noticies/{param_url}` |
+| `search_destinations` | `https://www.femturisme.cat/pobles/{param_url}` |
+| `search_routes` | `https://www.femturisme.cat/rutes/{param_url}` |
+| `search_events` | `https://www.femturisme.cat/agenda/{param_url}` |
+| `search_experiences` | `https://www.femturisme.cat/ofertes/{param_url}` |
+
+Les seccions de navegació del portal (`/on-dormir`, `/on-menjar`, `/agenda?ubicacio=…`) són **listats** CMS; les cards del xat apunten sempre a la fitxa individual segons la taula anterior.
 
 ---
 
@@ -121,7 +139,7 @@ erDiagram
 | `establiment_pobles` | Establiment ↔ poblacions addicionals |
 | `poble_general` / `poble_comarques` | Filtre per municipi o comarca |
 
-### 1.2 Query SQL borrador
+### 1.2 Query SQL
 
 ```sql
 -- Paràmetres: :lang, :destination_pattern, :type_code (opcional)
@@ -176,7 +194,7 @@ LIMIT 20;
 | `type_label` | `type` | |
 | `location`, `comarca` | `location` | Combinar si cal |
 | `description` | `description` | Truncar a ~200 chars al mapper |
-| `image` | `image` | Prefix CDN/base URL TBD |
+| `image` | `image` | Ruta relativa CMS; prefix CDN pendent client (no bloqueja v1) |
 
 ### 1.4 Filtres publicació
 
@@ -225,7 +243,7 @@ erDiagram
 | `noticia_continguts` | `titol`, `param_url`, `cos` per idioma |
 | `noticia_pobles` | Vincle territorial opcional |
 
-### 2.2 Query SQL borrador
+### 2.2 Query SQL
 
 ```sql
 -- Paràmetres: %s lang, destination_pattern (opcional), topic_pattern (opcional),
@@ -262,7 +280,7 @@ LIMIT %s;
 | Columna SQL | Camp JSON | Notes |
 |-------------|-----------|-------|
 | `title` | `title` | |
-| `param_url` | `url` | Hipòtesi: `https://www.femturisme.cat/noticies/{param_url}` (**Q-05 TBD**) |
+| `param_url` | `url` | `https://www.femturisme.cat/noticies/{param_url}` — hipòtesi dev validada *(Q-05)* |
 | `description` | `description` | Extracte de `cos` |
 | `published_at` | `date` | Format humanitzat al mapper |
 | `image` | `image` | |
@@ -283,8 +301,8 @@ LIMIT %s;
 
 ### 2.6 Pendents client
 
-- URL canònica exacta de notícies (**Q-05**)
-- Confirmar si `pagina_*` entra en articles o és un domini separat
+- Confirmació formal URL notícies (**Q-05**) — implementació dev usa `/noticies/`
+- Confirmar si `pagina_*` entra en articles o és un domini separat *(owner: client)*
 
 ---
 
@@ -310,7 +328,7 @@ erDiagram
 | `poble_comarques` | Comarca, filtre per regió (`comarca`, `param_url`) |
 | `generic_ubicacions` | Cerques per nom de comarca/zona agregada (opcional) |
 
-### 3.2 Query SQL borrador
+### 3.2 Query SQL
 
 ```sql
 -- Paràmetres: :lang, :destination_pattern, :region_pattern (opcional)
@@ -369,8 +387,7 @@ No hi ha `actiu` a `poble_general`. Filtrar per `poble <> ''` i `description` no
 
 ### 3.6 Pendents client
 
-- URL canònica de fitxa de població (**Q-05**)
-- Regles de visibilitat de pobles sense contracte (`client`, `contracte`)
+- Regles de visibilitat de pobles sense contracte (`client`, `contracte`) *(owner: client)*
 
 ---
 
@@ -400,7 +417,7 @@ erDiagram
 | `ruta_tematica` + `generic_tematiques` | Modalitat (a peu, bici…) via `tematica_ca` / `code` |
 | `ruta_tags` | Tags lliures (opcional per `query`) |
 
-### 4.2 Query SQL borrador
+### 4.2 Query SQL
 
 ```sql
 -- Paràmetres: %s lang, destination_pattern, type_pattern (opcional), limit
@@ -462,7 +479,7 @@ LIMIT %s;
 
 ### 4.6 Pendents client
 
-- Mapatge `generic_tematiques.code` ↔ modalitats del tool (`A peu`, `En bicicleta`)
+- Mapatge `generic_tematiques.code` ↔ modalitats del tool (`A peu`, `En bicicleta`) — funcional a dev; llistat complet *(owner: client)*
 
 ---
 
@@ -490,7 +507,7 @@ erDiagram
 | `agenda_dates` | `data_inici`, `data_final` — filtre calendari |
 | `agenda_pobles` | Territori |
 
-### 5.2 Query SQL borrador
+### 5.2 Query SQL
 
 ```sql
 -- Paràmetres: :lang, :destination_pattern, :date_from, :date_to (opcionals)
@@ -555,8 +572,8 @@ LIMIT 20;
 
 ### 5.6 Pendents client
 
-- Esdeveniments periòdics (`ag.periodica`, `ag.multiples_dates`) — regles de filtre de dates
-- Relació `agenda_oberta` vs `agenda_dates`
+- Esdeveniments periòdics (`ag.periodica`, `ag.multiples_dates`) — regles de filtre de dates *(owner: client)*
+- Relació `agenda_oberta` vs `agenda_dates` *(owner: client)*
 
 ---
 
@@ -586,7 +603,7 @@ erDiagram
 | `oferta_categories` | Categoria promocional |
 | `generic_categoria_oferta` | Catàleg categories |
 
-### 6.2 Query SQL borrador
+### 6.2 Query SQL
 
 ```sql
 -- Paràmetres: %s lang, destination_pattern, category_pattern (opcional),
@@ -632,7 +649,7 @@ LIMIT %s;
 | Columna SQL | Camp JSON | Notes |
 |-------------|-----------|-------|
 | `title` | `title` | |
-| `param_url` | `url` | Hipòtesi: `https://www.femturisme.cat/ofertes/{param_url}` (**Q-05 TBD**) |
+| `param_url` | `url` | `https://www.femturisme.cat/ofertes/{param_url}` — hipòtesi dev validada *(Q-05)* |
 | `description` | `description` | `resum` |
 | `location`, `establishment_name` | `location` | Combinar establiment + poble |
 | `category` | `type` | Opcional |
@@ -645,26 +662,26 @@ LIMIT %s;
 |------|-------|
 | `og.estat` | `<> 'borrador'` |
 | `og.data_inicial` / `og.data_final` | Vigència actual |
-| `og.es_oferta` | Validar amb dump si cal filtrar promocions |
+| `og.es_oferta` | No filtrat v1 — validar amb client si cal restringir promocions |
 
 ### 6.5 Casos de prova
 
 | # | destination | category / establishment | Files min | URL provada |
 |---|-------------|--------------------------|-----------|-------------|
 | SQL-06 | Olvan | arrossada | ≥ 0 | ☑ |
-| — | Berguedà | Sant Valentí | ≥ 0 | ☐ |
+| — | Costa Brava | — | ≥ 0 (zona turística) | ☑ |
 
 ### 6.6 Pendents client
 
-- **Confirmar Q-04:** `oferta_*` = experiències promocionals del model de negoci
-- Valors possibles de `og.estat` (publicat, actiu, etc.)
-- URL canònica `/ofertes/` vs altra secció
+- **Confirmar Q-04:** `oferta_*` = experiències promocionals del model de negoci *(owner: client)*
+- Valors possibles de `og.estat` (publicat, actiu, etc.) *(owner: client)*
+- Confirmació formal URL `/ofertes/` *(Q-05)*
 
 ---
 
 ## Tancament Fase 2
 
-- [ ] 6 tools amb query documentada i **provada** a MySQL local (dump)
-- [ ] SCHEMA de tools revisit (6 operacions + guies PDF)
-- [ ] Preguntes obertes [dominio-femturisme-ca.md §7](client/dominio-femturisme-ca.md) resoltes o documentades
-- [ ] URLs canòniques validades amb client (Q-05)
+- [x] 6 tools amb query documentada i **provada** a MySQL *(2026-07-20, issue #26)*
+- [x] SCHEMA de tools revisit (6 operacions MySQL; guies PDF a Fase 5)
+- [x] Preguntes obertes [dominio-femturisme-ca.md §7](client/dominio-femturisme-ca.md) resoltes o documentades amb owner
+- [ ] URLs canòniques validades amb client (Q-05 formal) — dev validat; sign-off client pendent

@@ -5,40 +5,51 @@
 --
 -- Requisits: PostgreSQL 15+ amb extensió pgvector.
 -- Model d'embedding v1: text-embedding-3-small (1536 dimensions).
+-- Idempotent: segur de re-executar (apply_postgres_schema.py).
 
 CREATE EXTENSION IF NOT EXISTS vector;
 
 -- ---------------------------------------------------------------------------
 -- Tipus d'entitat (client del servei / àmbit de coneixement)
 -- ---------------------------------------------------------------------------
-CREATE TYPE entity_type AS ENUM (
-    'ajuntament',
-    'diputacio',
-    'poblacio',
-    'museu',
-    'fira',
-    'establiment',
-    'oficina_turisme',
-    'club',
-    'altres'
-);
+DO $$
+BEGIN
+    CREATE TYPE entity_type AS ENUM (
+        'ajuntament',
+        'diputacio',
+        'poblacio',
+        'museu',
+        'fira',
+        'establiment',
+        'oficina_turisme',
+        'club',
+        'altres'
+    );
+EXCEPTION
+    WHEN duplicate_object THEN NULL;
+END $$;
 
 -- ---------------------------------------------------------------------------
 -- Estat del pipeline d'indexació documental
 -- ---------------------------------------------------------------------------
-CREATE TYPE guide_document_status AS ENUM (
-    'pending',
-    'extracting',
-    'chunking',
-    'embedding',
-    'indexed',
-    'failed'
-);
+DO $$
+BEGIN
+    CREATE TYPE guide_document_status AS ENUM (
+        'pending',
+        'extracting',
+        'chunking',
+        'embedding',
+        'indexed',
+        'failed'
+    );
+EXCEPTION
+    WHEN duplicate_object THEN NULL;
+END $$;
 
 -- ---------------------------------------------------------------------------
 -- Entitats — base de coneixement independent per client
 -- ---------------------------------------------------------------------------
-CREATE TABLE entities (
+CREATE TABLE IF NOT EXISTS entities (
     entity_id   UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     name        TEXT NOT NULL,
     entity_type entity_type NOT NULL,
@@ -56,13 +67,13 @@ COMMENT ON TABLE entities IS
 COMMENT ON COLUMN entities.config IS
     'Configuració mode entitat: identitat, tools, enllaços CMS.';
 
-CREATE INDEX idx_entities_entity_type ON entities (entity_type);
-CREATE INDEX idx_entities_is_active ON entities (is_active) WHERE is_active = true;
+CREATE INDEX IF NOT EXISTS idx_entities_entity_type ON entities (entity_type);
+CREATE INDEX IF NOT EXISTS idx_entities_is_active ON entities (is_active) WHERE is_active = true;
 
 -- ---------------------------------------------------------------------------
 -- Documents indexats (per entitat)
 -- ---------------------------------------------------------------------------
-CREATE TABLE guide_documents (
+CREATE TABLE IF NOT EXISTS guide_documents (
     doc_id                  UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     entity_id               UUID NOT NULL REFERENCES entities (entity_id) ON DELETE CASCADE,
     title                   TEXT NOT NULL,
@@ -89,15 +100,15 @@ COMMENT ON COLUMN guide_documents.entity_id IS
 COMMENT ON COLUMN guide_documents.storage_path IS
     'Ruta al PDF original al disc (p.ex. data/guides/{doc_id}/original.pdf).';
 
-CREATE INDEX idx_guide_documents_entity_id ON guide_documents (entity_id);
-CREATE INDEX idx_guide_documents_status ON guide_documents (status);
-CREATE INDEX idx_guide_documents_category ON guide_documents (category)
+CREATE INDEX IF NOT EXISTS idx_guide_documents_entity_id ON guide_documents (entity_id);
+CREATE INDEX IF NOT EXISTS idx_guide_documents_status ON guide_documents (status);
+CREATE INDEX IF NOT EXISTS idx_guide_documents_category ON guide_documents (category)
     WHERE category IS NOT NULL;
 
 -- ---------------------------------------------------------------------------
 -- Fragments indexats + vectors (pgvector)
 -- ---------------------------------------------------------------------------
-CREATE TABLE document_chunks (
+CREATE TABLE IF NOT EXISTS document_chunks (
     chunk_id        UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     doc_id          UUID NOT NULL REFERENCES guide_documents (doc_id) ON DELETE CASCADE,
     entity_id       UUID NOT NULL,
@@ -116,10 +127,10 @@ COMMENT ON TABLE document_chunks IS
 COMMENT ON COLUMN document_chunks.entity_id IS
     'Denormalitzat des de guide_documents; filtre RAG sense JOIN extra.';
 
-CREATE INDEX idx_document_chunks_doc_id ON document_chunks (doc_id);
-CREATE INDEX idx_document_chunks_entity_id ON document_chunks (entity_id);
+CREATE INDEX IF NOT EXISTS idx_document_chunks_doc_id ON document_chunks (doc_id);
+CREATE INDEX IF NOT EXISTS idx_document_chunks_entity_id ON document_chunks (entity_id);
 
-CREATE INDEX idx_document_chunks_embedding_hnsw
+CREATE INDEX IF NOT EXISTS idx_document_chunks_embedding_hnsw
     ON document_chunks
     USING hnsw (embedding vector_cosine_ops);
 
@@ -134,11 +145,13 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;
 
+DROP TRIGGER IF EXISTS trg_entities_updated_at ON entities;
 CREATE TRIGGER trg_entities_updated_at
     BEFORE UPDATE ON entities
     FOR EACH ROW
     EXECUTE FUNCTION set_updated_at();
 
+DROP TRIGGER IF EXISTS trg_guide_documents_updated_at ON guide_documents;
 CREATE TRIGGER trg_guide_documents_updated_at
     BEFORE UPDATE ON guide_documents
     FOR EACH ROW

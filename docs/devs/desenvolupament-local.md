@@ -270,7 +270,21 @@ POSTGRES_DATABASE=agent_femturisme
 POSTGRES_CONNECT_TIMEOUT=5
 ```
 
-Prefix `AGENT_POSTGRES_*` alternatiu. Base per defecte segons [tecnic.md §10.2](../client/tecnic.md). Instància gestionada amb extensió **pgvector**; no cal instal·lar PostgreSQL al Windows de dev.
+Prefix `AGENT_POSTGRES_*` alternatiu. Base per defecte segons [tecnic.md §10.2](../client/tecnic.md). Instància gestionada amb extensió **pgvector** (Neon, Supabase, Railway…); no cal instal·lar PostgreSQL al Windows de dev.
+
+**Primera vegada (DEV-500):**
+
+1. Crea projecte cloud amb pgvector habilitat.
+2. Afegeix les variables al `.env`.
+3. Aplica el schema:
+
+```powershell
+python scripts/apply_postgres_schema.py
+python -m pytest tests/integration/postgres/test_schema.py -v -m integration
+python scripts/test_sql_queries.py --ping
+```
+
+El script és **idempotent** (segur de re-executar). DDL font: [schema-agent-postgres.sql](../schema-agent-postgres.sql).
 
 ### 7.5 Què cal per fase
 
@@ -295,6 +309,10 @@ python -m pytest -v
 
 # Integració SQL (salta sense MYSQL_*)
 python -m pytest -m integration -v
+
+# Schema PostgreSQL RAG (salta sense POSTGRES_*; cal apply_postgres_schema.py abans)
+python scripts/apply_postgres_schema.py
+python -m pytest tests/integration/postgres/test_schema.py -v -m integration
 
 # Ping MySQL (esquelet Fase 3)
 python scripts/test_sql_queries.py --ping

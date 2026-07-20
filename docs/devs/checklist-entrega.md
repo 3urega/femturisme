@@ -1,6 +1,6 @@
 # Checklist d'entrega — agent_femturisme
 
-**Progrés:** 46 / 90 completats · **Última actualització:** 2026-07-14
+**Progrés:** 49 / 90 completats · **Última actualització:** 2026-07-20
 
 > Els agents marquen `- [x]` quan el criteri **Detect** es compleix. Veure [index.md](index.md).
 
@@ -28,8 +28,8 @@
   *Detect:* `docs/devs/index.md` + aquest fitxer
 - [x] **DEV-009** — Skills Cursor (plan → publish → kanban)  
   *Detect:* `.cursor/skills/plan-to-issues`, `publish-github-issues`, `kanban-board`
-- [ ] **DEV-010** — `sql-mapeo.md` complet (6 buscadors, SQL provada)  
-  *Detect:* cap secció TBD; totes les queries amb casos prova. **Parcial (2026-07):** schema mapejat + SQL borrador; falta provar amb dump
+- [x] **DEV-010** — `sql-mapeo.md` complet (6 buscadors, SQL provada)  
+  *Detect:* cap secció TBD; totes les queries amb casos prova *(2026-07-20: pytest 14/14, issue #26)*
 - [x] **DEV-011** — Issues GitHub del roadmap publicades  
   *Detect:* `gh issue list --repo 3urega/femturisme` amb batch Fase 1–4 *(2026-07-13)*
 
@@ -46,11 +46,11 @@
 - [ ] **DEV-023** — PostgreSQL staging amb extensió pgvector  
   *Detect:* `CREATE EXTENSION vector` OK; connexió des de Python
 - [ ] **DEV-024** — Preguntes obertes Q-01…Q-08 resoltes amb client  
-  *Detect:* `tecnic.md` §8.3 sense TBD crítics; `sql-mapeo.md` alimentat
-- [ ] **DEV-025** — URLs canòniques per tipus de fitxa validades  
-  *Detect:* documentades a `sql-mapeo.md` per buscador
-- [ ] **DEV-026** — Regles publicació / vigència / idioma definides  
-  *Detect:* secció a `sql-mapeo.md` o domini §7 tancada
+  *Detect:* `tecnic.md` §8.3 sense TBD crítics; `sql-mapeo.md` alimentat. **Parcial (2026-07-20):** estat per pregunta documentat; Q-04/Q-05/Q-08 pendents sign-off client
+- [x] **DEV-025** — URLs canòniques per tipus de fitxa validades  
+  *Detect:* documentades a `sql-mapeo.md` per buscador *(2026-07-20: §URLs + mappers.py; confirmació formal client pendent)*
+- [x] **DEV-026** — Regles publicació / vigència / idioma definides  
+  *Detect:* secció a `sql-mapeo.md` o domini §7 tancada *(2026-07-20: §1.4–6.4 + idioma §Metadades)*
 - [ ] **DEV-027** — Xarxa staging PHP ↔ Python ↔ MySQL/PostgreSQL  
   *Detect:* proxy de prova funcional o document d'infra signat
 
@@ -268,4 +268,6 @@ Per cada buscador: **Repository + Tool refactor + test integració**. Sense `scr
 
 | Data | Canvis |
 |------|--------|
+| 2026-07-20 | DEV-010, DEV-025, DEV-026 tancats (issue #26); sql-mapeo validat pytest 14/14 |
+| 2026-07-14 | Fase 6 pre-entrega parcial (DEV-602, DEV-605); Fase 5 batch publicat |
 | 2026-07-03 | Creació inicial des de docs/client (requeriments, funcional, tecnic, domini) |

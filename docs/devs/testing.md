@@ -13,8 +13,12 @@ python -m pip install -r requirements.txt
 # Per defecte: API + unit (sense MySQL)
 python -m pytest -v
 
-# Només tests d'integració SQL (requereix MYSQL_* i repositories)
+# Només tests d'integració (requereix MYSQL_* o POSTGRES_*)
 python -m pytest -m integration -v
+
+# Schema PostgreSQL (DEV-500; requereix POSTGRES_* + apply_postgres_schema.py)
+python scripts/apply_postgres_schema.py
+python -m pytest tests/integration/postgres/test_schema.py -v -m integration
 
 # Tot excepte integració amb cobertura
 python -m pytest -v --cov=app --cov-report=term-missing
@@ -31,7 +35,7 @@ tests/
 ├── conftest.py              # load_dotenv + fixtures app, client, mock_tool_execute
 ├── helpers/
 │   ├── sse.py               # parse_sse_events
-│   └── env.py               # mysql_available()
+│   └── env.py               # mysql_available(), postgres_available()
 ├── api/
 │   ├── test_chat.py         # API-01…API-04
 │   └── test_health.py       # API-05
@@ -41,13 +45,36 @@ tests/
 │   ├── test_db_connection.py
 │   ├── test_config.py
 │   └── test_sse_parser.py
-└── integration/sql/
-    ├── test_establishments.py  # SQL-01, SQL-02
-    ├── test_destinations.py    # SQL-04
-    ├── test_events.py          # SQL-05
-    ├── test_articles.py        # SQL-03
-    ├── test_experiences.py     # SQL-06
-    └── test_routes.py          # SQL-07
+└── integration/
+    ├── sql/
+    │   ├── test_establishments.py  # SQL-01, SQL-02
+    │   ├── test_destinations.py    # SQL-04
+    │   ├── test_events.py          # SQL-05
+    │   ├── test_articles.py        # SQL-03
+    │   ├── test_experiences.py     # SQL-06
+    │   └── test_routes.py          # SQL-07
+    └── postgres/
+        └── test_schema.py          # DEV-500: vector ext, tables, enums
+```
+
+---
+
+## Tests PostgreSQL schema (DEV-500)
+
+| Test | Descripció |
+|------|------------|
+| `test_vector_extension_installed` | Extensió `pgvector` activa |
+| `test_rag_tables_exist` | Taules `entities`, `guide_documents`, `document_chunks` |
+| `test_enum_types_exist` | ENUMs `entity_type`, `guide_document_status` |
+| `test_embedding_column_is_vector_1536` | Columna `embedding` és `vector(1536)` |
+
+Marcat `@pytest.mark.integration`. Es **salten** sense `POSTGRES_HOST` + `POSTGRES_USER`. Cal executar abans `python scripts/apply_postgres_schema.py` contra instància cloud amb pgvector.
+
+```env
+POSTGRES_HOST=db.example.neon.tech
+POSTGRES_USER=...
+POSTGRES_PASSWORD=...
+POSTGRES_DATABASE=agent_femturisme
 ```
 
 ---
