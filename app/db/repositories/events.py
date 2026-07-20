@@ -31,10 +31,20 @@ WHERE ag.activa = 1
   AND {location_filter}
   AND (%s IS NULL OR ad.data_final >= %s)
   AND (%s IS NULL OR ad.data_inici <= %s)
+  AND (%s IS NULL OR ac.titol LIKE %s OR ac.descripcio LIKE %s)
 GROUP BY ag.id, ac.titol, ac.param_url, ac.descripcio, ag.imatge, pg.poble, pc.comarca
 ORDER BY date_start
 LIMIT %s
 """
+
+
+def _optional_pattern(value: str | None) -> str | None:
+    if value is None:
+        return None
+    text = str(value).strip()
+    if not text:
+        return None
+    return f'%{text}%'
 
 
 def _normalize_date(value: str | None) -> str | None:
@@ -46,7 +56,8 @@ def _normalize_date(value: str | None) -> str | None:
 
 def search(
     *,
-    destination: str,
+    destination: str | None = None,
+    query: str | None = None,
     date_from: str | None = None,
     date_to: str | None = None,
     lang: str = 'ca',
@@ -56,21 +67,35 @@ def search(
     config: Mapping[str, Any] | None = None,
 ) -> dict:
     """
-    Search calendar events by destination and optional date range.
+    Search calendar events by destination, free-text query, and optional date range.
+
+    At least one of destination or query is required.
 
     Returns the catalog search wrapper (destination, total, results[], error).
     """
-    destination = destination.strip()
+    destination_text = (destination or '').strip() or None
+    query_text = (query or '').strip() or None
+
+    if not destination_text and not query_text:
+        return build_search_wrapper(
+            destination='',
+            results=[],
+            total='0',
+            error='At least one of destination or query is required',
+        )
+
     lang = (lang or 'ca').strip()
     row_limit = max(1, min(int(limit), 20))
+    effective_skip_location = skip_location_filter or not destination_text
     geo = resolve_geo_filter(
-        destination,
-        skip_location_filter=skip_location_filter,
+        destination_text or '',
+        skip_location_filter=effective_skip_location,
         config=config,
     )
     location_filter, location_params = location_predicate(geo)
     date_from = _normalize_date(date_from)
     date_to = _normalize_date(date_to)
+    query_pattern = _optional_pattern(query_text)
 
     params = (
         lang,
@@ -79,6 +104,9 @@ def search(
         date_from,
         date_to,
         date_to,
+        query_pattern,
+        query_pattern,
+        query_pattern,
         row_limit,
     )
 
@@ -95,7 +123,7 @@ def search(
 
     cards = rows_to_cards(rows, 'event')
     return build_search_wrapper(
-        destination=destination,
+        destination=destination_text or '',
         results=cards,
         total=str(len(cards)),
         location_filter_applied=geo.location_filter_applied,
@@ -103,5 +131,6 @@ def search(
         date_from=date_from,
         date_to=date_to,
         lang=lang,
+        query=query_text,
         **geo.meta_extras(),
     )

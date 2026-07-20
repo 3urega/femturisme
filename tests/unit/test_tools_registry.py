@@ -58,7 +58,7 @@ def test_execute_tool_resolves_catalog_tools_without_unknown_error():
     cases = {
         'search_establishments': {'destination': '', 'query': ''},
         'search_destinations': {'destination': ''},
-        'search_events': {'destination': ''},
+        'search_events': {},
         'search_articles': {},
         'search_experiences': {'destination': ''},
         'search_routes': {'destination': ''},

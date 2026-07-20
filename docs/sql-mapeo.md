@@ -488,7 +488,9 @@ LIMIT %s;
 **Domini:** agenda — esdeveniments de calendari (**no** confondre amb `oferta_*`)  
 **Fitxer tool:** `app/services/tools/events.py`  
 **URL web referència:** `https://www.femturisme.cat/agenda?ubicacio={destination}`  
-**Paràmetres:** `destination` (required), `date_from?`, `date_to?`, `lang?`
+**Paràmetres:** `destination?`, `query?`, `date_from?`, `date_to?`, `lang?`
+
+Cal **almenys un** de `destination` o `query`. Si només hi ha `query`, no s'aplica filtre territorial. Si hi ha `query` i no dates, la tool omple per defecte una finestra de **12 mesos** des d'avui; sense `query`, es manté el **mes en curs** (comportament anterior).
 
 ### 5.1 Taules i relacions
 
@@ -510,7 +512,8 @@ erDiagram
 ### 5.2 Query SQL
 
 ```sql
--- Paràmetres: :lang, :destination_pattern, :date_from, :date_to (opcionals)
+-- Paràmetres: :lang, :destination_pattern (opcional), :date_from, :date_to (opcionals),
+--             :query_pattern (opcional)
 SELECT
     ag.id,
     ac.titol AS title,
@@ -532,11 +535,17 @@ WHERE ag.activa = 1
   AND ag.baixa = 0
   AND ag.arxivada = 0
   AND (
-      pg.poble LIKE :destination_pattern
+      :destination_pattern IS NULL
+      OR pg.poble LIKE :destination_pattern
       OR pc.comarca LIKE :destination_pattern
   )
   AND (:date_from IS NULL OR ad.data_final >= :date_from)
   AND (:date_to IS NULL OR ad.data_inici <= :date_to)
+  AND (
+      :query_pattern IS NULL
+      OR ac.titol LIKE :query_pattern
+      OR ac.descripcio LIKE :query_pattern
+  )
 GROUP BY ag.id, ac.titol, ac.param_url, ac.descripcio, ag.imatge, pg.poble, pc.comarca
 ORDER BY date_start
 LIMIT 20;
@@ -564,11 +573,13 @@ LIMIT 20;
 
 ### 5.5 Casos de prova
 
-| # | destination | date_from | date_to | Files min | URL provada |
-|---|-------------|-----------|---------|-----------|-------------|
-| SQL-05 | Empordà | cap setmana | cap setmana | ≥ 0 | ☑ |
-| SQL-05b | Catalunya | 2026-07-01 | 2026-07-31 | ≥ 1 (territori ampli) | ☑ |
-| — | Barcelona | 2026-06-01 | 2026-06-30 | ≥ 0 | ☐ |
+| # | destination | query | date_from | date_to | Files min | URL provada |
+|---|-------------|-------|-----------|---------|-----------|-------------|
+| SQL-05 | Empordà | — | cap setmana | cap setmana | ≥ 0 | ☑ |
+| SQL-05b | Catalunya | — | 2026-07-01 | 2026-07-31 | ≥ 1 (territori ampli) | ☑ |
+| SQL-05c | — | patum | 12 mesos per defecte | 12 mesos per defecte | ≥ 1 (si BD té Patum) | ☑ |
+| SQL-05d | Berga | patum | — | — | ≥ 0 | ☐ |
+| — | Barcelona | — | 2026-06-01 | 2026-06-30 | ≥ 0 | ☐ |
 
 ### 5.6 Pendents client
 

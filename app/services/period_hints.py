@@ -343,6 +343,14 @@ def infer_agenda_destination(user_message: str) -> str | None:
         stop_words = {'aquest', 'aquesta', 'este', 'esta', 'this', 'mes', 'cap', 'setmana'}
         if destination and destination.split()[0] not in stop_words:
             return destination[:1].upper() + destination[1:]
+    match = re.search(
+        r"\bde\s+([a-zàèéíòóúç][a-zàèéíòóúç\s\-']{2,})",
+        text,
+    )
+    if match:
+        destination = match.group(1).strip(' ?.,')
+        if destination:
+            return destination[:1].upper() + destination[1:]
     return None
 
 

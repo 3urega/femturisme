@@ -31,6 +31,10 @@ from .period_hints import (
     infer_event_period,
     is_agenda_search_query,
 )
+from .query_keywords import (
+    build_forced_keyword_tool_calls,
+    primary_search_keyword,
+)
 from .language_guard import polish_reply_for_user
 from .request_context import turn_user_language, turn_user_message
 from .request_logging import log_chat_turn, log_error
@@ -105,35 +109,43 @@ class AgentService:
                     current_user_message=current_user_message,
                 )
 
-            elif (
-                iteration == 0
-                and (forced_input := build_forced_search_events_input(current_user_message))
-            ):
-                yield from self._handle_forced_tool_call(
-                    tool_name='search_events',
-                    tool_input=forced_input,
-                    history=history,
-                    current_user_message=current_user_message,
-                )
+            elif iteration == 0 and agent_context.mode == 'femturisme':
+                if forced_events := build_forced_search_events_input(current_user_message):
+                    if kw := primary_search_keyword(current_user_message):
+                        forced_events['query'] = kw
+                    yield from self._handle_forced_tool_calls(
+                        calls=[('search_events', forced_events)],
+                        history=history,
+                        current_user_message=current_user_message,
+                    )
+                elif forced_keyword := build_forced_keyword_tool_calls(current_user_message):
+                    yield from self._handle_forced_tool_calls(
+                        calls=forced_keyword,
+                        history=history,
+                        current_user_message=current_user_message,
+                    )
+                else:
+                    yield from self._emit_final_answer(
+                        response=response,
+                        history=history,
+                        session_id=session_id,
+                        agent_context=agent_context,
+                        user_language=user_language,
+                        turn_started=turn_started,
+                        current_user_message=current_user_message,
+                    )
+                    return
 
             else:
-                # ── Final answer ───────────────────────────────────────
-                full_text = polish_reply_for_user(current_user_message, response.text)
-
-                # Simulate token streaming (replace with real streaming in phase 1)
-                yield from _stream_text(full_text)
-
-                history.append({'role': 'assistant', 'content': full_text})
-                _save_history(session_id, history)
-
-                self._log_turn_end(
+                yield from self._emit_final_answer(
+                    response=response,
+                    history=history,
                     session_id=session_id,
                     agent_context=agent_context,
                     user_language=user_language,
                     turn_started=turn_started,
-                    status='ok',
+                    current_user_message=current_user_message,
                 )
-                yield {'type': 'done', 'full_text': full_text}
                 return
 
         # Safety: max iterations reached
@@ -266,64 +278,91 @@ class AgentService:
         })
         history.append({'role': 'user', 'content': tool_results_content})
 
-    def _handle_forced_tool_call(
+    def _emit_final_answer(
         self,
         *,
-        tool_name: str,
-        tool_input: dict,
+        response: LLMResponse,
+        history: list[dict],
+        session_id: str,
+        agent_context: AgentContext,
+        user_language: str,
+        turn_started: float,
+        current_user_message: str,
+    ) -> Generator[dict, None, None]:
+        full_text = polish_reply_for_user(current_user_message, response.text)
+        yield from _stream_text(full_text)
+        history.append({'role': 'assistant', 'content': full_text})
+        _save_history(session_id, history)
+        self._log_turn_end(
+            session_id=session_id,
+            agent_context=agent_context,
+            user_language=user_language,
+            turn_started=turn_started,
+            status='ok',
+        )
+        yield {'type': 'done', 'full_text': full_text}
+
+    def _handle_forced_tool_calls(
+        self,
+        *,
+        calls: list[tuple[str, dict]],
         history: list[dict],
         current_user_message: str,
     ) -> Generator[dict, None, None]:
-        tool_id = f'forced_{uuid.uuid4().hex[:12]}'
-        resolved_input = apply_event_period_hints(
-            tool_name,
-            _inject_catalog_lang(tool_name, dict(tool_input or {})),
-            current_user_message,
-        )
+        if not calls:
+            return
 
-        yield {
-            'type':  'tool_call',
-            'tool':  tool_name,
-            'input': resolved_input,
-        }
+        assistant_content = []
+        tool_results_content = []
 
-        try:
-            raw_result = execute_tool(
+        for tool_name, tool_input in calls:
+            tool_id = f'forced_{uuid.uuid4().hex[:12]}'
+            resolved_input = apply_event_period_hints(
                 tool_name,
-                resolved_input,
-                user_message=current_user_message,
+                _inject_catalog_lang(tool_name, dict(tool_input or {})),
+                current_user_message,
             )
-            parsed = json.loads(raw_result)
-        except Exception as exc:
-            parsed = {
-                'error': f"Error executant {tool_name}: {exc}",
-                'results': [],
+
+            yield {
+                'type':  'tool_call',
+                'tool':  tool_name,
+                'input': resolved_input,
             }
-            raw_result = json.dumps(parsed, ensure_ascii=False)
 
-        yield {
-            'type':   'tool_result',
-            'tool':   tool_name,
-            'result': parsed,
-        }
+            try:
+                raw_result = execute_tool(
+                    tool_name,
+                    resolved_input,
+                    user_message=current_user_message,
+                )
+                parsed = json.loads(raw_result)
+            except Exception as exc:
+                parsed = {
+                    'error': f"Error executant {tool_name}: {exc}",
+                    'results': [],
+                }
+                raw_result = json.dumps(parsed, ensure_ascii=False)
 
-        history.append({
-            'role':    'assistant',
-            'content': [{
+            yield {
+                'type':   'tool_result',
+                'tool':   tool_name,
+                'result': parsed,
+            }
+
+            assistant_content.append({
                 'type':  'tool_use',
                 'id':    tool_id,
                 'name':  tool_name,
                 'input': resolved_input,
-            }],
-        })
-        history.append({
-            'role': 'user',
-            'content': [{
+            })
+            tool_results_content.append({
                 'type':        'tool_result',
                 'tool_use_id': tool_id,
                 'content':     raw_result,
-            }],
-        })
+            })
+
+        history.append({'role': 'assistant', 'content': assistant_content})
+        history.append({'role': 'user', 'content': tool_results_content})
 
 
 # ---------------------------------------------------------------------------

@@ -70,7 +70,7 @@ Després de publicar: afegir `"githubNumber": 42` i `"publishedAt": "YYYY-MM-DD"
 
 Després de `plan-to-issues`, el document font ha d'incloure secció **GitHub issues (draft)** amb taula de slugs (sense URLs de GitHub fins publicar).
 
-**Batch recall catàleg:** [plan-catalog-recall.md](../devs/plan-catalog-recall.md) → [manifest.catalog-recall.json](manifest.catalog-recall.json) — **publicat** ([#36](https://github.com/3urega/femturisme/issues/36)–[#40](https://github.com/3urega/femturisme/issues/40), 2026-07-20). Patum / paritat cercador web.
+**Batch recall catàleg:** [plan-catalog-recall.md](../devs/plan-catalog-recall.md) → [manifest.catalog-recall.json](manifest.catalog-recall.json) — **en curs** ([#36](https://github.com/3urega/femturisme/issues/36) tancat, [#37](https://github.com/3urega/femturisme/issues/37)–[#40](https://github.com/3urega/femturisme/issues/40) obertes).
 
 **Batch tancat:** [plan-fase6-pre-entrega.md](../devs/plan-fase6-pre-entrega.md) — **complet** ([#23](https://github.com/3urega/femturisme/issues/23)–[#26](https://github.com/3urega/femturisme/issues/26), 2026-07-20).
 
