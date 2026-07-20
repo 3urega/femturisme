@@ -33,13 +33,14 @@ from .period_hints import (
 )
 from .query_keywords import (
     build_forced_keyword_tool_calls,
+    build_keyword_fallback_calls,
     primary_search_keyword,
 )
 from .language_guard import polish_reply_for_user
 from .request_context import turn_user_language, turn_user_message
 from .request_logging import log_chat_turn, log_error
 from .user_language import detect_user_language
-from .tools       import CATALOG_TOOLS, execute_tool, _inject_catalog_lang
+from .tools       import CATALOG_TOOLS, CATALOG_TOOL_NAMES, execute_tool, _inject_catalog_lang
 
 # In-memory conversation store: session_id → list[dict]
 # Replace with DB-backed storage for multi-server / persistence.
@@ -107,6 +108,7 @@ class AgentService:
                     response=response,
                     history=history,
                     current_user_message=current_user_message,
+                    agent_context=agent_context,
                 )
 
             elif iteration == 0 and agent_context.mode == 'femturisme':
@@ -221,9 +223,8 @@ class AgentService:
         response: LLMResponse,
         history: list[dict],
         current_user_message: str,
+        agent_context: AgentContext,
     ) -> Generator[dict, None, None]:
-        tool_results_content = []
-
         resolved_calls = [
             (
                 tc,
@@ -236,47 +237,111 @@ class AgentService:
             for tc in response.tool_calls
         ]
 
+        assistant_content = [
+            {'type': 'tool_use', 'id': tc.id, 'name': tc.name, 'input': tool_input}
+            for tc, tool_input in resolved_calls
+        ]
+        tool_results_content: list[dict] = []
+        executed: list[tuple[str, dict]] = []
+        had_catalog_zero = False
+
         for tc, tool_input in resolved_calls:
-            yield {
-                'type':  'tool_call',
-                'tool':  tc.name,
-                'input': tool_input,
-            }
+            yield from self._yield_tool_execution(
+                tool_id=tc.id,
+                tool_name=tc.name,
+                tool_input=tool_input,
+                current_user_message=current_user_message,
+                tool_results_content=tool_results_content,
+                mark_fallback_meta=False,
+            )
+            executed.append((tc.name, tool_input))
+            parsed = json.loads(tool_results_content[-1]['content'])
+            if (
+                tc.name in CATALOG_TOOL_NAMES
+                and not parsed.get('error')
+                and _catalog_total(parsed) == 0
+            ):
+                had_catalog_zero = True
 
-            try:
-                raw_result = execute_tool(
-                    tc.name,
-                    tool_input,
-                    user_message=current_user_message,
+        if (
+            agent_context.mode == 'femturisme'
+            and had_catalog_zero
+            and (fallback_calls := build_keyword_fallback_calls(current_user_message, executed))
+        ):
+            for tool_name, tool_input in fallback_calls:
+                tool_id = f'fallback_{uuid.uuid4().hex[:12]}'
+                resolved_input = apply_event_period_hints(
+                    tool_name,
+                    _inject_catalog_lang(tool_name, dict(tool_input or {})),
+                    current_user_message,
                 )
-                parsed = json.loads(raw_result)
-            except Exception as exc:
-                parsed = {
-                    'error': f"Error executant {tc.name}: {exc}",
-                    'results': [],
-                }
-                raw_result = json.dumps(parsed, ensure_ascii=False)
+                assistant_content.append({
+                    'type':  'tool_use',
+                    'id':    tool_id,
+                    'name':  tool_name,
+                    'input': resolved_input,
+                })
+                yield from self._yield_tool_execution(
+                    tool_id=tool_id,
+                    tool_name=tool_name,
+                    tool_input=resolved_input,
+                    current_user_message=current_user_message,
+                    tool_results_content=tool_results_content,
+                    mark_fallback_meta=True,
+                )
 
-            yield {
-                'type':   'tool_result',
-                'tool':   tc.name,
-                'result': parsed,
-            }
-
-            tool_results_content.append({
-                'type':        'tool_result',
-                'tool_use_id': tc.id,
-                'content':     raw_result,
-            })
-
-        history.append({
-            'role':    'assistant',
-            'content': [
-                {'type': 'tool_use', 'id': tc.id, 'name': tc.name, 'input': tool_input}
-                for tc, tool_input in resolved_calls
-            ],
-        })
+        history.append({'role': 'assistant', 'content': assistant_content})
         history.append({'role': 'user', 'content': tool_results_content})
+
+    def _yield_tool_execution(
+        self,
+        *,
+        tool_id: str,
+        tool_name: str,
+        tool_input: dict,
+        current_user_message: str,
+        tool_results_content: list[dict],
+        mark_fallback_meta: bool,
+    ) -> Generator[dict, None, None]:
+        yield {
+            'type':  'tool_call',
+            'tool':  tool_name,
+            'input': tool_input,
+        }
+
+        try:
+            raw_result = execute_tool(
+                tool_name,
+                tool_input,
+                user_message=current_user_message,
+            )
+            parsed = json.loads(raw_result)
+        except Exception as exc:
+            parsed = {
+                'error': f"Error executant {tool_name}: {exc}",
+                'results': [],
+            }
+            raw_result = json.dumps(parsed, ensure_ascii=False)
+
+        if mark_fallback_meta and not parsed.get('error'):
+            meta = parsed.get('meta')
+            if not isinstance(meta, dict):
+                meta = {}
+            meta = {**meta, 'fallback_applied': True}
+            parsed['meta'] = meta
+            raw_result = json.dumps(parsed, ensure_ascii=False)
+
+        yield {
+            'type':   'tool_result',
+            'tool':   tool_name,
+            'result': parsed,
+        }
+
+        tool_results_content.append({
+            'type':        'tool_result',
+            'tool_use_id': tool_id,
+            'content':     raw_result,
+        })
 
     def _emit_final_answer(
         self,
@@ -323,46 +388,30 @@ class AgentService:
                 current_user_message,
             )
 
-            yield {
-                'type':  'tool_call',
-                'tool':  tool_name,
-                'input': resolved_input,
-            }
-
-            try:
-                raw_result = execute_tool(
-                    tool_name,
-                    resolved_input,
-                    user_message=current_user_message,
-                )
-                parsed = json.loads(raw_result)
-            except Exception as exc:
-                parsed = {
-                    'error': f"Error executant {tool_name}: {exc}",
-                    'results': [],
-                }
-                raw_result = json.dumps(parsed, ensure_ascii=False)
-
-            yield {
-                'type':   'tool_result',
-                'tool':   tool_name,
-                'result': parsed,
-            }
-
             assistant_content.append({
                 'type':  'tool_use',
                 'id':    tool_id,
                 'name':  tool_name,
                 'input': resolved_input,
             })
-            tool_results_content.append({
-                'type':        'tool_result',
-                'tool_use_id': tool_id,
-                'content':     raw_result,
-            })
+            yield from self._yield_tool_execution(
+                tool_id=tool_id,
+                tool_name=tool_name,
+                tool_input=resolved_input,
+                current_user_message=current_user_message,
+                tool_results_content=tool_results_content,
+                mark_fallback_meta=False,
+            )
 
         history.append({'role': 'assistant', 'content': assistant_content})
         history.append({'role': 'user', 'content': tool_results_content})
+
+
+def _catalog_total(parsed: dict) -> int:
+    try:
+        return int(parsed.get('total', 0) or 0)
+    except (TypeError, ValueError):
+        return 0
 
 
 # ---------------------------------------------------------------------------

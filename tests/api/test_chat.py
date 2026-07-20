@@ -1,6 +1,8 @@
 """API tests — tecnic.md §14.2."""
 from __future__ import annotations
 
+import json
+
 from tests.helpers.sse import parse_sse_events
 
 
@@ -229,3 +231,72 @@ def test_forced_keyword_fira_medieval(client, capture_tool_calls, llm_end_turn):
     query = events_calls[0].get('query', '')
     assert 'fira' in query
     assert 'medieval' in query
+
+
+def test_reactive_fallback_patum_after_empty_events(
+    client,
+    monkeypatch,
+    llm_tool_calls,
+):
+    """Issue #38: empty catalog tool triggers keyword fallback articles/events."""
+    calls: list[tuple[str, dict]] = []
+
+    def _execute_with_empty_events(name: str, tool_input: dict, **kwargs) -> str:
+        calls.append((name, dict(tool_input)))
+        if (
+            name == 'search_events'
+            and tool_input.get('destination') == 'Catalunya'
+            and not tool_input.get('query')
+        ):
+            return json.dumps({
+                'destination': 'Catalunya',
+                'total': 0,
+                'results': [],
+                'error': None,
+            })
+        return json.dumps({
+            'destination': tool_input.get('destination', ''),
+            'total': 1,
+            'results': [{
+                'title': 'La Patum de Berga',
+                'location': 'Berga',
+                'url': 'https://www.femturisme.cat/patum',
+                'description': 'Festes tradicionals',
+            }],
+            'error': None,
+            'meta': {'fallback_applied': True} if tool_input.get('_keyword_fallback_applied') else {},
+        })
+
+    monkeypatch.setattr('app.services.tools.execute_tool', _execute_with_empty_events)
+    monkeypatch.setattr('app.services.agent_service.execute_tool', _execute_with_empty_events)
+
+    llm_tool_calls([('search_events', {'destination': 'Catalunya'})])
+
+    response = client.post(
+        '/api/chat',
+        json={
+            'message': 'Què és la Patum?',
+            'session_id': 'reactive-fallback-patum',
+        },
+    )
+    assert response.status_code == 200
+    events = parse_sse_events(response.data)
+    assert 'done' in [e.get('type') for e in events]
+
+    assert len(calls) >= 2
+    tool_names = [name for name, _ in calls]
+    assert 'search_events' in tool_names
+    assert 'search_articles' in tool_names
+
+    articles_calls = [inp for name, inp in calls if name == 'search_articles']
+    assert articles_calls
+    assert articles_calls[0].get('query') == 'patum'
+    assert articles_calls[0].get('_keyword_fallback_applied') is True
+
+    fallback_results = [
+        e for e in events
+        if e.get('type') == 'tool_result'
+        and e.get('tool') == 'search_articles'
+        and (e.get('result') or {}).get('meta', {}).get('fallback_applied')
+    ]
+    assert fallback_results

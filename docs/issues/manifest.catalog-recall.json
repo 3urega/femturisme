@@ -4,14 +4,6 @@
   "defaultLabels": ["enhancement", "agent", "mysql"],
   "issues": [
     {
-      "title": "Agent: fallback keyword quan catàleg retorna total=0",
-      "bodyFile": "docs/issues/agent-zero-results-fallback.md",
-      "labels": ["agent", "catalog"],
-      "checklistIds": [],
-      "githubNumber": 38,
-      "publishedAt": "2026-07-20"
-    },
-    {
       "title": "Prompt: consultes temàtiques i festivals (Patum)",
       "bodyFile": "docs/issues/prompt-theme-queries.md",
       "labels": ["agent", "docs"],
