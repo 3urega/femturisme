@@ -70,6 +70,9 @@ class Config:
     EMBEDDING_MODEL = _env('EMBEDDING_MODEL', 'text-embedding-3-small')
     DOCUMENT_STORAGE_PATH = _env('DOCUMENT_STORAGE_PATH', 'data/guides')
 
+    # Admin API (RAG entities/documents) — empty token = open in dev (tecnic §12.1)
+    ADMIN_API_TOKEN = _env('ADMIN_API_TOKEN', '')
+
 
 class DevelopmentConfig(Config):
     DEBUG = True

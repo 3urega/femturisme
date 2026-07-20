@@ -5,14 +5,6 @@
   "publishedAt": "2026-07-14",
   "issues": [
     {
-      "title": "Fase 5: API CRUD entitats /admin/api/entities (DEV-501)",
-      "bodyFile": "docs/issues/rag-entities-api.md",
-      "labels": ["fase-5", "postgres", "rag", "api"],
-      "checklistIds": ["DEV-501"],
-      "githubNumber": 28,
-      "publishedAt": "2026-07-14"
-    },
-    {
       "title": "Fase 5: API documents i emmagatzematge PDF (DEV-502, DEV-503)",
       "bodyFile": "docs/issues/rag-documents-upload.md",
       "labels": ["fase-5", "postgres", "rag", "api"],

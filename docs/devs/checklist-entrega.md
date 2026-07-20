@@ -1,6 +1,6 @@
 # Checklist d'entrega — agent_femturisme
 
-**Progrés:** 50 / 90 completats · **Última actualització:** 2026-07-20
+**Progrés:** 51 / 90 completats · **Última actualització:** 2026-07-20
 
 > Els agents marquen `- [x]` quan el criteri **Detect** es compleix. Veure [index.md](index.md).
 
@@ -159,8 +159,8 @@ Per cada buscador: **Repository + Tool refactor + test integració**. Sense `scr
 
 - [x] **DEV-500** — Schema PostgreSQL aplicat a staging  
   *Detect:* taules `entities`, `guide_documents`, `document_chunks` *(2026-07-20: Supabase dev + apply_postgres_schema.py, issue #27)*
-- [ ] **DEV-501** — API CRUD `/admin/api/entities`  
-  *Detect:* tecnic §9.4; tests o smoke curl
+- [x] **DEV-501** — API CRUD `/admin/api/entities`  
+  *Detect:* tecnic §9.4; tests o smoke curl *(2026-07-20: EntitiesRepository + admin blueprint + 4 tests integration, issue #28)*
 - [ ] **DEV-502** — API documents (upload, list, reindex, delete, smoke-test)  
   *Detect:* tecnic §9.5–9.6
 - [ ] **DEV-503** — Emmagatzematge PDF `data/guides/{doc_id}/original.pdf`  

@@ -20,6 +20,9 @@ python -m pytest -m integration -v
 python scripts/apply_postgres_schema.py
 python -m pytest tests/integration/postgres/test_schema.py -v -m integration
 
+# API admin entitats (DEV-501; requereix POSTGRES_*)
+python -m pytest tests/api/test_admin_entities.py -v -m integration
+
 # Tot excepte integració amb cobertura
 python -m pytest -v --cov=app --cov-report=term-missing
 ```
@@ -38,7 +41,8 @@ tests/
 │   └── env.py               # mysql_available(), postgres_available()
 ├── api/
 │   ├── test_chat.py         # API-01…API-04
-│   └── test_health.py       # API-05
+│   ├── test_health.py       # API-05
+│   └── test_admin_entities.py  # DEV-501: CRUD /admin/api/entities
 ├── unit/
 │   ├── test_mappers.py      # row_to_card, build_search_wrapper
 │   ├── test_prompts.py      # build_system_prompt
@@ -77,6 +81,27 @@ POSTGRES_USER=postgres.<project-ref>
 POSTGRES_PASSWORD=...
 POSTGRES_DATABASE=postgres
 # POSTGRES_SSLMODE=require  # auto per hosts supabase.co / neon.tech
+```
+
+---
+
+## Tests API admin entitats (DEV-501)
+
+| Test | Descripció |
+|------|------------|
+| `test_admin_create_and_get_entity` | POST crea entitat; GET detall coincideix |
+| `test_admin_list_entities_includes_created` | GET llistat inclou entitat activa creada |
+| `test_admin_delete_entity_returns_ok` | DELETE 200 `{ok:true}`; GET posterior 404 |
+| `test_admin_rejects_invalid_entity_type` | POST amb `entity_type` invàlid → 400 |
+
+Marcat `@pytest.mark.integration`. Requereix PostgreSQL amb schema aplicat (DEV-500). Auth: amb `ADMIN_API_TOKEN` buit (default dev), les rutes són obertes; en producció cal `Authorization: Bearer <token>`.
+
+Smoke manual:
+
+```bash
+curl -s -X POST http://127.0.0.1:5010/admin/api/entities \
+  -H "Content-Type: application/json" \
+  -d "{\"name\":\"Museu prova\",\"entity_type\":\"museu\"}"
 ```
 
 ---

@@ -426,3 +426,24 @@ _ROW_MAPPERS: dict[str, Callable[[dict], dict]] = {
     'route': _map_route,
     'experience': _map_experience,
 }
+
+
+def entity_row_to_json(row: dict) -> dict:
+    """Map a PostgreSQL entities row to admin API JSON (tecnic §9.4)."""
+    entity_id = row.get('entity_id')
+    created_at = row.get('created_at')
+    updated_at = row.get('updated_at')
+    config = row.get('config')
+    if config is None:
+        config = {}
+    return {
+        'entity_id': str(entity_id) if entity_id is not None else None,
+        'name': row.get('name'),
+        'entity_type': row.get('entity_type'),
+        'slug': row.get('slug'),
+        'territory': row.get('territory'),
+        'config': config,
+        'is_active': bool(row.get('is_active', True)),
+        'created_at': created_at.isoformat() if isinstance(created_at, datetime) else created_at,
+        'updated_at': updated_at.isoformat() if isinstance(updated_at, datetime) else updated_at,
+    }
