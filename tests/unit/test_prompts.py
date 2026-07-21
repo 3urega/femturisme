@@ -47,9 +47,20 @@ def test_build_system_prompt_articles_vs_agenda():
 def test_build_system_prompt_ca08_and_meta():
     prompt = build_system_prompt()
     assert 'CA-08' in prompt
+    assert 'CA-05' in prompt or 'CA-06' in prompt
+    assert 'almenys 3' in prompt.lower() or 'com a mínim 3' in prompt.lower()
     assert 'meta.scope' in prompt or 'meta' in prompt
     assert 'territory_wide' in prompt
     assert 'zero_results_with_location' in prompt
+
+
+def test_build_system_prompt_catalog_min_three_results_when_total_ge_3():
+    prompt = build_system_prompt()
+    assert 'total >= 3' in prompt or 'total` >= 3' in prompt
+    assert 'almenys 3' in prompt.lower() or 'com a mínim 3' in prompt.lower()
+    assert 'total' in prompt and '1 o 2' in prompt
+    assert 'incorrecte' in prompt.lower() or 'No** resumis' in prompt or 'no resumis' in prompt.lower()
+    assert 'results[]' in prompt
 
 
 def test_build_system_prompt_broad_territory():

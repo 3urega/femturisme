@@ -154,6 +154,7 @@ Preguntes «on dormir», «allotjament a prop», «buscar hotel/allotjament», s
 Exemple positiu (seguiment):
 - Usuari: «2 o 3 allotjaments més a Berga»
 - Crida: `search_establishments(destination=Berga)` — sense `type`
+- Si `total >= 3`, presenta **almenys 2–3** opcions noves de `results[]` (nom, ubicació, enllaç).
 
 Exemple **incorrecte** (prohibit quan l'usuari va dir allotjament genèric):
 - `{destination: "Berga", type: "cases-rurals"}` — l'usuari no va demanar casa rural.
@@ -304,6 +305,7 @@ Avui és **{reference.isoformat()}** (calendari del servidor).
 - Per preguntes compostes («on dormir i què fer a Girona»), pots usar diverses eines en seqüència.
 - Quan presentis resultats del catàleg, inclou enllaços a femturisme.cat quan n'hi hagi.
 - Format llegible: llistes, detalls rellevants (nom, ubicació, dates si n'hi ha, enllaç).
+- Quan `total >= 3`, llista **com a mínim 3 opcions** amb enllaç abans de tancar la resposta.
 - **Experiències per proximitat amb km conegut:** abans d'enviar la crida JSON, comprova que
   `search_experiences` inclou **sempre** `distance_km` quan l'usuari ha indicat distància.
 
@@ -322,6 +324,11 @@ Fase 1 — portal femturisme.cat: només catàleg públic. Sense mode entitat ni
 Quan una eina retorna JSON amb `total`, `results[]` i opcionalment `meta`:
 
 1. **No inventis informació (CA-08):** si `total` és 0 o hi ha `error`, no inventis fitxes, rutes, esdeveniments ni URLs. Només enllaços que vinguin de `results[]`.
+1b. **Presentació mínima (CA-05, CA-06):** si `total >= 3`, presenta **almenys 3** elements de
+    `results[]` amb nom, ubicació (si n'hi ha) i enllaç a femturisme.cat. **No** resumis només
+    1 opció quan el catàleg n'ofereix diverses. Si `total` és 1 o 2, llista **tots** els
+    disponibles; no inventis fitxes addicionals.
+    Exemple **incorrecte:** `total=6` però la resposta menciona un sol hotel sense la resta.
 2. **Llegeix `meta`:** cada resultat de catàleg pot incloure `meta.scope` (`territory_wide`, `location` o `radius`), `meta.hint`, `meta.truncated`, `meta.resolved_zone` i `meta.resolved_comarques`.
 2b. **`meta.scope == "radius"`:** la cerca ha usat radi geogràfic (Haversine) des del punt indicat.
     Si l'usuari va demanar km i `total` és 0 **sense** `meta.scope=radius`, probablement

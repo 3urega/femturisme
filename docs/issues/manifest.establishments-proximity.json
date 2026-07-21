@@ -4,13 +4,6 @@
   "defaultLabels": ["enhancement"],
   "issues": [
     {
-      "title": "Prompt: llistar minim 3 opcions quan total>=3",
-      "bodyFile": "docs/issues/prompt-min-three-results.md",
-      "labels": ["enhancement", "agent", "docs"],
-      "githubNumber": 47,
-      "publishedAt": "2026-07-21"
-    },
-    {
       "title": "Agent: seguiments d'allotjament sense flux tematic",
       "bodyFile": "docs/issues/establishments-followup-routing.md",
       "labels": ["enhancement", "agent", "catalog", "llm"],
