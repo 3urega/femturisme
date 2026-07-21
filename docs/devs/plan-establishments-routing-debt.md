@@ -36,7 +36,7 @@ Turn 4: 2 o 3 més → articles/events + establishments (KO)
 | Ordre | Títol | GitHub | Estat |
 |-------|-------|--------|-------|
 | 1 | Prompt: proximitat km allotjament vs experiències | [#50](https://github.com/3urega/femturisme/issues/50) | **Implementat** *(2026-07-21)* |
-| 2 | Agent: instrucció per torn domini allotjament actiu | [#52](https://github.com/3urega/femturisme/issues/52) | Obert |
+| 2 | Agent: instrucció per torn domini allotjament actiu | [#52](https://github.com/3urega/femturisme/issues/52) | **Implementat** *(2026-07-21)* |
 | 3 | UAT: Patum+Berga 4/4 PASS i ca-matrix | [#51](https://github.com/3urega/femturisme/issues/51) | Obert |
 
 Manifest: [manifest.establishments-routing-debt.json](../issues/manifest.establishments-routing-debt.json)

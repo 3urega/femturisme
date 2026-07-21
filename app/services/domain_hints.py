@@ -125,7 +125,7 @@ def _infer_destination_from_message(text: str) -> str | None:
         r'\b(?:a prop de|prop de|als voltants de|voltants de|des de|des d\'?)\s+'
         r"([a-zàèéíòóúç][a-zàèéíòóúç\s\-']{1,})",
         r"\b(?:a|al|a l'|en)\s+([a-zàèéíòóúç][a-zàèéíòóúç\s\-']{2,})",
-        r'\bde\s+([a-zàèéíòóúç][a-zàèéíòóúç\s\-']{2,})',
+        r"\bde\s+([a-zàèéíòóúç][a-zàèéíòóúç\s\-']{2,})",
     ):
         match = re.search(pattern, normalized)
         if match:
