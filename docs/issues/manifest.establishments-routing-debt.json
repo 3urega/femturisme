@@ -1,0 +1,21 @@
+{
+  "repo": "3urega/femturisme",
+  "sourceDoc": "docs/devs/plan-establishments-routing-debt.md",
+  "defaultLabels": ["enhancement"],
+  "issues": [
+    {
+      "title": "Agent: instruccio per torn domini allotjament actiu",
+      "bodyFile": "docs/issues/agent-accommodation-domain-turn-hints.md",
+      "labels": ["enhancement", "agent", "catalog", "llm"],
+      "githubNumber": 52,
+      "publishedAt": "2026-07-21"
+    },
+    {
+      "title": "UAT: Patum+Berga 4/4 PASS i actualitzar ca-matrix",
+      "bodyFile": "docs/issues/uat-establishments-proximity-regression.md",
+      "labels": ["enhancement", "testing", "agent", "catalog"],
+      "githubNumber": 51,
+      "publishedAt": "2026-07-21"
+    }
+  ]
+}

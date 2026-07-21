@@ -32,7 +32,9 @@ _TOOL_GUIDE_CA: dict[str, str] = {
         'Si la intenció és allotjament o menjar per proximitat geogràfica i falta el radi en km → '
         'pregunta abans de cercar. Amb km conegut: destination (+ type només si l\'usuari '
         'especifica hotel, restaurant…) i **obligatori** `distance_km`; sense ell la cerca '
-        'queda limitada al municipi i sol donar 0 resultats.'
+        'queda limitada al municipi i sol donar 0 resultats. '
+        'Quan el domini del diàleg sigui dormir/menjar (incl. confirmació de km), prioritza '
+        'aquesta eina sobre `search_experiences` encara que el missatge només digui «30 km».'
     ),
     'search_destinations': (
         'Pobles, municipis i llocs per visitar («on anar», «què veure a X», comarques).'
@@ -52,7 +54,9 @@ _TOOL_GUIDE_CA: dict[str, str] = {
         'de cridar l\'eina. '
         'Si el missatge o el torn anterior conté km → **obligatori** `distance_km`; sense ell '
         'la cerca queda limitada al municipi i sol donar 0 resultats. '
-        'Mai cridis només amb `destination` quan l\'usuari ja ha indicat distància.'
+        'Mai cridis només amb `destination` quan l\'usuari ja ha indicat distància. '
+        'No usar quan el diàleg va sobre allotjament o restaurant; només ofertes promocionals '
+        '/ visites guiades amb intenció explícita.'
     ),
     'search_routes': (
         'Rutes turístiques: senderisme, bici, cultura, natura, itineraris per zona.'
@@ -94,12 +98,15 @@ _CATALOG_DOMAINS = """\
 #### A. Km explícit o ja confirmat — **OBLIGATORI**
 Si el missatge (o la resposta immediata anterior) conté un **número de km**
 (`50 km`, `a 30 quilòmetres`, «50» després de preguntar el radi):
-1. **Sempre** passa `distance_km=<número>` a `search_experiences` o `search_establishments`
-   (o l'eina adequada de proximitat).
-2. **Mai** cridis `search_experiences` o `search_establishments` només amb `destination`
+1. **Primer** determina l'eina pel **domini conversacional** del diàleg:
+   - Allotjament o menjar (incl. confirmació curta de km després de preguntar-lo) → **només**
+     `search_establishments`.
+   - Ofertes promocionals / visites guiades → `search_experiences`.
+2. **Sempre** passa `distance_km=<número>` a l'eina triada.
+3. **Mai** cridis `search_experiences` o `search_establishments` només amb `destination`
    quan l'usuari ha indicat distància; sense `distance_km` la cerca queda limitada al
    municipi i sol retornar 0 resultats.
-3. No tornis a preguntar el radi si ja el tens.
+4. No tornis a preguntar el radi si ja el tens.
 
 Exemple positiu (UAT, castellà):
 - Usuari: «Visitas guiadas a 50 km de Calella»
@@ -111,6 +118,22 @@ Exemple positiu allotjament (UAT):
 
 Exemple **incorrecte** (prohibit quan l'usuari va dir 50 km):
 - `{destination: "Calella", category: "Visites guiades"}` — falta `distance_km`.
+
+#### C. Domini conversacional determina l'eina
+
+Quan el diàleg va sobre **allotjament o menjar** (incl. després d'un torn informatiu anterior
+com Patum), confirmacions curtes amb km hereten aquest domini:
+- «30 km», «si, 30 km», «30 km des de Berga» → `search_establishments(destination=…, distance_km=…)`.
+- **Prohibit** `search_experiences` en aquest flux — no és oferta promocional ni visita guiada.
+
+Exemple positiu multi-turn (UAT):
+- Torn 1: «Què en saps de la Patum?» (informatiu — articles/events)
+- Torn 2: «buscam allotjament a prop de Berga» → pregunta el radi en km (rama B)
+- Torn 3: «si, 30 km» → `search_establishments(destination=Berga, distance_km=30)`
+
+Exemple **incorrecte** (prohibit després d'allotjament):
+- Usuari: «30 km des de Berga» (post-allotjament)
+- Cridar `search_experiences` — incorrecte; cal `search_establishments` amb `distance_km`.
 
 #### B. Proximitat sense km — diàleg conversacional
 Quan interpretis que l'usuari vol resultats **prop d'un lloc** o **dins d'una distància
@@ -129,6 +152,9 @@ als voltants», «visites que pugui fer des d'allà sense desplaçar-me gaire».
 | Ofertes / experiències promocionals per proximitat | `search_experiences` | `destination`, `distance_km`, `category` si aplica |
 | Allotjament o restaurant per proximitat | `search_establishments` | `destination`, `distance_km`; `type` **només** si l'usuari especifica tipus (hotel, restaurant…), no per allotjament genèric |
 
+- **Experiències** (`search_experiences`) només quan la intenció és ofertes promocionals o visites
+  guiades — **no** per dormir ni menjar genèric, encara que hi hagi km. El **context del diàleg**
+  (allotjament/menjar actiu) determina l'eina abans que el número de km.
 - **No** confonguis amb `search_destinations` («què veure a X» = fitxa de població, no oferta comercial).
 - Per agenda amb data concreta → `search_events`, no `search_experiences`.
 
@@ -336,6 +362,9 @@ Avui és **{reference.isoformat()}** (calendari del servidor).
   `search_articles` ni `search_events` del torn informatiu anterior.
 - **Experiències per proximitat amb km conegut:** abans d'enviar la crida JSON, comprova que
   `search_experiences` inclou **sempre** `distance_km` quan l'usuari ha indicat distància.
+- **Proximitat amb km:** el **domini conversacional** (dormir/menjar vs ofertes promocionals)
+  determina si crides `search_establishments` o `search_experiences`; missatges curts de
+  confirmació hereten el domini del torn anterior.
 
 {_CATALOG_DOMAINS}
 

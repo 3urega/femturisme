@@ -4,6 +4,10 @@ from __future__ import annotations
 import re
 
 from app.db.territory import is_broad_territory
+from app.services.domain_hints import (
+    is_establishment_domain_active,
+    is_establishment_followup_message,
+)
 from app.services.period_hints import (
     build_forced_search_events_input,
     infer_agenda_destination,
@@ -25,14 +29,6 @@ _STOPWORDS = frozenset({
     'unes', 'uns', 'what', 'when', 'where', 'with', 'y', 'és',
     'més', 'mesos', 'opcio', 'opcions', 'plau',
 })
-
-_ESTABLISHMENT_FOLLOWUP_PATTERNS = (
-    r'\b\d+\s*(?:o|u)\s*\d+\s*(?:m[eé]s|mesos)\b',
-    r'\b(?:m[eé]s|mesos)\s+(?:opcions?|allotjaments?|hotels?|restaurants?)\b',
-    r'\bno\s+cal\b.*\b(?:rurals?|cases?\s*rurals?)\b',
-    r"^\s*(?:si|sí|ok|vale|d'acord|endavant|perfecte)\s*[!.?,]*\s*$",
-    r'^\s*(?:si\s+us\s+plau|siusplau|gràcies|gracies|merci)\s*[!.?,]*\s*$',
-)
 
 _DOMAIN_EXCLUSION_PATTERNS = (
     r'\bqu[eè]\s+fer\b',
@@ -145,23 +141,23 @@ def _matches_domain_exclusion(user_message: str) -> bool:
     )
 
 
-def is_establishment_followup_message(user_message: str) -> bool:
-    """True for short accommodation/dining follow-ups that must not trigger thematic fan-out."""
-    text = _normalize_text(user_message)
-    if not text:
+def _establishment_domain_blocks_keywords(
+    user_message: str,
+    history: list[dict] | None,
+) -> bool:
+    if not history:
         return False
-    return any(
-        re.search(pattern, text, flags=re.UNICODE)
-        for pattern in _ESTABLISHMENT_FOLLOWUP_PATTERNS
-    )
+    return is_establishment_domain_active(history, user_message)
 
 
-def _establishments_already_executed(executed: list[tuple[str, dict]]) -> bool:
-    return any(tool_name == 'search_establishments' for tool_name, _ in executed)
-
-
-def should_force_keyword_search(user_message: str) -> bool:
+def should_force_keyword_search(
+    user_message: str,
+    *,
+    history: list[dict] | None = None,
+) -> bool:
     """True when server-side keyword fan-out should run (path B)."""
+    if _establishment_domain_blocks_keywords(user_message, history):
+        return False
     if len((user_message or '').strip()) < 8:
         return False
     if is_agenda_search_query(user_message):
@@ -177,8 +173,14 @@ def should_force_keyword_search(user_message: str) -> bool:
     return primary_search_keyword(user_message) is not None
 
 
+def _establishments_already_executed(executed: list[tuple[str, dict]]) -> bool:
+    return any(tool_name == 'search_establishments' for tool_name, _ in executed)
+
+
 def build_forced_keyword_tool_calls(
     user_message: str,
+    *,
+    history: list[dict] | None = None,
 ) -> list[tuple[str, dict]] | None:
     """
     Build search_articles + search_events payloads for thematic queries.
@@ -191,7 +193,7 @@ def build_forced_keyword_tool_calls(
         return None
     if infer_event_period(user_message) is not None:
         return None
-    if not should_force_keyword_search(user_message):
+    if not should_force_keyword_search(user_message, history=history):
         return None
 
     keyword = primary_search_keyword(user_message)
@@ -209,12 +211,16 @@ def build_forced_keyword_tool_calls(
 def build_keyword_fallback_calls(
     user_message: str,
     executed: list[tuple[str, dict]],
+    *,
+    history: list[dict] | None = None,
 ) -> list[tuple[str, dict]] | None:
     """
     Build reactive fallback calls when a catalog tool returned total=0.
 
     Skips tools already invoked with the same keyword query.
     """
+    if _establishment_domain_blocks_keywords(user_message, history):
+        return None
     if _fallback_already_applied(executed):
         return None
     if is_establishment_followup_message(user_message):

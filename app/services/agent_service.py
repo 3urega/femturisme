@@ -24,6 +24,10 @@ from flask import current_app
 
 from app.prompts.femturisme import build_system_prompt
 from app.services.chat_context import AgentContext, PageContext
+from app.services.domain_hints import (
+    build_establishment_turn_instruction,
+    infer_establishment_domain_context,
+)
 from .llm_service import build_provider, LLMResponse, ToolCall
 from .period_hints import (
     apply_event_period_hints,
@@ -77,6 +81,7 @@ class AgentService:
         turn_user_language.set(user_language)
         current_user_message = user_message
         turn_started = time.perf_counter()
+        prior_history = _prior_history(history)
 
         llm = build_provider(self.provider, current_app.config)
 
@@ -120,7 +125,10 @@ class AgentService:
                         history=history,
                         current_user_message=current_user_message,
                     )
-                elif forced_keyword := build_forced_keyword_tool_calls(current_user_message):
+                elif forced_keyword := build_forced_keyword_tool_calls(
+                    current_user_message,
+                    history=prior_history,
+                ):
                     yield from self._handle_forced_tool_calls(
                         calls=forced_keyword,
                         history=history,
@@ -215,6 +223,10 @@ class AgentService:
                 system += (
                     f"- Període detectat: `date_from: {period[0]}`, `date_to: {period[1]}`\n"
                 )
+        prior = _prior_history(history)
+        est_ctx = infer_establishment_domain_context(prior, user_message or '')
+        if est_ctx.active and user_message:
+            system += build_establishment_turn_instruction(est_ctx)
         return [{'role': 'system', 'content': system}] + history
 
     def _handle_tool_calls(
@@ -266,7 +278,11 @@ class AgentService:
         if (
             agent_context.mode == 'femturisme'
             and had_catalog_zero
-            and (fallback_calls := build_keyword_fallback_calls(current_user_message, executed))
+            and (fallback_calls := build_keyword_fallback_calls(
+                current_user_message,
+                executed,
+                history=_prior_history(history),
+            ))
         ):
             for tool_name, tool_input in fallback_calls:
                 tool_id = f'fallback_{uuid.uuid4().hex[:12]}'
@@ -405,6 +421,12 @@ class AgentService:
 
         history.append({'role': 'assistant', 'content': assistant_content})
         history.append({'role': 'user', 'content': tool_results_content})
+
+
+def _prior_history(history: list[dict]) -> list[dict]:
+    if history and history[-1].get('role') == 'user':
+        return history[:-1]
+    return list(history)
 
 
 def _catalog_total(parsed: dict) -> int:

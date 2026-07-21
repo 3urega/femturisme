@@ -76,6 +76,8 @@ Després de `plan-to-issues`, el document font ha d'incloure secció **GitHub is
 
 **Batch allotjament proximitat:** [plan-establishments-proximity.md](../devs/plan-establishments-proximity.md) — **complet** ([#45](https://github.com/3urega/femturisme/issues/45)–[#49](https://github.com/3urega/femturisme/issues/49), 2026-07-21).
 
+**Batch routing allotjament vs experiències (deute UAT #49):** [plan-establishments-routing-debt.md](../devs/plan-establishments-routing-debt.md) → [manifest.establishments-routing-debt.json](manifest.establishments-routing-debt.json) — **en curs** ([#50](https://github.com/3urega/femturisme/issues/50)–[#52](https://github.com/3urega/femturisme/issues/52), 2026-07-21).
+
 **Batch tancat:** [plan-fase6-pre-entrega.md](../devs/plan-fase6-pre-entrega.md) — **complet** ([#23](https://github.com/3urega/femturisme/issues/23)–[#26](https://github.com/3urega/femturisme/issues/26), 2026-07-20).
 
 **Batch RAG:** [plan-fase5-rag-base.md](../devs/plan-fase5-rag-base.md) → [manifest.fase5-rag.json](manifest.fase5-rag.json) — **en curs** ([#27](https://github.com/3urega/femturisme/issues/27)–[#29](https://github.com/3urega/femturisme/issues/29), [#33](https://github.com/3urega/femturisme/issues/33) tancats, [#31](https://github.com/3urega/femturisme/issues/31)–[#32](https://github.com/3urega/femturisme/issues/32) obertes, 2026-07-20).

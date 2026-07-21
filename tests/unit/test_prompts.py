@@ -228,6 +228,16 @@ def test_build_system_prompt_proximity_establishments_future():
     assert 'search_establishments(destination=Berga, distance_km=30)' in prompt
 
 
+def test_build_system_prompt_proximity_establishments_vs_experiences_context():
+    prompt = build_system_prompt()
+    assert 'domini conversacional' in prompt.lower() or 'domini del diàleg' in prompt.lower()
+    assert 'search_establishments(destination=Berga, distance_km=30)' in prompt
+    assert '30 km des de Berga' in prompt or 'si, 30 km' in prompt
+    assert 'search_experiences' in prompt
+    assert 'incorrecte' in prompt.lower() or 'prohibit' in prompt.lower()
+    assert 'ofertes promocionals' in prompt.lower() or 'promocional' in prompt.lower()
+
+
 def test_build_system_prompt_proximity_vs_destinations():
     prompt = build_system_prompt()
     assert 'search_destinations' in prompt
