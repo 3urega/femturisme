@@ -159,3 +159,34 @@ def test_build_system_prompt_thematic_intent_routing():
     assert 'Quan és' in prompt or 'calendari' in prompt.lower()
     assert 'date_from' in prompt
     assert 'date_to' in prompt
+
+
+def test_build_system_prompt_proximity_asks_km():
+    prompt = build_system_prompt()
+    assert 'Proximitat geogràfica' in prompt
+    assert 'preguntar km' in prompt.lower() or 'Pregunta' in prompt
+    assert 'quants km' in prompt.lower() or 'quilòmetres' in prompt.lower()
+    assert 'intenció' in prompt.lower()
+    assert 'no cridis encara' in prompt.lower() or 'No** cridis encara' in prompt
+
+
+def test_build_system_prompt_experiences_distance_km_when_known():
+    prompt = build_system_prompt()
+    assert 'distance_km' in prompt
+    assert 'Calella' in prompt
+    assert 'Visites guiades' in prompt
+    assert 'sense allunyar-me gaire' in prompt
+
+
+def test_build_system_prompt_proximity_establishments_future():
+    prompt = build_system_prompt()
+    assert 'search_establishments' in prompt
+    assert 'distance_km' in prompt
+    assert 'encara no existeix' in prompt
+
+
+def test_build_system_prompt_proximity_vs_destinations():
+    prompt = build_system_prompt()
+    assert 'search_destinations' in prompt
+    assert 'què veure a X' in prompt.lower() or 'fitxa de població' in prompt.lower()
+    assert 'Proximitat geogràfica' in prompt

@@ -4,13 +4,6 @@
   "defaultLabels": ["enhancement", "mysql", "catalog"],
   "issues": [
     {
-      "title": "Prompt: ofertes a X km de Y i visites guiades",
-      "bodyFile": "docs/issues/prompt-experiences-radius.md",
-      "labels": ["agent", "docs"],
-      "githubNumber": 43,
-      "publishedAt": "2026-07-20"
-    },
-    {
       "title": "UAT: visites guiades Calella 50 km vs portal",
       "bodyFile": "docs/issues/uat-experiences-radius.md",
       "labels": ["testing", "catalog"],

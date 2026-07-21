@@ -23,7 +23,10 @@ _TOOL_GUIDE_CA: dict[str, str] = {
         'curts («macarrons», «paella», «marisc») — mai per estils de cuina '
         '(«cuina catalana tradicional» → type=restaurant + destination, sense query). '
         'En seguiments després de restaurants, usa query + type=restaurant; '
-        'no confonguis amb search_experiences.'
+        'no confonguis amb search_experiences. '
+        'Si la intenció és allotjament o menjar per proximitat geogràfica i falta el radi en km → '
+        'pregunta abans de cercar. Amb km conegut: destination + type; el paràmetre distance_km '
+        'encara no existeix en aquesta eina (cerca per zona del destí).'
     ),
     'search_destinations': (
         'Pobles, municipis i llocs per visitar («on anar», «què veure a X», comarques).'
@@ -38,7 +41,9 @@ _TOOL_GUIDE_CA: dict[str, str] = {
         '(dinars temàtics, arrossades, propostes comercials). '
         'NO és l\'agenda de calendari — per esdeveniments amb data usa search_events. '
         'Paràmetre category només amb valors del SCHEMA (Activitats, Familiar, Menús…); '
-        'no inventis categories («natura», «senderisme») — per natura/rutes usa search_routes.'
+        'no inventis categories («natura», «senderisme») — per natura/rutes usa search_routes. '
+        'Si la intenció és ofertes per proximitat geogràfica i falta el radi en km → pregunta abans '
+        'de cridar l\'eina. Amb km conegut: destination + distance_km (+ category si n\'hi ha).'
     ),
     'search_routes': (
         'Rutes turístiques: senderisme, bici, cultura, natura, itineraris per zona.'
@@ -74,6 +79,32 @@ _CATALOG_DOMAINS = """\
   o una població. Exemples: dinar de Sant Valentí en un restaurant, arrossada popular.
 - No confonguis «què fer aquest cap de setmana» (agenda → search_events) amb
   «experiències promocionals» o ofertes temàtiques (search_experiences).
+
+### Proximitat geogràfica (preguntar km)
+Quan interpretis que l'usuari vol resultats **prop d'un lloc** o **dins d'una distància
+no molt gran** respecte a un punt de referència — **encara que no digui «cerca» ni
+indiqui quilòmetres** — i el radi màxim no quedi clar:
+1. **No** cridis encara l'eina amb `distance_km`.
+2. **Pregunta** amablement el radi màxim en km (adapta l'idioma del torn).
+3. Quan l'usuari doni el número, llavors consulta el catàleg.
+
+Confia en la **intenció** del missatge, no en paraules concretes. Exemples d'intenció
+(proximitat): «a prop de Calella», «no molt lluny de Barcelona», «allotjament
+als voltants», «visites que pugui fer des d'allà sense desplaçar-me gaire».
+
+| Intenció | Eina (amb km conegut) | Paràmetres |
+|----------|----------------------|------------|
+| Ofertes / experiències promocionals per proximitat | `search_experiences` | `destination`, `distance_km`, `category` si aplica |
+| Allotjament o restaurant per proximitat | `search_establishments` | `destination`, `type` si aplica — `distance_km` encara no existeix en aquesta eina |
+
+- Si l'usuari **ja** indica km al primer missatge, passa `distance_km` sense tornar a preguntar.
+- **No** confonguis amb `search_destinations` («què veure a X» = fitxa de població, no oferta comercial).
+- Per agenda amb data concreta → `search_events`, no `search_experiences`.
+
+Exemple diàleg:
+- Usuari: «M'agradaria fer visites guiades des de Calella sense allunyar-me gaire»
+- Assistent: «A quants km com a màxim vols que busqui des de Calella?»
+- Usuari: «50» → `search_experiences(destination=Calella, category=Visites guiades, distance_km=50)`
 
 ### Articles / notícies ≠ Agenda ≠ On anar
 - **Articles** (`search_articles`): notícies i articles editorials sobre un tema o territori.
