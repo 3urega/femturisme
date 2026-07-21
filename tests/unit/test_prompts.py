@@ -89,6 +89,20 @@ def test_build_system_prompt_establishments_cuisine_vs_dish_routing():
     assert 'type=restaurant' in prompt
 
 
+def test_build_system_prompt_establishments_generic_without_rural_type():
+    prompt = build_system_prompt()
+    assert 'Allotjament genèric vs tipus concret' in prompt
+    idx_generic = prompt.index('Allotjament genèric')
+    idx_explicit = prompt.index('Tipus explícit')
+    assert idx_generic < idx_explicit
+    assert '2 o 3 allotjaments més a Berga' in prompt
+    assert 'sense `type`' in prompt or 'sense type' in prompt.lower()
+    assert 'cases-rurals' in prompt
+    assert 'prohibit' in prompt.lower() or 'incorrecte' in prompt.lower()
+    assert 'Mai inferir' in prompt or 'Mai** inferir' in prompt or 'mai inferir' in prompt.lower()
+    assert 'cases-rurals** només' in prompt or 'només si l' in prompt
+
+
 def test_build_page_context_section_includes_navigation_fields():
     section = build_page_context_section(PageContext(
         section='agenda',
@@ -199,6 +213,7 @@ def test_build_system_prompt_proximity_establishments_future():
     assert 'search_establishments' in prompt
     assert 'distance_km' in prompt
     assert 'encara no existeix' in prompt
+    assert 'allotjament genèric' in prompt.lower() or 'només si l' in prompt
 
 
 def test_build_system_prompt_proximity_vs_destinations():

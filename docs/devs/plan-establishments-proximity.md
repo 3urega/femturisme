@@ -9,7 +9,7 @@
 
 **Objectiu:** paritat de comportament amb el portal i respostes útils en diàleg multi-turn.
 
-**Estat:** **publicat** — issues [#45](https://github.com/3urega/femturisme/issues/45)–[#49](https://github.com/3urega/femturisme/issues/49) *(2026-07-21)*.
+**Estat:** **en curs** — [#45](https://github.com/3urega/femturisme/issues/45) i [#46](https://github.com/3urega/femturisme/issues/46) **tancats** *(2026-07-21)*; obertes [#47](https://github.com/3urega/femturisme/issues/47)–[#49](https://github.com/3urega/femturisme/issues/49).
 
 ---
 
@@ -21,19 +21,26 @@ Agent: proposa 30 km → crida search_establishments(destination=Berga) sense ra
        → 1 hotel mostrat; seguiment «2 o 3 més» → type=cases-rurals + articles/events
 ```
 
-**Backend:** `search_establishments` encara **no** té `distance_km` (només `search_experiences`, batch #41–#44).
+| # | Gap | Estat |
+|---|-----|-------|
+| 1 | Només 1 opció mostrada | Obert — #47 |
+| 2 | Radi 30 km sense `distance_km` | **Resolt** — #46 (repository + tool) |
+| 3 | Seguiment filtra `cases-rurals` | **Resolt** — #45 (prompt) |
+| 4 | Seguiments criden articles/events | Obert — #48 |
+
+**Backend:** `search_establishments` té `distance_km` des de #46 (Haversine, `meta.scope=radius`). Cal actualitzar prompt perquè l'agent l'usi al xat.
 
 ---
 
-## GitHub issues (draft)
+## GitHub issues
 
-| Ordre | Títol | Fitxer |
-|-------|-------|--------|
-| 1 | Prompt: allotjament genèric sense cases-rurals per defecte | [establishments-generic-type-prompt.md](../issues/establishments-generic-type-prompt.md) |
-| 2 | Catàleg: search_establishments amb distance_km | [establishments-distance-km.md](../issues/establishments-distance-km.md) |
-| 3 | Prompt: llistar mínim 3 opcions quan total>=3 | [prompt-min-three-results.md](../issues/prompt-min-three-results.md) |
-| 4 | Agent: seguiments d'allotjament sense flux temàtic | [establishments-followup-routing.md](../issues/establishments-followup-routing.md) |
-| 5 | UAT: Patum + allotjament a prop Berga | [uat-patum-bergua-accommodation.md](../issues/uat-patum-bergua-accommodation.md) |
+| Ordre | Títol | GitHub | Estat |
+|-------|-------|--------|-------|
+| 1 | Prompt: allotjament genèric sense cases-rurals per defecte | [#45](https://github.com/3urega/femturisme/issues/45) | **Tancat** *(2026-07-21)* |
+| 2 | Catàleg: search_establishments amb distance_km | [#46](https://github.com/3urega/femturisme/issues/46) | **Tancat** *(2026-07-21)* |
+| 3 | Prompt: llistar mínim 3 opcions quan total>=3 | [#47](https://github.com/3urega/femturisme/issues/47) | Obert |
+| 4 | Agent: seguiments d'allotjament sense flux temàtic | [#48](https://github.com/3urega/femturisme/issues/48) | Obert |
+| 5 | UAT: Patum + allotjament a prop Berga | [#49](https://github.com/3urega/femturisme/issues/49) | Obert |
 
 Manifest: [manifest.establishments-proximity.json](../issues/manifest.establishments-proximity.json)
 

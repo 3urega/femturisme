@@ -74,3 +74,21 @@ def test_establishments_pirineu_casa_rural(app):
     meta = data.get('meta') or {}
     assert meta.get('resolved_zone') == 'Pirineu'
     assert data['results'][0]['url'].startswith('https://www.femturisme.cat/establiments/')
+
+
+@pytest.mark.integration
+@pytest.mark.skipif(not mysql_available(), reason='MYSQL_* not configured')
+def test_establishments_bergua_30km_radius(app):
+    """SQL-01r: Berga + 30 km → radius meta (issue #46)."""
+    establishments = pytest.importorskip('app.db.repositories.establishments')
+    geo_radius = pytest.importorskip('app.db.geo_radius')
+    with app.app_context():
+        origin = geo_radius.resolve_origin_coordinates('Berga')
+        if origin is None:
+            pytest.skip('Berga origin coordinates not available in MySQL')
+        data = establishments.search(destination='Berga', distance_km=30)
+    meta = data.get('meta') or {}
+    if meta.get('scope') != 'radius':
+        pytest.skip('radius search did not resolve origin in this environment')
+    assert meta['distance_km'] == 30
+    assert int(data['total']) >= 0

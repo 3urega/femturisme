@@ -116,7 +116,7 @@ Les seccions de navegació del portal (`/on-dormir`, `/on-menjar`, `/agenda?ubic
 
 **Domini:** on dormir i on menjar (mateixa entitat, filtre per tipus)  
 **Fitxer tool (objectiu):** `app/services/tools/establishments.py`  
-**Paràmetres:** `destination?`, `type?`, `query?`, `lang?` (default `ca`)
+**Paràmetres:** `destination?`, `type?`, `query?`, `lang?` (default `ca`), `distance_km?`
 
 ### 1.1 Taules i relacions
 
@@ -205,7 +205,30 @@ LIMIT 20;
 
 **Nota manteniment (2026-07-13):** no es filtra per `eg.actiu` — al dump Railway el camp no reflecteix publicació web; la baixa explícita (`data_baixa`) és el filtre fiable.
 
-### 1.5 Casos de prova
+### 1.5 Filtre per radi (`distance_km`)
+
+**Implementació helper:** `app/db/geo_radius.py` (issue #41). **Integració a `search_establishments`:** [`app/db/repositories/establishments.py`](../../app/db/repositories/establishments.py) + tool (issue #46).
+
+| Paràmetre | Tipus | Descripció |
+|-----------|-------|------------|
+| `distance_km` | `number?` | Radi màxim en km des de l'origen resolt per `destination` |
+
+**Resolució d'origen** (`resolve_origin_coordinates`): igual que §6.4 ( `poble_general` → fallback `generic_ubicacions` ).
+
+**Predicat Haversine** (`build_radius_filter`):
+
+- Columnes destí a establiments:
+
+```sql
+COALESCE(NULLIF(eg.latitud, ''), pg.latitud)   -- lat_expr
+COALESCE(NULLIF(eg.longitud, ''), pg.longitud)  -- lng_expr
+```
+
+**Meta:** `meta.scope=radius`, `meta.distance_km`, `meta.origin` quan l'origen es resol; si no, fallback territorial + `meta.hint=radius_origin_unresolved`.
+
+**Exemple:** `destination=Berga`, `distance_km=30` → allotjament/restauració dins 30 km del centre de Berga (comportament portal-like per proximitat).
+
+### 1.6 Casos de prova
 
 | # | destination | type | Files min | URL provada |
 |---|-------------|------|-----------|-------------|
@@ -214,8 +237,9 @@ LIMIT 20;
 | — | Berguedà | restaurant | ≥ 0 | ☑ `https://www.femturisme.cat/establiments/cal-ferrer-de-borreda` |
 | — | Catalunya | — | ≥ 0 (territori ampli) | ☑ |
 | SQL-03 | Catalunya | restaurant | macarrons | ≥ 0 fitxes amb text que mencioni macarrons |
+| SQL-01r | Berga | — | distance_km=30 | ≥ 0; `meta.scope=radius` |
 
-### 1.6 Pendents client
+### 1.7 Pendents client
 
 - Validar si `eg.tipus` (int a `establiment_general`) duplica o substitueix `establiment_tipus`
 - **Nota URL (2026-07-13):** `generic_tipus_establiment.code` (p. ex. `restaurants`) és codi intern; **no** s'usa com a prefix web. Les seccions de navegació són `/on-dormir`, `/on-menjar`, `/que-fer`; la fitxa individual és sempre `/establiments/{param_url}`.

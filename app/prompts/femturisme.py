@@ -24,9 +24,14 @@ _TOOL_GUIDE_CA: dict[str, str] = {
         '(«cuina catalana tradicional» → type=restaurant + destination, sense query). '
         'En seguiments després de restaurants, usa query + type=restaurant; '
         'no confonguis amb search_experiences. '
+        'Allotjament genèric («on dormir», «allotjament a prop», «2 o 3 més») → '
+        'destination **sense** `type`; `cases-rurals` **només** si l\'usuari diu '
+        'casa rural o turisme rural. Mai inferir rural per zona (Berga, Berguedà…). '
+        'Seguiments «més opcions» → repetir cerca amb mateix destination, sense afegir '
+        'type rural. '
         'Si la intenció és allotjament o menjar per proximitat geogràfica i falta el radi en km → '
-        'pregunta abans de cercar. Amb km conegut: destination + type; el paràmetre distance_km '
-        'encara no existeix en aquesta eina (cerca per zona del destí).'
+        'pregunta abans de cercar. Amb km conegut: destination (+ type només si l\'usuari '
+        'especifica hotel, restaurant…); el paràmetre distance_km encara no existeix en aquesta eina.'
     ),
     'search_destinations': (
         'Pobles, municipis i llocs per visitar («on anar», «què veure a X», comarques).'
@@ -115,7 +120,7 @@ als voltants», «visites que pugui fer des d'allà sense desplaçar-me gaire».
 | Intenció | Eina (amb km conegut) | Paràmetres |
 |----------|----------------------|------------|
 | Ofertes / experiències promocionals per proximitat | `search_experiences` | `destination`, `distance_km`, `category` si aplica |
-| Allotjament o restaurant per proximitat | `search_establishments` | `destination`, `type` si aplica — `distance_km` encara no existeix en aquesta eina |
+| Allotjament o restaurant per proximitat | `search_establishments` | `destination`; `type` **només** si l'usuari especifica tipus (hotel, restaurant…), no per allotjament genèric — `distance_km` encara no existeix en aquesta eina |
 
 - **No** confonguis amb `search_destinations` («què veure a X» = fitxa de població, no oferta comercial).
 - Per agenda amb data concreta → `search_events`, no `search_experiences`.
@@ -135,8 +140,27 @@ Exemple diàleg (UAT, 2 torns):
 ### Establiments: dormir + menjar
 - Un sol buscador: `search_establishments` (hotels, campings, restaurants, bars…).
 - Per allotjament i restauració usa sempre aquesta eina.
-- **Turisme rural / casa rural:** `type=cases-rurals` (el backend accepta també `casa-rural` o `turisme rural` i normalitza al codi CMS).
 - **Zones agregades** (`Pirineu`, `Costa Brava`): passa `destination` tal com l'usuari diu; el backend resol municipis i retorna `meta.resolved_zone`.
+
+#### Allotjament genèric vs tipus concret
+
+##### A. Allotjament genèric — **per defecte**
+Preguntes «on dormir», «allotjament a prop», «buscar hotel/allotjament», seguiments
+«2 o 3 més», «no cal que siguin rurals»:
+1. Crida `search_establishments` amb `destination` (i `distance_km` quan existeixi a l'eina).
+2. **No** passis el paràmetre `type` — inclou hotels, hostals, campings, cases rurals, etc.
+3. **Mai** inferir `cases-rurals` per zona (Berga, Berguedà, Pirineu…) si l'usuari no ho demana.
+
+Exemple positiu (seguiment):
+- Usuari: «2 o 3 allotjaments més a Berga»
+- Crida: `search_establishments(destination=Berga)` — sense `type`
+
+Exemple **incorrecte** (prohibit quan l'usuari va dir allotjament genèric):
+- `{destination: "Berga", type: "cases-rurals"}` — l'usuari no va demanar casa rural.
+
+##### B. Tipus explícit — **només quan l'usuari ho diu**
+- Casa rural / turisme rural → `type=cases-rurals` (el backend accepta també `casa-rural` o `turisme rural` i normalitza al codi CMS).
+- Hotel, camping, hostal, restaurant, bar → `type` corresponent al SCHEMA.
 
 #### Cuina / estil vs plat concret
 - **Estil o tipus de cuina** (recomanacions genèriques): `type=restaurant`, `destination` (p. ex. `Catalunya` o la zona del torn) i **sense** `query`.

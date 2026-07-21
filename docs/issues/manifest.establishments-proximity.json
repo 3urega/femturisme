@@ -4,20 +4,6 @@
   "defaultLabels": ["enhancement"],
   "issues": [
     {
-      "title": "Prompt: allotjament generic sense cases-rurals per defecte",
-      "bodyFile": "docs/issues/establishments-generic-type-prompt.md",
-      "labels": ["enhancement", "agent", "docs", "catalog"],
-      "githubNumber": 45,
-      "publishedAt": "2026-07-21"
-    },
-    {
-      "title": "Cataleg: search_establishments amb distance_km",
-      "bodyFile": "docs/issues/establishments-distance-km.md",
-      "labels": ["enhancement", "mysql", "catalog"],
-      "githubNumber": 46,
-      "publishedAt": "2026-07-21"
-    },
-    {
       "title": "Prompt: llistar minim 3 opcions quan total>=3",
       "bodyFile": "docs/issues/prompt-min-three-results.md",
       "labels": ["enhancement", "agent", "docs"],

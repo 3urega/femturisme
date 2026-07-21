@@ -48,10 +48,35 @@ SCHEMA = {
                 'type': 'string',
                 'description': 'Content language: ca (default), es, en, or fr',
             },
+            'distance_km': {
+                'type': 'integer',
+                'description': (
+                    'Max distance in km from destination center (Haversine radius). '
+                    'Use when the user mentions km or proximity with a known radius '
+                    '(e.g. "30 km from Berga" → distance_km=30). '
+                    'Without this parameter the search is limited to the municipality '
+                    'or comarca name match.'
+                ),
+            },
         },
         'required': [],
     },
 }
+
+
+_MAX_DISTANCE_KM = 100
+
+
+def _parse_distance_km(value: object) -> float | None:
+    if value is None:
+        return None
+    try:
+        parsed = float(value)
+    except (TypeError, ValueError):
+        return None
+    if parsed <= 0:
+        return None
+    return min(parsed, _MAX_DISTANCE_KM)
 
 
 _TYPE_ALIASES: dict[str, str] = {
@@ -103,6 +128,7 @@ def execute(tool_input: dict) -> str:
         'type': acc_type,
         'query': query or None,
         'lang': lang,
+        'distance_km': _parse_distance_km(tool_input.get('distance_km')),
         'skip_location_filter': bool(tool_input.get('_skip_location_filter')),
         'retried': bool(tool_input.get('_retried')),
     }
