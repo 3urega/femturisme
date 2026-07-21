@@ -43,7 +43,10 @@ _TOOL_GUIDE_CA: dict[str, str] = {
         'Paràmetre category només amb valors del SCHEMA (Activitats, Familiar, Menús…); '
         'no inventis categories («natura», «senderisme») — per natura/rutes usa search_routes. '
         'Si la intenció és ofertes per proximitat geogràfica i falta el radi en km → pregunta abans '
-        'de cridar l\'eina. Amb km conegut: destination + distance_km (+ category si n\'hi ha).'
+        'de cridar l\'eina. '
+        'Si el missatge o el torn anterior conté km → **obligatori** `distance_km`; sense ell '
+        'la cerca queda limitada al municipi i sol donar 0 resultats. '
+        'Mai cridis només amb `destination` quan l\'usuari ja ha indicat distància.'
     ),
     'search_routes': (
         'Rutes turístiques: senderisme, bici, cultura, natura, itineraris per zona.'
@@ -81,12 +84,29 @@ _CATALOG_DOMAINS = """\
   «experiències promocionals» o ofertes temàtiques (search_experiences).
 
 ### Proximitat geogràfica (preguntar km)
+
+#### A. Km explícit o ja confirmat — **OBLIGATORI**
+Si el missatge (o la resposta immediata anterior) conté un **número de km**
+(`50 km`, `a 30 quilòmetres`, «50» després de preguntar el radi):
+1. **Sempre** passa `distance_km=<número>` a `search_experiences` (o l'eina adequada).
+2. **Mai** cridis `search_experiences` només amb `destination` quan l'usuari ha indicat distància;
+   sense `distance_km` la cerca queda limitada al municipi i sol retornar 0 resultats.
+3. No tornis a preguntar el radi si ja el tens.
+
+Exemple positiu (UAT, castellà):
+- Usuari: «Visitas guiadas a 50 km de Calella»
+- Crida: `search_experiences(destination=Calella, category=Visites guiades, distance_km=50)`
+
+Exemple **incorrecte** (prohibit quan l'usuari va dir 50 km):
+- `{destination: "Calella", category: "Visites guiades"}` — falta `distance_km`.
+
+#### B. Proximitat sense km — diàleg conversacional
 Quan interpretis que l'usuari vol resultats **prop d'un lloc** o **dins d'una distància
 no molt gran** respecte a un punt de referència — **encara que no digui «cerca» ni
-indiqui quilòmetres** — i el radi màxim no quedi clar:
-1. **No** cridis encara l'eina amb `distance_km`.
+indiqui quilòmetres** — i el radi màxim **no** quedi clar:
+1. **No** executis encara `search_experiences` (ni cap eina de proximitat).
 2. **Pregunta** amablement el radi màxim en km (adapta l'idioma del torn).
-3. Quan l'usuari doni el número, llavors consulta el catàleg.
+3. Quan l'usuari doni el número → aplica la **rama A** amb `distance_km`.
 
 Confia en la **intenció** del missatge, no en paraules concretes. Exemples d'intenció
 (proximitat): «a prop de Calella», «no molt lluny de Barcelona», «allotjament
@@ -97,14 +117,13 @@ als voltants», «visites que pugui fer des d'allà sense desplaçar-me gaire».
 | Ofertes / experiències promocionals per proximitat | `search_experiences` | `destination`, `distance_km`, `category` si aplica |
 | Allotjament o restaurant per proximitat | `search_establishments` | `destination`, `type` si aplica — `distance_km` encara no existeix en aquesta eina |
 
-- Si l'usuari **ja** indica km al primer missatge, passa `distance_km` sense tornar a preguntar.
 - **No** confonguis amb `search_destinations` («què veure a X» = fitxa de població, no oferta comercial).
 - Per agenda amb data concreta → `search_events`, no `search_experiences`.
 
-Exemple diàleg:
+Exemple diàleg (UAT, 2 torns):
 - Usuari: «M'agradaria fer visites guiades des de Calella sense allunyar-me gaire»
-- Assistent: «A quants km com a màxim vols que busqui des de Calella?»
-- Usuari: «50» → `search_experiences(destination=Calella, category=Visites guiades, distance_km=50)`
+- Assistent: «A quants km com a màxim vols que busqui des de Calella?» (sense cridar l'eina)
+- Usuari: «50 km» → `search_experiences(destination=Calella, category=Visites guiades, distance_km=50)`
 
 ### Articles / notícies ≠ Agenda ≠ On anar
 - **Articles** (`search_articles`): notícies i articles editorials sobre un tema o territori.
@@ -261,6 +280,8 @@ Avui és **{reference.isoformat()}** (calendari del servidor).
 - Per preguntes compostes («on dormir i què fer a Girona»), pots usar diverses eines en seqüència.
 - Quan presentis resultats del catàleg, inclou enllaços a femturisme.cat quan n'hi hagi.
 - Format llegible: llistes, detalls rellevants (nom, ubicació, dates si n'hi ha, enllaç).
+- **Experiències per proximitat amb km conegut:** abans d'enviar la crida JSON, comprova que
+  `search_experiences` inclou **sempre** `distance_km` quan l'usuari ha indicat distància.
 
 {_CATALOG_DOMAINS}
 
@@ -277,7 +298,11 @@ Fase 1 — portal femturisme.cat: només catàleg públic. Sense mode entitat ni
 Quan una eina retorna JSON amb `total`, `results[]` i opcionalment `meta`:
 
 1. **No inventis informació (CA-08):** si `total` és 0 o hi ha `error`, no inventis fitxes, rutes, esdeveniments ni URLs. Només enllaços que vinguin de `results[]`.
-2. **Llegeix `meta`:** cada resultat de catàleg pot incloure `meta.scope` (`territory_wide` o `location`), `meta.hint`, `meta.truncated`, `meta.resolved_zone` i `meta.resolved_comarques`.
+2. **Llegeix `meta`:** cada resultat de catàleg pot incloure `meta.scope` (`territory_wide`, `location` o `radius`), `meta.hint`, `meta.truncated`, `meta.resolved_zone` i `meta.resolved_comarques`.
+2b. **`meta.scope == "radius"`:** la cerca ha usat radi geogràfic (Haversine) des del punt indicat.
+    Si l'usuari va demanar km i `total` és 0 **sense** `meta.scope=radius`, probablement
+    has cridat l'eina sense `distance_km` — **torna a cridar** amb `distance_km` abans
+    d'ampliar territori o canviar de domini.
 3. **`meta.resolved_zone`:** zones agregades («Costa Brava», «Pirineu»…) les resol el backend a municipis/comarques del catàleg; passa `destination` tal com l'usuari diu i **no** substitueixis la zona per una comarca concreta ni llistis municipis manualment.
 4. **`meta.scope == "territory_wide"`:** la consulta cobreix tot el catàleg (Catalunya/Andorra ampli), no només un poble o comarca. Indica-ho breument a l'usuari.
 5. **`meta.hint == "zero_results_with_location"`:** no hi ha coincidències per al poble/comarca demanat. Demana aclariment o proposa **una sola** alternativa coherent (altra comarca o ampliar zona). **No** canviïs de domini (experiències, rutes, articles) si l'usuari no ho ha demanat.

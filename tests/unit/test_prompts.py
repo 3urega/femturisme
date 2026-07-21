@@ -164,10 +164,14 @@ def test_build_system_prompt_thematic_intent_routing():
 def test_build_system_prompt_proximity_asks_km():
     prompt = build_system_prompt()
     assert 'Proximitat geogràfica' in prompt
+    # Rama A (km conegut) abans que la rama B (sense km)
+    idx_obligatori = prompt.index('OBLIGATORI')
+    idx_dialog = prompt.index('Proximitat sense km')
+    assert idx_obligatori < idx_dialog
     assert 'preguntar km' in prompt.lower() or 'Pregunta' in prompt
     assert 'quants km' in prompt.lower() or 'quilòmetres' in prompt.lower()
     assert 'intenció' in prompt.lower()
-    assert 'no cridis encara' in prompt.lower() or 'No** cridis encara' in prompt
+    assert 'No** executis encara' in prompt or 'no executis encara' in prompt.lower()
 
 
 def test_build_system_prompt_experiences_distance_km_when_known():
@@ -176,6 +180,18 @@ def test_build_system_prompt_experiences_distance_km_when_known():
     assert 'Calella' in prompt
     assert 'Visites guiades' in prompt
     assert 'sense allunyar-me gaire' in prompt
+    assert 'Visitas guiadas a 50 km de Calella' in prompt
+    assert 'OBLIGATORI' in prompt
+    assert 'incorrecte' in prompt.lower() or 'prohibit' in prompt.lower()
+    assert 'Mai** cridis' in prompt or 'Mai cridis' in prompt
+
+
+def test_search_experiences_schema_distance_km_required_when_proximity():
+    from app.services.tools.experiences import SCHEMA
+
+    desc = SCHEMA['input_schema']['properties']['distance_km']['description']
+    assert 'REQUIRED' in desc
+    assert '50 km' in desc or 'distance_km=50' in desc
 
 
 def test_build_system_prompt_proximity_establishments_future():

@@ -2,17 +2,17 @@ UAT radi experiències (#44) — base=http://127.0.0.1:5010
 
 [1/2] UAT-EXP-R01: km explícit al primer missatge (paritat portal)
   user: Visitas guiadas a 50 km de Calella
-  -> FAIL | tools=search_experiences | distance_km=None | totals=search_experiences=0 | meta.scope=— | url=—
-  detail: missing distance_km in tool input
+  -> PASS | tools=search_experiences | distance_km=50 | totals=search_experiences=6 | meta.scope=radius | url=https://www.femturisme.cat/ofertes/visita-entre-vinyes-amb-degustacio-de-vins-i-caves-celler-art-laieta
+  title=Visita entre vinyes amb degustació de vins i caves - Celler Art Laietà
 
 [2/2] UAT-EXP-R02: proximitat sense km -> dialog -> radi (#43)
   user: M'agradaria fer visites guiades des de Calella sense allunyar-me gaire
   user: 50 km
-  -> FAIL | tools=search_experiences, search_experiences | distance_km=None | totals=search_experiences=0 | meta.scope=— | url=—
-  detail: turn1=ok; turn2: missing distance_km in tool input
+  -> PASS | tools=search_articles, search_events, search_experiences | distance_km=50 | totals=search_articles=0, search_events=0, search_experiences=6 | meta.scope=radius | url=https://www.femturisme.cat/ofertes/visita-entre-vinyes-amb-degustacio-de-vins-i-caves-celler-art-laieta
+  title=Visita entre vinyes amb degustació de vins i caves - Celler Art Laietà
 
 ============================================================
-RESULTAT: 0/2 PASS | umbral 100% -> KO (0%)
+RESULTAT: 2/2 PASS | umbral 100% -> OK (100%)
 ============================================================
-  [KO] UAT-EXP-R01 distance_km=None url=—
-  [KO] UAT-EXP-R02 distance_km=None url=—
+  [OK] UAT-EXP-R01 distance_km=50 url=https://www.femturisme.cat/ofertes/visita-entre-vinyes-amb-degustacio-de-vins-i-caves-celler-art-laieta
+  [OK] UAT-EXP-R02 distance_km=50 url=https://www.femturisme.cat/ofertes/visita-entre-vinyes-amb-degustacio-de-vins-i-caves-celler-art-laieta

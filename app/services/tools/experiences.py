@@ -39,8 +39,11 @@ SCHEMA = {
             'distance_km': {
                 'type': 'integer',
                 'description': (
-                    'Optional max distance in km from destination '
-                    '(e.g. 50 for offers within 50 km)'
+                    'Max distance in km from destination center (Haversine radius). '
+                    'REQUIRED when the user mentions km or proximity with a known radius '
+                    '(e.g. "50 km from Calella" → distance_km=50). '
+                    'Without this parameter the search is limited to the municipality name '
+                    'and often returns zero results for radius-style queries.'
                 ),
             },
         },

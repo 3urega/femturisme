@@ -18,7 +18,17 @@ Agent:   search_experiences(destination=Calella, category=Visites guiades, dista
          → radi Haversine + meta.scope=radius (quan el LLM passa distance_km)
 ```
 
-**Pendent producte:** el UAT manual (`uat_experiences_radius.py`) pot fallar si el LLM no passa `distance_km` encara que el SQL d'integració passi.
+**Pendent producte:** ~~el UAT manual (`uat_experiences_radius.py`) pot fallar si el LLM no passa `distance_km`~~ **Resolt** amb iteració de prompt (Opció A) *(2026-07-21)* — cal **reiniciar** el servidor Flask després de canvis al prompt.
+
+### UAT post-iteració prompt
+
+```text
+python scripts/uat_experiences_radius.py http://127.0.0.1:5011
+→ 2/2 PASS (UAT-EXP-R01 + UAT-EXP-R02)
+  distance_km=50, meta.scope=radius, total=6, URL /ofertes/...
+```
+
+Canvis aplicats: [`app/prompts/femturisme.py`](../../app/prompts/femturisme.py) (rama A OBLIGATORI abans del diàleg), guia `search_experiences`, bullet «Com treballar», `meta.scope=radius`; [`app/services/tools/experiences.py`](../../app/services/tools/experiences.py) (SCHEMA `distance_km`).
 
 ---
 
@@ -42,4 +52,4 @@ python scripts/uat_experiences_radius.py http://127.0.0.1:5010
 # Manual: comparar amb https://femturisme.cat/ofertes/visites-guiades?ubicacio=calella&distancia=50
 ```
 
-**Última actualització:** 2026-07-21 (batch #41–#44 tancat)
+**Última actualització:** 2026-07-21 (batch #41–#44 tancat; UAT LLM 2/2 PASS després d'iteració prompt)
