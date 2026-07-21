@@ -232,3 +232,14 @@ def test_build_system_prompt_proximity_vs_destinations():
     assert 'search_destinations' in prompt
     assert 'què veure a X' in prompt.lower() or 'fitxa de població' in prompt.lower()
     assert 'Proximitat geogràfica' in prompt
+
+
+def test_build_system_prompt_establishment_followup_no_thematic_flow():
+    prompt = build_system_prompt()
+    assert "Seguiments d'allotjament o menjar" in prompt
+    assert 'no flux temàtic' in prompt.lower() or 'no apliquis aquest flux temàtic' in prompt
+    assert 'search_establishments' in prompt
+    assert 'search_articles' in prompt
+    assert 'search_events' in prompt
+    assert '2 o 3 més' in prompt or '2 o 3 mes' in prompt.lower()
+    assert 'incorrecte' in prompt.lower() or 'prohibit' in prompt.lower()

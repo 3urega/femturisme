@@ -9,7 +9,7 @@
 
 **Objectiu:** paritat de comportament amb el portal i respostes útils en diàleg multi-turn.
 
-**Estat:** **en curs** — [#45](https://github.com/3urega/femturisme/issues/45), [#46](https://github.com/3urega/femturisme/issues/46) i [#47](https://github.com/3urega/femturisme/issues/47) **tancats** *(2026-07-21)*; obertes [#48](https://github.com/3urega/femturisme/issues/48)–[#49](https://github.com/3urega/femturisme/issues/49).
+**Estat:** **en curs** — [#45](https://github.com/3urega/femturisme/issues/45)–[#48](https://github.com/3urega/femturisme/issues/48) **tancats** *(2026-07-21)*; oberta [#49](https://github.com/3urega/femturisme/issues/49).
 
 ---
 
@@ -26,7 +26,7 @@ Agent: proposa 30 km → crida search_establishments(destination=Berga) sense ra
 | 1 | Només 1 opció mostrada | **Resolt** — #47 (prompt CA-05/CA-06) |
 | 2 | Radi 30 km sense `distance_km` | **Resolt** — #46 (repository + tool) |
 | 3 | Seguiment filtra `cases-rurals` | **Resolt** — #45 (prompt) |
-| 4 | Seguiments criden articles/events | Obert — #48 |
+| 4 | Seguiments criden articles/events | **Resolt** — #48 (query_keywords + prompt) |
 
 **Backend:** `search_establishments` té `distance_km` des de #46 (Haversine, `meta.scope=radius`). Cal actualitzar prompt perquè l'agent l'usi al xat.
 
@@ -39,7 +39,7 @@ Agent: proposa 30 km → crida search_establishments(destination=Berga) sense ra
 | 1 | Prompt: allotjament genèric sense cases-rurals per defecte | [#45](https://github.com/3urega/femturisme/issues/45) | **Tancat** *(2026-07-21)* |
 | 2 | Catàleg: search_establishments amb distance_km | [#46](https://github.com/3urega/femturisme/issues/46) | **Tancat** *(2026-07-21)* |
 | 3 | Prompt: llistar mínim 3 opcions quan total>=3 | [#47](https://github.com/3urega/femturisme/issues/47) | **Tancat** *(2026-07-21)* |
-| 4 | Agent: seguiments d'allotjament sense flux temàtic | [#48](https://github.com/3urega/femturisme/issues/48) | Obert |
+| 4 | Agent: seguiments d'allotjament sense flux temàtic | [#48](https://github.com/3urega/femturisme/issues/48) | **Tancat** *(2026-07-21)* |
 | 5 | UAT: Patum + allotjament a prop Berga | [#49](https://github.com/3urega/femturisme/issues/49) | Obert |
 
 Manifest: [manifest.establishments-proximity.json](../issues/manifest.establishments-proximity.json)

@@ -3,6 +3,7 @@ from __future__ import annotations
 
 from app.services.query_keywords import (
     build_forced_keyword_tool_calls,
+    is_establishment_followup_message,
     primary_search_keyword,
     should_force_keyword_search,
 )
@@ -53,3 +54,25 @@ def test_build_forced_calls_castellers_includes_destination():
 def test_build_forced_calls_skips_agenda_query():
     message = "Què fer aquest cap de setmana a l'Empordà?"
     assert build_forced_keyword_tool_calls(message) is None
+
+
+def test_is_establishment_followup_more_options():
+    assert is_establishment_followup_message('2 o 3 mes siusplau') is True
+    assert is_establishment_followup_message('2 o 3 més si us plau') is True
+
+
+def test_should_not_force_establishment_followup_more_options():
+    assert should_force_keyword_search('2 o 3 mes siusplau') is False
+    assert should_force_keyword_search('2 o 3 més si us plau') is False
+
+
+def test_should_not_force_establishment_followup_short_yes():
+    assert should_force_keyword_search('si') is False
+    assert should_force_keyword_search('Sí, endavant') is True  # not a bare follow-up
+    assert is_establishment_followup_message('si') is True
+    assert is_establishment_followup_message('Sí, endavant') is False
+
+
+def test_build_forced_calls_skips_establishment_followup():
+    assert build_forced_keyword_tool_calls('2 o 3 mes siusplau') is None
+    assert build_forced_keyword_tool_calls('no cal que siguin rurals') is None

@@ -21,9 +21,18 @@ _STOPWORDS = frozenset({
     'in', 'is', 'la', 'las', 'le', 'les', 'lo', 'los', 'mes', 'noticia',
     'noticies', 'notícia', 'notícies', 'on', 'para', 'per', 'que', 'què', 'quin',
     'quina', 'quines', 'quins', 'quan', 'recomana', 'recomanar', 'ser', 'setmana',
-    'si', 'són', 'son', 'sobre', 'te', 'the', 'this', 'un', 'una', 'unes', 'uns',
-    'what', 'when', 'where', 'with', 'y', 'és',
+    'si', 'sius', 'siusplau', 'són', 'son', 'sobre', 'te', 'the', 'this', 'un', 'una',
+    'unes', 'uns', 'what', 'when', 'where', 'with', 'y', 'és',
+    'més', 'mesos', 'opcio', 'opcions', 'plau',
 })
+
+_ESTABLISHMENT_FOLLOWUP_PATTERNS = (
+    r'\b\d+\s*(?:o|u)\s*\d+\s*(?:m[eé]s|mesos)\b',
+    r'\b(?:m[eé]s|mesos)\s+(?:opcions?|allotjaments?|hotels?|restaurants?)\b',
+    r'\bno\s+cal\b.*\b(?:rurals?|cases?\s*rurals?)\b',
+    r"^\s*(?:si|sí|ok|vale|d'acord|endavant|perfecte)\s*[!.?,]*\s*$",
+    r'^\s*(?:si\s+us\s+plau|siusplau|gràcies|gracies|merci)\s*[!.?,]*\s*$',
+)
 
 _DOMAIN_EXCLUSION_PATTERNS = (
     r'\bqu[eè]\s+fer\b',
@@ -136,6 +145,21 @@ def _matches_domain_exclusion(user_message: str) -> bool:
     )
 
 
+def is_establishment_followup_message(user_message: str) -> bool:
+    """True for short accommodation/dining follow-ups that must not trigger thematic fan-out."""
+    text = _normalize_text(user_message)
+    if not text:
+        return False
+    return any(
+        re.search(pattern, text, flags=re.UNICODE)
+        for pattern in _ESTABLISHMENT_FOLLOWUP_PATTERNS
+    )
+
+
+def _establishments_already_executed(executed: list[tuple[str, dict]]) -> bool:
+    return any(tool_name == 'search_establishments' for tool_name, _ in executed)
+
+
 def should_force_keyword_search(user_message: str) -> bool:
     """True when server-side keyword fan-out should run (path B)."""
     if len((user_message or '').strip()) < 8:
@@ -147,6 +171,8 @@ def should_force_keyword_search(user_message: str) -> bool:
     if infer_event_period(user_message) is not None:
         return False
     if _matches_domain_exclusion(user_message):
+        return False
+    if is_establishment_followup_message(user_message):
         return False
     return primary_search_keyword(user_message) is not None
 
@@ -190,6 +216,10 @@ def build_keyword_fallback_calls(
     Skips tools already invoked with the same keyword query.
     """
     if _fallback_already_applied(executed):
+        return None
+    if is_establishment_followup_message(user_message):
+        return None
+    if _establishments_already_executed(executed):
         return None
 
     keyword = primary_search_keyword(user_message)

@@ -159,6 +159,20 @@ Exemple positiu (seguiment):
 Exemple **incorrecte** (prohibit quan l'usuari va dir allotjament genèric):
 - `{destination: "Berga", type: "cases-rurals"}` — l'usuari no va demanar casa rural.
 
+#### Seguiments d'allotjament o menjar — **no flux temàtic**
+Després d'haver proposat o cercat allotjament/restaurant (encara que un torn anterior
+fos informatiu, p. ex. Patum):
+1. Seguiments («si», «2 o 3 més», «no cal rural», «més opcions») → **només**
+   `search_establishments` amb `destination` i `distance_km` del context del diàleg.
+2. **No** cridis `search_articles` ni `search_events` — el flux temàtic no s'aplica aquí.
+
+Exemple positiu (després de Patum + proposta d'allotjament a Berga):
+- Usuari: «2 o 3 més si us plau»
+- Crida: `search_establishments(destination=Berga, distance_km=30)` — sense articles/events
+
+Exemple **incorrecte** (prohibit en seguiment d'allotjament):
+- Cridar `search_articles(query=patum)` o `search_events(query=patum)` juntament amb establiments.
+
 ##### B. Tipus explícit — **només quan l'usuari ho diu**
 - Casa rural / turisme rural → `type=cases-rurals` (el backend accepta també `casa-rural` o `turisme rural` i normalitza al codi CMS).
 - Hotel, camping, hostal, restaurant, bar → `type` corresponent al SCHEMA.
@@ -175,6 +189,11 @@ Exemple **incorrecte** (prohibit quan l'usuari va dir allotjament genèric):
 
 _THEMATIC_QUERIES_SECTION = """\
 ## Consultes temàtiques / informatives
+
+**Excepció — seguiments d'allotjament o menjar:** si el torn és un seguiment de dormir
+o menjar («si», «2 o 3 més», «no cal rural», «més opcions») després d'haver proposat
+o cercat establiments, **no** apliquis aquest flux temàtic. Crida **només**
+`search_establishments` amb els paràmetres del context (`destination`, `distance_km`…).
 
 Quan l'usuari demana **informació sobre un tema concret** (festa, patrimoni, tradició, activitat, lloc…)
 sense ser una consulta purament de domini (dormir, menjar, rutes, fitxa de població «què veure a X»):
@@ -306,6 +325,8 @@ Avui és **{reference.isoformat()}** (calendari del servidor).
 - Quan presentis resultats del catàleg, inclou enllaços a femturisme.cat quan n'hi hagi.
 - Format llegible: llistes, detalls rellevants (nom, ubicació, dates si n'hi ha, enllaç).
 - Quan `total >= 3`, llista **com a mínim 3 opcions** amb enllaç abans de tancar la resposta.
+- Seguiments d'allotjament o menjar → **només** `search_establishments`; no reactivis
+  `search_articles` ni `search_events` del torn informatiu anterior.
 - **Experiències per proximitat amb km conegut:** abans d'enviar la crida JSON, comprova que
   `search_experiences` inclou **sempre** `distance_km` quan l'usuari ha indicat distància.
 

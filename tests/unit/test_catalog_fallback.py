@@ -49,3 +49,14 @@ def test_fallback_castellers_barcelona():
     articles_input = next(inp for name, inp in calls if name == 'search_articles')
     assert articles_input['query'] == 'castellers'
     assert articles_input.get('destination') == 'Barcelona'
+
+
+def test_fallback_skips_when_establishments_executed():
+    executed = [('search_establishments', {'destination': 'Berga'})]
+    assert build_keyword_fallback_calls('2 o 3 mes siusplau', executed) is None
+
+
+def test_fallback_skips_establishment_followup_message():
+    executed = [('search_destinations', {'destination': 'Berga'})]
+    assert build_keyword_fallback_calls('2 o 3 mes siusplau', executed) is None
+    assert build_keyword_fallback_calls('no cal que siguin rurals', executed) is None

@@ -4,13 +4,6 @@
   "defaultLabels": ["enhancement"],
   "issues": [
     {
-      "title": "Agent: seguiments d'allotjament sense flux tematic",
-      "bodyFile": "docs/issues/establishments-followup-routing.md",
-      "labels": ["enhancement", "agent", "catalog", "llm"],
-      "githubNumber": 48,
-      "publishedAt": "2026-07-21"
-    },
-    {
       "title": "UAT: Patum + allotjament a prop Berga (conversacional)",
       "bodyFile": "docs/issues/uat-patum-bergua-accommodation.md",
       "labels": ["enhancement", "testing", "agent", "catalog"],
