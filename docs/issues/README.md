@@ -74,7 +74,7 @@ Després de `plan-to-issues`, el document font ha d'incloure secció **GitHub is
 
 **Batch radi experiències:** [plan-experiences-radius.md](../devs/plan-experiences-radius.md) — **complet** ([#41](https://github.com/3urega/femturisme/issues/41)–[#44](https://github.com/3urega/femturisme/issues/44), 2026-07-21).
 
-**Batch allotjament proximitat:** [plan-establishments-proximity.md](../devs/plan-establishments-proximity.md) → [manifest.establishments-proximity.json](manifest.establishments-proximity.json) — **en curs** ([#45](https://github.com/3urega/femturisme/issues/45)–[#48](https://github.com/3urega/femturisme/issues/48) tancats; [#49](https://github.com/3urega/femturisme/issues/49) oberta, 2026-07-21).
+**Batch allotjament proximitat:** [plan-establishments-proximity.md](../devs/plan-establishments-proximity.md) — **complet** ([#45](https://github.com/3urega/femturisme/issues/45)–[#49](https://github.com/3urega/femturisme/issues/49), 2026-07-21).
 
 **Batch tancat:** [plan-fase6-pre-entrega.md](../devs/plan-fase6-pre-entrega.md) — **complet** ([#23](https://github.com/3urega/femturisme/issues/23)–[#26](https://github.com/3urega/femturisme/issues/26), 2026-07-20).
 

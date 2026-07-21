@@ -31,7 +31,8 @@ _TOOL_GUIDE_CA: dict[str, str] = {
         'type rural. '
         'Si la intenció és allotjament o menjar per proximitat geogràfica i falta el radi en km → '
         'pregunta abans de cercar. Amb km conegut: destination (+ type només si l\'usuari '
-        'especifica hotel, restaurant…); el paràmetre distance_km encara no existeix en aquesta eina.'
+        'especifica hotel, restaurant…) i **obligatori** `distance_km`; sense ell la cerca '
+        'queda limitada al municipi i sol donar 0 resultats.'
     ),
     'search_destinations': (
         'Pobles, municipis i llocs per visitar («on anar», «què veure a X», comarques).'
@@ -93,14 +94,20 @@ _CATALOG_DOMAINS = """\
 #### A. Km explícit o ja confirmat — **OBLIGATORI**
 Si el missatge (o la resposta immediata anterior) conté un **número de km**
 (`50 km`, `a 30 quilòmetres`, «50» després de preguntar el radi):
-1. **Sempre** passa `distance_km=<número>` a `search_experiences` (o l'eina adequada).
-2. **Mai** cridis `search_experiences` només amb `destination` quan l'usuari ha indicat distància;
-   sense `distance_km` la cerca queda limitada al municipi i sol retornar 0 resultats.
+1. **Sempre** passa `distance_km=<número>` a `search_experiences` o `search_establishments`
+   (o l'eina adequada de proximitat).
+2. **Mai** cridis `search_experiences` o `search_establishments` només amb `destination`
+   quan l'usuari ha indicat distància; sense `distance_km` la cerca queda limitada al
+   municipi i sol retornar 0 resultats.
 3. No tornis a preguntar el radi si ja el tens.
 
 Exemple positiu (UAT, castellà):
 - Usuari: «Visitas guiadas a 50 km de Calella»
 - Crida: `search_experiences(destination=Calella, category=Visites guiades, distance_km=50)`
+
+Exemple positiu allotjament (UAT):
+- Usuari: «30 km» (després de proposar allotjament a prop de Berga)
+- Crida: `search_establishments(destination=Berga, distance_km=30)` — sense `type` genèric
 
 Exemple **incorrecte** (prohibit quan l'usuari va dir 50 km):
 - `{destination: "Calella", category: "Visites guiades"}` — falta `distance_km`.
@@ -109,7 +116,7 @@ Exemple **incorrecte** (prohibit quan l'usuari va dir 50 km):
 Quan interpretis que l'usuari vol resultats **prop d'un lloc** o **dins d'una distància
 no molt gran** respecte a un punt de referència — **encara que no digui «cerca» ni
 indiqui quilòmetres** — i el radi màxim **no** quedi clar:
-1. **No** executis encara `search_experiences` (ni cap eina de proximitat).
+1. **No** executis encara `search_experiences` ni `search_establishments` (cap eina de proximitat).
 2. **Pregunta** amablement el radi màxim en km (adapta l'idioma del torn).
 3. Quan l'usuari doni el número → aplica la **rama A** amb `distance_km`.
 
@@ -120,7 +127,7 @@ als voltants», «visites que pugui fer des d'allà sense desplaçar-me gaire».
 | Intenció | Eina (amb km conegut) | Paràmetres |
 |----------|----------------------|------------|
 | Ofertes / experiències promocionals per proximitat | `search_experiences` | `destination`, `distance_km`, `category` si aplica |
-| Allotjament o restaurant per proximitat | `search_establishments` | `destination`; `type` **només** si l'usuari especifica tipus (hotel, restaurant…), no per allotjament genèric — `distance_km` encara no existeix en aquesta eina |
+| Allotjament o restaurant per proximitat | `search_establishments` | `destination`, `distance_km`; `type` **només** si l'usuari especifica tipus (hotel, restaurant…), no per allotjament genèric |
 
 - **No** confonguis amb `search_destinations` («què veure a X» = fitxa de població, no oferta comercial).
 - Per agenda amb data concreta → `search_events`, no `search_experiences`.

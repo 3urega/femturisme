@@ -223,8 +223,9 @@ def test_build_system_prompt_proximity_establishments_future():
     prompt = build_system_prompt()
     assert 'search_establishments' in prompt
     assert 'distance_km' in prompt
-    assert 'encara no existeix' in prompt
+    assert 'encara no existeix' not in prompt
     assert 'allotjament genèric' in prompt.lower() or 'només si l' in prompt
+    assert 'search_establishments(destination=Berga, distance_km=30)' in prompt
 
 
 def test_build_system_prompt_proximity_vs_destinations():

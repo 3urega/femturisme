@@ -291,6 +291,38 @@ El catàleg UAT (`uat_catalog_battery.py`) inclou `UAT-EXP-03` (routing + `min_t
 
 ---
 
+## UAT allotjament Patum + Berga (issue #49)
+
+Bateria end-to-end **multi-turn** que reprodueix la conversa golden Patum → allotjament a prop de Berga (issues #45–#48).
+
+**Requisits:**
+
+- Servidor Flask en marxa (`python main.py`)
+- `MYSQL_*` o `AGENT_MYSQL_*` configurat (MySQL staging amb dades reals)
+- LLM real (no `LLM_PROVIDER=dummy` del mode testing)
+
+**Skip sense MySQL:** si no hi ha credencials MySQL, el script imprimeix `SKIP` i surt amb **exit code 0**.
+
+```powershell
+python main.py
+python scripts/uat_patum_bergua_accommodation.py http://127.0.0.1:5010
+```
+
+Escenari `UAT-EST-BERG` (mateix `session_id`, 4 torns):
+
+| Check | Descripció |
+|-------|------------|
+| `UAT-EST-B01` | «Què en saps de la Patum?» → `search_articles` + `search_events`, recall ≥ 1 |
+| `UAT-EST-B02` | «buscam allotjament a prop de Berga» → pregunta km/radi o `search_establishments` sense `cases-rurals` |
+| `UAT-EST-B03` | «si, 30 km» (retry «30 km des de Berga» si cal) → `search_establishments` amb `distance_km=30`, destination Berga; sense articles/events |
+| `UAT-EST-B04` | «2 o 3 més si us plau» → només `search_establishments`; sense rural; `total >= 3` |
+
+Umbral: **100% PASS** (4 checks). Resultats: `scripts/uat_patum_bergua_accommodation_results.txt`.
+
+**Nota:** un FAIL pot indicar routing LLM encara que el backend SQL passi (`pytest tests/integration/sql/test_establishments.py -k bergua`).
+
+---
+
 ## Tests API (tecnic §14.2)
 
 | ID | Fitxer | Descripció |
