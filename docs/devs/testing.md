@@ -259,6 +259,38 @@ python scripts/uat_recall_battery.py http://127.0.0.1:5010
 
 ---
 
+## UAT radi experiències (issue #44)
+
+Bateria end-to-end per validar **ofertes per radi km** (`search_experiences` + `distance_km`) alineada amb el portal ([visites guiades Calella 50 km](https://femturisme.cat/ofertes/visites-guiades?ubicacio=calella&distancia=50)).
+
+**Requisits:**
+
+- Servidor Flask en marxa (`python main.py`)
+- `MYSQL_*` o `AGENT_MYSQL_*` configurat (MySQL staging amb dades reals)
+- LLM real (no `LLM_PROVIDER=dummy` del mode testing)
+
+**Skip sense MySQL:** si no hi ha credencials MySQL, el script imprimeix `SKIP` i surt amb **exit code 0**.
+
+```powershell
+python main.py
+python scripts/uat_experiences_radius.py http://127.0.0.1:5010
+```
+
+Casos:
+
+| ID | Descripció |
+|----|------------|
+| `UAT-EXP-R01` | «Visitas guiadas a 50 km de Calella» — `distance_km=50`, `total >= 1`, URL `/ofertes/` |
+| `UAT-EXP-R02` | Proximitat sense km → diàleg → «50 km» — valida prompt conversacional (#43) |
+
+Umbral: **100% PASS** (2 casos). Resultats opcionals: `scripts/uat_experiences_radius_results.txt`.
+
+**Nota:** un FAIL pot indicar que el LLM no segueix el prompt (routing o `distance_km`) encara que el backend SQL passi (`pytest tests/integration/sql/test_experiences.py -k calella`).
+
+El catàleg UAT (`uat_catalog_battery.py`) inclou `UAT-EXP-03` (routing + `min_total: 1` sense assert de `distance_km`).
+
+---
+
 ## Tests API (tecnic §14.2)
 
 | ID | Fitxer | Descripció |

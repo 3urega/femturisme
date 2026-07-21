@@ -1,59 +1,45 @@
 # Pla: Experiències per radi geogràfic (paritat `/ofertes?distancia=`)
 
-**Motiu:** el portal permet cerques com [visites guiades a 50 km de Calella](https://femturisme.cat/ofertes/visites-guiades?ubicacio=calella&distancia=50) (`ubicacio` + `distancia` + `tipus`). L'agent avui només filtra per **poble/comarca LIKE** via `search_experiences(destination)` — no per radi km.
+**Motiu:** el portal permet cerques com [visites guiades a 50 km de Calella](https://femturisme.cat/ofertes/visites-guiades?ubicacio=calella&distancia=50) (`ubicacio` + `distancia` + `tipus`).
 
-**Objectiu:** afegir paràmetre opcional `distance_km` a `search_experiences` per retornar ofertes dins d'un radi des d'un punt d'origen resolt des del catàleg MySQL, mantenint `category` (p. ex. `Visites guiades`).
+**Objectiu:** paràmetre opcional `distance_km` a `search_experiences`, prompt conversacional de proximitat i UAT end-to-end.
 
-**Estat:** **en curs** — [#41](https://github.com/3urega/femturisme/issues/41)–[#43](https://github.com/3urega/femturisme/issues/43) implementats *(2026-07-21)*; obert [#44](https://github.com/3urega/femturisme/issues/44) (UAT).
+**Estat:** **completat** — issues [#41](https://github.com/3urega/femturisme/issues/41)–[#44](https://github.com/3urega/femturisme/issues/44) implementades *(2026-07-21)*.
 
 ---
 
-## Gap vs portal web
+## Gap vs portal web (resolt a nivell backend)
 
 ```text
 Portal:  /ofertes/visites-guiades?ubicacio=calella&distancia=50
-         → ofertes dins 50 km de Calella (Alta Alella, Mogoda, Barcelona…)
+         → ofertes dins 50 km de Calella
 
-Agent:   search_experiences(destination="Calella", category="Visites guiades")
-         → només ofertes amb poble/comarca ~ Calella (més estret)
+Agent:   search_experiences(destination=Calella, category=Visites guiades, distance_km=50)
+         → radi Haversine + meta.scope=radius (quan el LLM passa distance_km)
 ```
 
-**Referència funcional:** domini §4.6 experiències promocionals; `agente.md` mapping `ubicacio` / `tipus` (legacy scraping doc encara útil per contracte URL).
+**Pendent producte:** el UAT manual (`uat_experiences_radius.py`) pot fallar si el LLM no passa `distance_km` encara que el SQL d'integració passi.
 
 ---
 
-## Hipòtesi tècnica (validar a VS1)
+## GitHub issues
 
-| Peça | Font |
-|------|------|
-| Coordenades origen | `poble_general.latitud/longitud` per municipi; `generic_ubicacions` per zones agregades |
-| Coordenades oferta | `establiment_general.latitud/longitud` o `poble_general` de l'oferta |
-| Filtre radi | Haversine MySQL (km) quan `distance_km` present |
-| Comportament sense coords | Fallback a filtre territorial actual + `meta.hint` |
-
-**Fora d'abast v1:** replicar el filtre a `search_establishments`, `search_events`, etc.; canvis PHP CMS; scraping.
+| Ordre | Títol | GitHub |
+|-------|-------|--------|
+| 1 | Helper radi km i SQL Haversine | [#41](https://github.com/3urega/femturisme/issues/41) |
+| 2 | search_experiences amb distance_km | [#42](https://github.com/3urega/femturisme/issues/42) |
+| 3 | Prompt proximitat (preguntar km) | [#43](https://github.com/3urega/femturisme/issues/43) |
+| 4 | UAT Calella 50 km vs portal | [#44](https://github.com/3urega/femturisme/issues/44) |
 
 ---
 
-## GitHub issues (draft)
-
-| Ordre | Slug | Títol | GitHub |
-|-------|------|-------|--------|
-| 1 | — | Catàleg: helper radi km i SQL Haversine (territory) | [#41](https://github.com/3urega/femturisme/issues/41) **Implementat** |
-| 2 | — | Catàleg: search_experiences amb distance_km | [#42](https://github.com/3urega/femturisme/issues/42) **Implementat** |
-| 3 | — | Prompt: ofertes «a X km de Y» i visites guiades | [#43](https://github.com/3urega/femturisme/issues/43) **Implementat** |
-| 4 | `uat-experiences-radius.md` | UAT: visites guiades Calella 50 km vs portal | [#44](https://github.com/3urega/femturisme/issues/44) |
-
-Manifest: [manifest.experiences-radius.json](../issues/manifest.experiences-radius.json)
-
----
-
-## Verificació global (post-batch)
+## Verificació global
 
 ```powershell
-python -m pytest tests/integration/sql/test_experiences.py -v -m integration
+python -m pytest tests/integration/sql/test_experiences.py -v -m integration -k calella
+python main.py
 python scripts/uat_experiences_radius.py http://127.0.0.1:5010
 # Manual: comparar amb https://femturisme.cat/ofertes/visites-guiades?ubicacio=calella&distancia=50
 ```
 
-**Última actualització:** 2026-07-21 (#43 tancat)
+**Última actualització:** 2026-07-21 (batch #41–#44 tancat)

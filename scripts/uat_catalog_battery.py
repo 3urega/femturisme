@@ -99,6 +99,14 @@ CASES: list[dict] = [
         "min_total": 0,
         "forbidden_tools": ["search_events"],
     },
+    {
+        "id": "UAT-EXP-03",
+        "domain": "experiences",
+        "message": "Visitas guiadas a 50 km de Calella",
+        "expected_tool": "search_experiences",
+        "min_total": 1,
+        "forbidden_tools": ["search_events", "search_destinations"],
+    },
 ]
 
 

@@ -1,0 +1,18 @@
+UAT radi experiències (#44) — base=http://127.0.0.1:5010
+
+[1/2] UAT-EXP-R01: km explícit al primer missatge (paritat portal)
+  user: Visitas guiadas a 50 km de Calella
+  -> FAIL | tools=search_experiences | distance_km=None | totals=search_experiences=0 | meta.scope=— | url=—
+  detail: missing distance_km in tool input
+
+[2/2] UAT-EXP-R02: proximitat sense km -> dialog -> radi (#43)
+  user: M'agradaria fer visites guiades des de Calella sense allunyar-me gaire
+  user: 50 km
+  -> FAIL | tools=search_experiences, search_experiences | distance_km=None | totals=search_experiences=0 | meta.scope=— | url=—
+  detail: turn1=ok; turn2: missing distance_km in tool input
+
+============================================================
+RESULTAT: 0/2 PASS | umbral 100% -> KO (0%)
+============================================================
+  [KO] UAT-EXP-R01 distance_km=None url=—
+  [KO] UAT-EXP-R02 distance_km=None url=—
