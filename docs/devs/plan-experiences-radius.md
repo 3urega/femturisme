@@ -4,7 +4,7 @@
 
 **Objectiu:** afegir paràmetre opcional `distance_km` a `search_experiences` per retornar ofertes dins d'un radi des d'un punt d'origen resolt des del catàleg MySQL, mantenint `category` (p. ex. `Visites guiades`).
 
-**Estat:** **draft** — issues locals a `docs/issues/manifest.experiences-radius.json`.
+**Estat:** **en curs** — [#41](https://github.com/3urega/femturisme/issues/41) i [#42](https://github.com/3urega/femturisme/issues/42) implementats *(2026-07-21)*; obert [#43](https://github.com/3urega/femturisme/issues/43)–[#44](https://github.com/3urega/femturisme/issues/44).
 
 ---
 
@@ -37,12 +37,12 @@ Agent:   search_experiences(destination="Calella", category="Visites guiades")
 
 ## GitHub issues (draft)
 
-| Ordre | Slug | Títol |
-|-------|------|-------|
-| 1 | `geo-radius-helper.md` | Catàleg: helper radi km i SQL Haversine (territory) |
-| 2 | `experiences-distance-km.md` | Catàleg: search_experiences amb distance_km |
-| 3 | `prompt-experiences-radius.md` | Prompt: ofertes «a X km de Y» i visites guiades |
-| 4 | `uat-experiences-radius.md` | UAT: visites guiades Calella 50 km vs portal |
+| Ordre | Slug | Títol | GitHub |
+|-------|------|-------|--------|
+| 1 | — | Catàleg: helper radi km i SQL Haversine (territory) | [#41](https://github.com/3urega/femturisme/issues/41) **Implementat** |
+| 2 | — | Catàleg: search_experiences amb distance_km | [#42](https://github.com/3urega/femturisme/issues/42) **Implementat** |
+| 3 | `prompt-experiences-radius.md` | Prompt: ofertes «a X km de Y» i visites guiades | [#43](https://github.com/3urega/femturisme/issues/43) |
+| 4 | `uat-experiences-radius.md` | UAT: visites guiades Calella 50 km vs portal | [#44](https://github.com/3urega/femturisme/issues/44) |
 
 Manifest: [manifest.experiences-radius.json](../issues/manifest.experiences-radius.json)
 
@@ -56,4 +56,4 @@ python scripts/uat_experiences_radius.py http://127.0.0.1:5010
 # Manual: comparar amb https://femturisme.cat/ofertes/visites-guiades?ubicacio=calella&distancia=50
 ```
 
-**Última actualització:** 2026-07-20
+**Última actualització:** 2026-07-21 (#42 tancat)

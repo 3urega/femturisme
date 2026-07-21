@@ -36,6 +36,13 @@ SCHEMA = {
                 'type': 'string',
                 'description': 'Content language: ca (default), es, en, or fr',
             },
+            'distance_km': {
+                'type': 'integer',
+                'description': (
+                    'Optional max distance in km from destination '
+                    '(e.g. 50 for offers within 50 km)'
+                ),
+            },
         },
         'required': ['destination'],
     },
@@ -68,6 +75,21 @@ _VALID_CATEGORIES = frozenset({
     'Restaurants',
     'Visites guiades',
 })
+
+
+_MAX_DISTANCE_KM = 100
+
+
+def _parse_distance_km(value: object) -> float | None:
+    if value is None:
+        return None
+    try:
+        parsed = float(value)
+    except (TypeError, ValueError):
+        return None
+    if parsed <= 0:
+        return None
+    return min(parsed, _MAX_DISTANCE_KM)
 
 
 def _normalize_category(value: object) -> str | None:
@@ -107,6 +129,7 @@ def execute(tool_input: dict) -> str:
             category=category,
             establishment=establishment,
             lang=lang,
+            distance_km=_parse_distance_km(tool_input.get('distance_km')),
             skip_location_filter=bool(tool_input.get('_skip_location_filter')),
             retried=bool(tool_input.get('_retried')),
         )

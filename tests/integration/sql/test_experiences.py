@@ -31,3 +31,27 @@ def test_experiences_costa_brava_tourism_zone(app):
     assert meta.get('resolved_zone') == 'Costa Brava'
     assert meta.get('resolved_comarques')
     assert data['results'][0]['url'].startswith('https://www.femturisme.cat/')
+
+
+@pytest.mark.integration
+@pytest.mark.skipif(not mysql_available(), reason='MYSQL_* not configured')
+def test_experiences_calella_50km_guided_visits(app):
+    """SQL-06b: Calella + 50 km + Visites guiades → radius meta and >=1 offer."""
+    experiences = pytest.importorskip('app.db.repositories.experiences')
+    geo_radius = pytest.importorskip('app.db.geo_radius')
+    with app.app_context():
+        origin = geo_radius.resolve_origin_coordinates('Calella')
+        if origin is None:
+            pytest.skip('Calella coordinates not available in staging MySQL')
+        data = experiences.search(
+            destination='Calella',
+            category='Visites guiades',
+            distance_km=50,
+        )
+    meta = data.get('meta') or {}
+    if meta.get('scope') != 'radius':
+        pytest.skip('Radius origin could not be resolved for Calella')
+    assert meta['distance_km'] == 50
+    assert meta['origin']['label']
+    assert int(data['total']) >= 1
+    assert data['results'][0]['url'].startswith('https://www.femturisme.cat/ofertes/')

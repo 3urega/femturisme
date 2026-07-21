@@ -667,7 +667,34 @@ LIMIT %s;
 | `preu_oferta` | `price` | Opcional v1 |
 | `image` | `image` | |
 
-### 6.4 Filtres publicació
+### 6.4 Filtre per radi (`distance_km`)
+
+**Implementació helper:** `app/db/geo_radius.py` (issue #41). **Integració a `search_experiences`:** [`app/db/repositories/experiences.py`](../../app/db/repositories/experiences.py) + tool (issue #42).
+
+| Paràmetre | Tipus | Descripció |
+|-------------------------|-------|------------|
+| `distance_km` | `number?` | Radi màxim en km des de l’origen resolt per `destination` |
+
+**Resolució d’origen** (`resolve_origin_coordinates`):
+
+1. `poble_general`: `param_url` = slug normalitzat (`normalize_territory` + espais → `-`) **o** `poble LIKE %destination%`
+2. Fallback `generic_ubicacions`: `param_url` o `ubicacio` (zones/comarques amb centre geo)
+3. Retorna `None` si `is_broad_territory(destination)` (p. ex. «Catalunya») o coordenades invàlides (`''`, `'0'`, fora de rang)
+
+**Predicat Haversine** (`haversine_km_predicate` / `build_radius_filter`):
+
+- Radi terrestre 6371 km; retorna `(clause, params)` per `AND ({clause})`
+- Guard: columnes `latitud`/`longitud` (varchar CMS) no buides ni NULL abans del càlcul
+- Columnes destí a ofertes:
+
+```sql
+COALESCE(NULLIF(eg.latitud, ''), pg.latitud)   -- lat_expr
+COALESCE(NULLIF(eg.longitud, ''), pg.longitud)  -- lng_expr
+```
+
+**Exemple:** `destination=Calella`, `distance_km=50` → origen ~(41.613, 2.653); només files amb coords conegudes dins del radi (comportament portal-like).
+
+### 6.5 Filtres publicació
 
 | Camp | Valor |
 |------|-------|
@@ -675,14 +702,15 @@ LIMIT %s;
 | `og.data_inicial` / `og.data_final` | Vigència actual |
 | `og.es_oferta` | No filtrat v1 — validar amb client si cal restringir promocions |
 
-### 6.5 Casos de prova
+### 6.6 Casos de prova
 
 | # | destination | category / establishment | Files min | URL provada |
 |---|-------------|--------------------------|-----------|-------------|
 | SQL-06 | Olvan | arrossada | ≥ 0 | ☑ |
+| SQL-06b | Calella | Visites guiades + 50 km | ≥ 1 (radi) | ☑ |
 | — | Costa Brava | — | ≥ 0 (zona turística) | ☑ |
 
-### 6.6 Pendents client
+### 6.7 Pendents client
 
 - **Confirmar Q-04:** `oferta_*` = experiències promocionals del model de negoci *(owner: client)*
 - Valors possibles de `og.estat` (publicat, actiu, etc.) *(owner: client)*

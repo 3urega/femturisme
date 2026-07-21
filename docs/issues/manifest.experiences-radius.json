@@ -4,24 +4,18 @@
   "defaultLabels": ["enhancement", "mysql", "catalog"],
   "issues": [
     {
-      "title": "Catàleg: helper radi km i SQL Haversine (territory)",
-      "bodyFile": "docs/issues/geo-radius-helper.md",
-      "labels": ["mysql", "catalog"]
-    },
-    {
-      "title": "Catàleg: search_experiences amb distance_km",
-      "bodyFile": "docs/issues/experiences-distance-km.md",
-      "labels": ["mysql", "catalog"]
-    },
-    {
       "title": "Prompt: ofertes a X km de Y i visites guiades",
       "bodyFile": "docs/issues/prompt-experiences-radius.md",
-      "labels": ["agent", "docs"]
+      "labels": ["agent", "docs"],
+      "githubNumber": 43,
+      "publishedAt": "2026-07-20"
     },
     {
       "title": "UAT: visites guiades Calella 50 km vs portal",
       "bodyFile": "docs/issues/uat-experiences-radius.md",
-      "labels": ["testing", "catalog"]
+      "labels": ["testing", "catalog"],
+      "githubNumber": 44,
+      "publishedAt": "2026-07-20"
     }
   ]
 }

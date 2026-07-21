@@ -72,7 +72,7 @@ Després de `plan-to-issues`, el document font ha d'incloure secció **GitHub is
 
 **Batch recall catàleg:** [plan-catalog-recall.md](../devs/plan-catalog-recall.md) — **complet** ([#36](https://github.com/3urega/femturisme/issues/36)–[#40](https://github.com/3urega/femturisme/issues/40), 2026-07-20).
 
-**Batch radi experiències:** [plan-experiences-radius.md](../devs/plan-experiences-radius.md) → [manifest.experiences-radius.json](manifest.experiences-radius.json) — **draft** (publicar amb publish-github-issues).
+**Batch radi experiències:** [plan-experiences-radius.md](../devs/plan-experiences-radius.md) → [manifest.experiences-radius.json](manifest.experiences-radius.json) — **en curs** ([#41](https://github.com/3urega/femturisme/issues/41)–[#44](https://github.com/3urega/femturisme/issues/44), 2026-07-20).
 
 **Batch tancat:** [plan-fase6-pre-entrega.md](../devs/plan-fase6-pre-entrega.md) — **complet** ([#23](https://github.com/3urega/femturisme/issues/23)–[#26](https://github.com/3urega/femturisme/issues/26), 2026-07-20).
 
