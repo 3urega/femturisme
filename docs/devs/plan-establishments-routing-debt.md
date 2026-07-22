@@ -11,11 +11,35 @@
 
 **Objectiu:** UAT-EST-B03 i B04 **PASS** (4/4) sense canvis al repository MySQL.
 
-**Estat:** **obert** — [#50](https://github.com/3urega/femturisme/issues/50)–[#52](https://github.com/3urega/femturisme/issues/52) publicades *(2026-07-21)*.
+**Estat:** **completat** — [#50](https://github.com/3urega/femturisme/issues/50)–[#52](https://github.com/3urega/femturisme/issues/52) implementades; UAT **4/4 PASS** via [#51](https://github.com/3urega/femturisme/issues/51) *(2026-07-21)*.
 
 ---
 
-## Gap vs UAT #49
+## Resultat final UAT
+
+```text
+UAT-EST-B01…B04: 4/4 PASS (100%) — scripts/uat_patum_bergua_accommodation_results.txt
+```
+
+| # | Gap | Solució | Estat |
+|---|-----|---------|-------|
+| 1 | km sol després d'allotjament → experiències | Prompt §C domini conversacional (#50) | Tancat |
+| 2 | Historial no guia el torn curt | Instrucció per torn + `build_forced_search_establishments_input` (#52, #51) | Tancat |
+| 3 | UAT encara KO | Revalidació 4/4 + ca-matrix (#51) | Tancat |
+
+---
+
+## GitHub issues (batch tancat)
+
+| Ordre | Títol | GitHub | Estat |
+|-------|-------|--------|-------|
+| 1 | Prompt: proximitat km allotjament vs experiències | [#50](https://github.com/3urega/femturisme/issues/50) | **Implementat** *(2026-07-21)* |
+| 2 | Agent: instrucció per torn domini allotjament actiu | [#52](https://github.com/3urega/femturisme/issues/52) | **Implementat** *(2026-07-21)* |
+| 3 | UAT: Patum+Berga 4/4 PASS i ca-matrix | [#51](https://github.com/3urega/femturisme/issues/51) | **Implementat** *(2026-07-21)* |
+
+---
+
+## Gap vs UAT #49 (històric)
 
 ```text
 Turn 2: buscam allotjament a prop de Berga → agent pregunta km (OK)
@@ -27,23 +51,11 @@ Turn 4: 2 o 3 més → articles/events + establishments (KO)
 |---|-----|-------------------|
 | 1 | km sol després d'allotjament → experiències | Prompt: domini conversacional + exemples negatius |
 | 2 | Historial no guia el torn curt | Agent: instrucció per torn (domini allotjament actiu) |
-| 3 | UAT encara KO | Revalidació + actualitzar ca-matrix |
+| 3 | UAT encara KO | Revalidació + actualitzar ca-matrix | Tancat #51 |
 
 ---
 
-## GitHub issues
-
-| Ordre | Títol | GitHub | Estat |
-|-------|-------|--------|-------|
-| 1 | Prompt: proximitat km allotjament vs experiències | [#50](https://github.com/3urega/femturisme/issues/50) | **Implementat** *(2026-07-21)* |
-| 2 | Agent: instrucció per torn domini allotjament actiu | [#52](https://github.com/3urega/femturisme/issues/52) | **Implementat** *(2026-07-21)* |
-| 3 | UAT: Patum+Berga 4/4 PASS i ca-matrix | [#51](https://github.com/3urega/femturisme/issues/51) | Obert |
-
-Manifest: [manifest.establishments-routing-debt.json](../issues/manifest.establishments-routing-debt.json)
-
----
-
-## Verificació global
+## Verificació global (regressió)
 
 ```powershell
 python -m pytest tests/unit/test_prompts.py tests/unit/test_domain_hints.py -q

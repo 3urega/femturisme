@@ -4,6 +4,7 @@ from __future__ import annotations
 from app.services.agent_service import AgentService
 from app.services.domain_hints import (
     build_establishment_turn_instruction,
+    build_forced_search_establishments_input,
     infer_establishment_domain_context,
     is_establishment_domain_active,
     is_establishment_followup_message,
@@ -162,3 +163,62 @@ def test_fallback_skips_when_establishment_domain_active():
 def test_is_establishment_followup_more_options():
     assert is_establishment_followup_message('2 o 3 mes siusplau') is True
     assert is_establishment_followup_message('2 o 3 més si us plau') is True
+
+
+def test_build_forced_search_establishments_input_after_km_confirmation():
+    payload = build_forced_search_establishments_input(
+        _patum_bergua_prior_history(),
+        'si, 30 km',
+    )
+    assert payload == {
+        'destination': 'Berga',
+        'distance_km': 30,
+        '_establishment_domain_forced': True,
+    }
+
+
+def test_build_forced_search_establishments_input_30_km_des_de_berga():
+    payload = build_forced_search_establishments_input(
+        _patum_bergua_prior_history(),
+        '30 km des de Berga',
+    )
+    assert payload is not None
+    assert payload['destination'] == 'Berga'
+    assert payload['distance_km'] == 30
+
+
+def test_build_forced_search_establishments_input_followup_with_prior_tool():
+    history = [
+        {'role': 'user', 'content': 'buscam allotjament a prop de Berga'},
+        {
+            'role': 'assistant',
+            'content': [
+                {
+                    'type': 'tool_use',
+                    'id': 'e1',
+                    'name': 'search_establishments',
+                    'input': {'destination': 'Berga', 'distance_km': 30},
+                },
+            ],
+        },
+        {'role': 'user', 'content': [{'type': 'tool_result', 'tool_use_id': 'e1', 'content': '{}'}]},
+        {'role': 'assistant', 'content': 'He trobat allotjaments...'},
+    ]
+    payload = build_forced_search_establishments_input(history, '2 o 3 més si us plau')
+    assert payload is not None
+    assert payload['destination'] == 'Berga'
+    assert payload['distance_km'] == 30
+
+
+def test_build_forced_search_establishments_input_none_for_calella():
+    assert build_forced_search_establishments_input(
+        [],
+        'Visitas guiadas a 50 km de Calella',
+    ) is None
+
+
+def test_build_forced_search_establishments_input_none_for_patum_only():
+    assert build_forced_search_establishments_input(
+        [{'role': 'user', 'content': 'Què en saps de la Patum?'}],
+        'Què és la Patum?',
+    ) is None

@@ -1,19 +1,18 @@
-UAT Patum + allotjament Berga (#49) — base=http://127.0.0.1:5011
+UAT Patum + allotjament Berga (#49) — base=http://127.0.0.1:5010
 
 UAT-EST-BERG: Patum -> allotjament a prop Berga -> confirmacio -> mes opcions
-  B03 retry: full scenario with turn 3 = «30 km des de Berga»
   user: Què en saps de la Patum?
-  tools=search_articles, search_events | totals=search_articles=5, search_events=0
+  tools=search_articles, search_events | totals=search_articles=10, search_events=0
   user: buscam allotjament a prop de Berga
   tools=search_establishments | totals=search_establishments=7
-  user: 30 km des de Berga
-  tools=search_experiences | totals=search_experiences=6
+  user: si, 30 km
+  tools=search_establishments | totals=search_establishments=20
   user: 2 o 3 més si us plau
-  tools=search_experiences | totals=search_experiences=6
+  tools=search_establishments | totals=search_establishments=20
   [PASS] UAT-EST-B01: ok
   [PASS] UAT-EST-B02: ok (establishments without rural type)
-  [FAIL] UAT-EST-B03: expected search_establishments, got ['search_experiences']
-  [FAIL] UAT-EST-B04: expected search_establishments, got ['search_experiences']
+  [PASS] UAT-EST-B03: ok
+  [PASS] UAT-EST-B04: ok (total=20)
 ============================================================
-RESULTAT: 2/4 PASS | umbral 100% -> KO (50%)
+RESULTAT: 4/4 PASS | umbral 100% -> OK (100%)
 ============================================================

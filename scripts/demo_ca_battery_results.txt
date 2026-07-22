@@ -1,0 +1,71 @@
+Demo CA battery — base=http://127.0.0.1:5010
+========================================================================
+
+## D01 — CA-01 / RF-01 — Llenguatge natural
+Pregunta 1: Hola, em pots ajudar a planificar un cap de setmana al Berguedà?
+  Eines: (cap)
+  Resposta: Hola! M'encantaria ajudar-te a planificar un cap de setmana al Berguedà. Per començar, podem veure opcions d'on dormir, què fer (rutes, llocs per visitar), alguna experiència especial o esdeveniments que hi hagi aquest cap de setmana a la comarca. Vols que et proposi allotjament, activitats, restaurants o algun esdeveniment en concret? També, si tens alguna preferència de distància o tipus d'activitat, digues-m'ho!
+  Verificació: OK — evidència alineada amb el criteri
+
+## D02 — CA-02 / RF-02 — Intenció — rutes
+Pregunta 1: Quines rutes de senderisme hi ha al Berguedà?
+  Eines: search_routes
+  Resposta: Al Berguedà hi ha diverses rutes de senderisme que pots gaudir. Aquí tens algunes de les destacades: 1. [4 rutes circulars per Graugés, a Avià](https://www.femturisme.cat/rutes/4-rutes-circulars-per-grauges-a-avia) - Passeja per la colònia agrícola de Graugés amb aquestes quatre rutes circulars fàcils. 2. [AviART: L'art als carrers d'Avià](https://www.femturisme.cat/rutes/aviart-l-art-als-carrers-d-avia) - Ruta semiurbana per conèixer les obres artístiques del nucli d'Avià i el barri de la Creu. 3. [Berga durant la Guerra Civil](https://www.femturisme.cat/rutes/berga-durant-la-guerra-civil)...
+  Verificació: OK — evidència alineada amb el criteri
+
+## D03 — CA-02 / RF-02 — Intenció — agenda (no experiències)
+Pregunta 1: Què fer aquest cap de setmana a Girona?
+  Eines: search_events
+  Resposta: Aquest cap de setmana no consta cap esdeveniment concret a Girona segons l'agenda del portal femturisme.cat. Si vols, et puc ajudar a descobrir altres activitats o llocs per visitar a Girona aquests dies, o activitats en pobles pròxims. Digues-m'ho si t'interessa!
+  Verificació: OK — evidència alineada amb el criteri
+
+## D04 — CA-04 / RF-04 — Combinació fonts — dormir + fer
+Pregunta 1: On puc dormir i què fer aquest cap de setmana a Girona?
+  Eines: search_establishments, search_events
+  Resposta: Aquest cap de setmana a Girona, aquí tens informació útil: On dormir: Actualment, no hi ha allotjaments específics destacats a Girona al catàleg que puguem mostrar, però et recomano visitar aquests recursos locals que t'ajudaran a trobar allotjament: - [Associació Cultural Pau Casals](https://www.femturisme.cat/establiments/associacio-cultural-pau-casals) - [Turisme Gironès](https://www.femturisme.cat/establiments/turisme-girones) Què fer: No hi ha esdeveniments específics registrats a l'agenda per a aquest cap de setmana a Girona. Si vols, puc ajudar-te a trobar allotjament més ampliat a l...
+  Verificació: OK — evidència alineada amb el criteri
+
+## D05 — CA-05 / RF-11 — Enllaços femturisme.cat
+Pregunta 1: Recomana’m hotels a Barcelona
+  Eines: search_establishments
+  Resposta: Aquí tens alguns hotels a Barcelona que et poden interessar: 1. Aparthotel Atenea Barcelona [Més info i reserva](https://www.femturisme.cat/establiments/aparhotel-atenea-barcelona) 2. Aparthotel Atenea Calabria [Més info i reserva](https://www.femturisme.cat/establiments/aparhotel-atenea-calabria) 3. Aparthotel Silver [Més info i reserva](https://www.femturisme.cat/establiments/aparthotel-silver) 4. Atenea Rekord Suites [Més info i reserva](https://www.femturisme.cat/establiments/hotel-atenea-rekord-suites) 5. Hotel Hyatt Regency Barcelona Tower [Més info i reserva](https://www.femturisme.c...
+  Verificació: OK — evidència alineada amb el criteri
+
+## D06 — CA-06 / RF-08 — Sense coincidències — plat específic
+Pregunta 1: On menjar uns bons macarrons a Besalú?
+  Eines: search_establishments
+  Resposta: No tinc una cerca específica per "macarrons" a Besalú en el catàleg, però et puc recomanar alguns restaurants a Besalú on segurament podràs trobar plats bons, incloent macarrons o altres menús. Vols que et faci una llista de restaurants recomanats a Besalú?
+  Verificació: OK — evidència alineada amb el criteri
+
+## D07 — CA-07 / RF-06 — Context conversacional Patum → Berga
+Pregunta 1: Què en saps de la Patum?
+  Eines: search_articles, search_events
+  Resposta: La Patum és una festa popular molt emblemàtica que es viu amb molt d'intensitat i arrelament, especialment a Berga. Encara que en l'agenda actual de l'any no hi ha esdeveniments específics registrats (pot ser perquè la festa és anual i es fa en dates concretes), et puc compartir alguns articles que t'ajudaran a conèixer millor la seva essència i context cultural: 1. [Descobreix els Correfocs: la festa que encén els carrers](https://www.femturisme.cat/noticies/descobreix-els-correfocs-la-festa-que-encen-els-carrers) — Sobre aquesta festa catalana intensa i popular que combina foc, música i p...
+Pregunta 2: buscam allotjament a prop de Berga
+  Eines: (cap)
+  Resposta: Quin radi màxim en km vols que busqui pels allotjaments a prop de Berga?
+Pregunta 3: si, 30 km
+  Eines: search_establishments
+  Resposta: Aquí tens diverses opcions d'allotjament a prop de Berga, dins d'un radi de 30 km: 1. [Alberg Cal Pons, Fundesplai](https://www.femturisme.cat/establiments/alberg-cal-pons-fundesplai) a Puig-reig (Berguedà) 2. [Alberg La Rectoria de la Selva, Fundesplai](https://www.femturisme.cat/establiments/alberg-la-rectoria-de-la-selva-fundesplai) a Navès (Solsonès) 3. [Berga Resort](https://www.femturisme.cat/establiments/berga-resort) càmping ubicat a Berga mateix 4. [Cal Fargas Turisme Rural](https://www.femturisme.cat/establiments/cal-fargas-turisme-rural) casa rural a Santa Maria de Merlès (Lluçan...
+  Verificació: OK — evidència alineada amb el criteri
+
+## D08 — CA-08 / RF-08 — No inventar — tema sense catàleg
+Pregunta 1: Quin és el millor restaurant de la galàxia a Catalunya?
+  Eines: (cap)
+  Resposta: No hi ha una resposta oficial sobre quin és el millor restaurant de la galàxia perquè és una qüestió subjectiva i depèn molt dels gustos personals. Però si vols, et puc ajudar a trobar alguns dels restaurants més destacats, premiats o molt ben valorats a Catalunya, segons el portal femturisme.cat. Vols que et faci una selecció de restaurants molt recomanats a Catalunya?
+  Verificació: OK — evidència alineada amb el criteri
+
+## D09 — CA-02 / RF-02 — Articles temàtics (recall Patum)
+Pregunta 1: Què és la Patum?
+  Eines: search_articles, search_events
+  Resposta: La Patum és una festa popular que representa una expressió intensa i cultural molt arrelada a Catalunya, especialment destacada als carrers amb foc, música i participació ciutadana. Tot i que no hi ha esdeveniments pròxims relacionats amb la Patum en l'agenda actual, pots trobar articles amb explicacions i detalls sobre la festa, que et poden ajudar a conèixer més la seva història i significat. Et recomano aquest article per començar a entendre què és la Patum i el seu esperit festiu: - [Descobreix els Correfocs: la festa que encén els carrers](https://www.femturisme.cat/noticies/descobreix...
+  Verificació: OK — evidència alineada amb el criteri
+
+## D10 — CA-02 / RF-10 — Idioma castellà
+Pregunta 1: ¿Qué rutas hay en la Costa Brava?
+  Eines: search_routes
+  Resposta: A la Costa Brava hi ha diverses rutes turístiques per descobrir. Aquí tens algunes destacades: 1. 3 rutas por algunos de los pueblos más bonitos de Tarragona (Siurana, Alt Empordà) [Veure ruta](https://www.femturisme.cat/rutes/3-rutas-por-algunos-de-los-pueblos-mas-bonitos-de-tarragona) Aquesta ruta cultural i a peu passa per pobles amb gran patrimoni i bellesa. 2. 6 lugares que no os podéis perder en Caldes de Malavella (La Selva) [Veure ruta](https://www.femturisme.cat/rutes/6-lugares-que-no-os-podeis-perder-en-caldes-de-malavella) Una ruta a peu per conèixer els punts claus i atractius d...
+  Verificació: OK — evidència alineada amb el criteri
+
+========================================================================
+Resum: 10/10 casos amb evidència OK

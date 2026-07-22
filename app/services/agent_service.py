@@ -26,6 +26,7 @@ from app.prompts.femturisme import build_system_prompt
 from app.services.chat_context import AgentContext, PageContext
 from app.services.domain_hints import (
     build_establishment_turn_instruction,
+    build_forced_search_establishments_input,
     infer_establishment_domain_context,
 )
 from .llm_service import build_provider, LLMResponse, ToolCall
@@ -86,6 +87,18 @@ class AgentService:
         llm = build_provider(self.provider, current_app.config)
 
         for iteration in range(self.max_iterations):
+            if iteration == 0 and agent_context.mode == 'femturisme':
+                if forced_est := build_forced_search_establishments_input(
+                    prior_history,
+                    current_user_message,
+                ):
+                    yield from self._handle_forced_tool_calls(
+                        calls=[('search_establishments', forced_est)],
+                        history=history,
+                        current_user_message=current_user_message,
+                    )
+                    continue
+
             try:
                 response: LLMResponse = llm.chat(
                     messages=self._with_system(

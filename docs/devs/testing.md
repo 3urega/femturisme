@@ -291,20 +291,20 @@ El catàleg UAT (`uat_catalog_battery.py`) inclou `UAT-EXP-03` (routing + `min_t
 
 ---
 
-## UAT allotjament Patum + Berga (issue #49)
+## UAT allotjament Patum + Berga (issues #49, #51)
 
-Bateria end-to-end **multi-turn** que reprodueix la conversa golden Patum → allotjament a prop de Berga (issues #45–#48).
+Bateria end-to-end **multi-turn** que reprodueix la conversa golden Patum → allotjament a prop de Berga (issues #45–#52).
 
 **Requisits:**
 
-- Servidor Flask en marxa (`python main.py`)
+- Servidor Flask en marxa — **un sol procés** (`powershell -File scripts/restart-server.ps1`; evitar múltiples listeners al mateix port)
 - `MYSQL_*` o `AGENT_MYSQL_*` configurat (MySQL staging amb dades reals)
 - LLM real (no `LLM_PROVIDER=dummy` del mode testing)
 
 **Skip sense MySQL:** si no hi ha credencials MySQL, el script imprimeix `SKIP` i surt amb **exit code 0**.
 
 ```powershell
-python main.py
+powershell -File scripts/restart-server.ps1
 python scripts/uat_patum_bergua_accommodation.py http://127.0.0.1:5010
 ```
 
@@ -319,7 +319,9 @@ Escenari `UAT-EST-BERG` (mateix `session_id`, 4 torns):
 
 Umbral: **100% PASS** (4 checks). Resultats: `scripts/uat_patum_bergua_accommodation_results.txt`.
 
-**Nota:** un FAIL pot indicar routing LLM encara que el backend SQL passi (`pytest tests/integration/sql/test_establishments.py -k bergua`).
+**Routing B03/B04:** a més del prompt (#50) i la instrucció per torn (#52), l'agent aplica **`build_forced_search_establishments_input`** server-side (iteració 0) quan el domini allotjament és actiu i hi ha `distance_km` — patró paral·lel a `build_forced_search_events_input` per agenda.
+
+**Nota:** un FAIL pot indicar routing LLM si el servidor no té el codi actual (reiniciar amb `restart-server.ps1`) encara que el backend SQL passi (`pytest tests/integration/sql/test_establishments.py -k bergua`).
 
 ---
 

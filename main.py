@@ -19,4 +19,11 @@ if __name__ == '__main__':
     print(f' * Agent femturisme — http://127.0.0.1:{port}')
     print(f' * started_at: {started_at}')
     print(' * Smoke: GET /health must include agent_features.period_hints')
-    app.run(debug=debug, port=port, threaded=True, use_reloader=use_reloader)
+    # 0.0.0.0: required for Docker/Railway (proxy reaches the container from outside).
+    app.run(
+        host='0.0.0.0',
+        debug=debug,
+        port=port,
+        threaded=True,
+        use_reloader=use_reloader,
+    )

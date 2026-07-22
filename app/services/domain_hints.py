@@ -281,3 +281,23 @@ def build_establishment_turn_instruction(ctx: EstablishmentDomainContext) -> str
         "**No** cridis `search_experiences`, `search_articles` ni `search_events`.\n"
     )
     return ' '.join(parts)
+
+
+def build_forced_search_establishments_input(
+    history: list[dict],
+    user_message: str,
+) -> dict | None:
+    """
+    Build a search_establishments payload when the server must override LLM routing.
+
+    Returns None unless establishment domain is active, destination is known and
+    distance_km can be resolved (from the current message or prior tool call).
+    """
+    ctx = infer_establishment_domain_context(history, user_message)
+    if not ctx.active or not ctx.destination or ctx.distance_km is None:
+        return None
+    return {
+        'destination': ctx.destination,
+        'distance_km': ctx.distance_km,
+        '_establishment_domain_forced': True,
+    }
